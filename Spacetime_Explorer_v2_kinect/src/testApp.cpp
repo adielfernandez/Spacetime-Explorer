@@ -14,7 +14,7 @@ void testApp::setup(){
     kinect.open();
     
     grayScale.allocate(kinect.width, kinect.height);
-    nearThreshold = 240;
+    nearThreshold = 250;
     farThreshold = 223;
     
     disturbRad = 200;
@@ -49,7 +49,7 @@ void testApp::setup(){
     
     
     //UI Stuff
-    instructions.loadFont("avenirNext.ttc", 20, true, true);
+    instructions.loadFont("avenir.ttc", 25, true, true);
     instructions.setLetterSpacing(0.95);
     instructionA = "Help the body acrete mass by";
     instructionB = "pushing the gas cloud to the center";
@@ -94,7 +94,7 @@ void testApp::update(){
         // update the cv images
 		grayScale.flagImageChanged();
         
-        contourFinder.findContours(grayScale, 10, (kinect.width * kinect.height)/3, 20, false);
+        contourFinder.findContours(grayScale, 100, (kinect.width * kinect.height)/3, 15, true);
         
     }
     
@@ -110,100 +110,139 @@ void testApp::update(){
     } else if(narrativeState == 1){
     
     
-    mousePos = ofVec3f(mouseX, mouseY);
-    mouseDirection = mousePos - oldMousePos;
+        mousePos = ofVec3f(mouseX, mouseY);
+        mouseDirection = mousePos - oldMousePos;
 
-
-    
-    //reset particle counter
-    numDead = 0;
-    
-    //Update particles
-    for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+        //clear out the blob direction vector and allocate the same number of slots as there are blobs
+        blobDirection.clear();
+        blobDirection.resize(contourFinder.blobs.size());
         
-        //only update non-dead particles
-        if(it -> dead == false){
-            
-            //check if inside attractor
-            ofVec3f distAttractor = attractorPos - it -> pos;
-            if(distAttractor.lengthSquared() < attractorSize * attractorSize){
-            
-                //if so, add to attractor and make dead
-                accretionCounter += 1;
-                it -> dead = true;
-                it -> vel.set(0, 0);
+        //update the blob direction vector
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+
+            //if we have an old blob to match all the current ones subtract
+            //their old position so we get their current direction
+            if(i < oldBlobPos.size()){
+                blobDirection[i] = contourFinder.blobs[i].centroid - oldBlobPos[i];
+
+            } else {
                 
+                //if we dont have enough old positions to match the current
+                //number of blobs, then just make the direction zero
+                blobDirection[i].set(0);
             }
             
-            it -> update(mouseDirection);
+        }
 
+        
+        //reset particle counters
+        numDead = 0;
+        numDisturbed = 0;
+        
+        //Update particles
+        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
             
-            //if particle is within mouse radius, count it as disturbed
-            ofVec2f distMouse = it -> pos - mousePos;
-            
-            if(distMouse.lengthSquared() < mouseRad * mouseRad){
-                it -> disturbed = true;
-
-                //repulsion from mouse
-                it -> repel(mousePos, mouseRad, 1.1);
-            
-            }
-            
-            
-            //if there are blobs and particle is within radius of blobs, count it as disturbed
-            if(contourFinder.blobs.size() > 0){
+            //only update non-dead particles
+            if(it -> dead == false){
                 
-//                for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
-//                    
-//                    //map the position of the blob to the screen size
-//                    float mapBlobX = ofMap(thisBlob -> centroid.x, 0, kinect.width, 0, ofGetWindowWidth());
-//                    float mapBlobY = ofMap(thisBlob -> centroid.y, 0, kinect.height, 0, ofGetWindowHeight());
-//                    
-//                    //subtract position of centroid from position of particle
-//                    ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
-//
-//                    //count as disturbed if within radius (circular boundary)
-//                    if(distBlob.lengthSquared() < disturbRad * disturbRad){
-//                        it -> disturbed = true;
-//                    }
-//
-//                    
-//                    
-//                }
+                //check if inside attractor
+                ofVec3f distAttractor = attractorPos - it -> pos;
+                if(distAttractor.lengthSquared() < attractorSize * attractorSize){
                 
-                
-                for(int i = 0; i < contourFinder.blobs.size(); i++){
-                    
-                    if(pointInPolygon(i, it -> pos.x, it -> pos.y)){
-                        it -> disturbed = true;
-                    }
+                    //if so, add to attractor and make dead
+                    accretionCounter += 1;
+                    it -> dead = true;
+                    it -> vel.set(0, 0);
                     
                 }
                 
-            }
-            
-            //attraction to Attractor due to its own gravitation for particles within
-            //the attraction radius
-            it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
-            
-            //add another gravitational force once particles are disturbed
-            if(it -> disturbed){
-                it -> globalAttract(attractorPos, attractStrength);
-            }
-            
-            
-            
-            
-        } else {
-            //count number if dead particles
-            numDead++;
-            
-        }
-    }
-    
-    
-    
-    attractorSize = attractorBase + accretionCounter/120;
+                it -> update(mouseDirection);
+
+                
+                //if particle is within mouse radius, count it as disturbed
+                ofVec2f distMouse = it -> pos - mousePos;
+                
+                if(distMouse.lengthSquared() < mouseRad * mouseRad){
+                    it -> disturbed = true;
+
+                    //repulsion from mouse
+                    it -> mouseRepel(mousePos, mouseRad, 1.1);
+                
+                }
+                
+                
+                //if there are blobs and particle is within radius of blobs, count it as disturbed
+                if(contourFinder.blobs.size() > 0){
+                    
+                    for(int i = 0; i < contourFinder.blobs.size(); i++){
+                    //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                        
+                        //map the position of the blob to the screen size
+                        float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, kinect.width, 0, ofGetWindowWidth());
+                        float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, kinect.height, 0, ofGetWindowHeight());
+                        
+    //                    //subtract position of centroid from position of particle
+    //                    ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
+    //
+    //                    //count as disturbed if within radius (circular boundary)
+    //                    if(distBlob.lengthSquared() < disturbRad * disturbRad){
+    //                        it -> disturbed = true;
+    //                    }
+                        
+
+                        //map the size of the bounding box to the screen size
+                        float mapBlobBoxW = ofMap(contourFinder.blobs[i].boundingRect.width, 0, kinect.width, 0, ofGetWindowWidth());
+                        float mapBlobBoxH = ofMap(contourFinder.blobs[i].boundingRect.height, 0, kinect.height, 0, ofGetWindowHeight());
+                        
+                        
+                        //count as disturbed and give tangential velocity if within square bounding box
+                        if(it -> pos.x > (mapBlobX - mapBlobBoxW/2) && it -> pos.x < (mapBlobX + mapBlobBoxW/2)){
+                            if(it -> pos.y > (mapBlobY - mapBlobBoxH/2) && it -> pos.y < (mapBlobY + mapBlobBoxH/2)){
+                                it -> disturbed = true;
+                                
+                                //give the direction of the current blob
+                                it -> blobDir = blobDirection[i];
+                                
+                                //then repel away from current blob
+                                it -> blobRepel(contourFinder.blobs[i].centroid, 3.0);
+                                
+                                
+                            }
+                        }
+                        
+                    }
+                    
+                    
+                }
+                
+                //attraction to Attractor due to its own gravitation for particles within
+                //the attraction radius
+                it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
+                
+                //add another gravitational force once particles are disturbed
+                if(it -> disturbed){
+                    it -> globalAttract(attractorPos, attractStrength);
+                    numDisturbed++;
+                }
+                
+                
+                
+                
+            } else {
+                //count number if dead particles
+                numDead++;
+                
+            } //if(particles are alive) statement 
+
+        } //particle for loop
+        
+        
+        
+        attractorSize = attractorBase + accretionCounter/120;
+        
+        
+        
+        
     } else if(narrativeState == 2){
         
         
@@ -222,31 +261,7 @@ void testApp::update(){
     
 }
 
-//-----JUST A TEST-----
-bool testApp::pointInPolygon(int pno,int x, int y){
-    
-    int j = contourFinder.blobs[pno].pts.size()-1;
-    
-    bool oddNodes= false;
-    
-    for (int i = 0; i<contourFinder.blobs[pno].pts.size(); i++) {
-        
-        if ((contourFinder.blobs[pno].pts[i].y < y && contourFinder.blobs[pno].pts[j].y >= y) || (contourFinder.blobs[pno].pts[j].y < y && contourFinder.blobs[pno].pts[i].y>=y)){
-            
-            if (contourFinder.blobs[pno].pts[i].x + (y-contourFinder.blobs[pno].pts[i].y)/(contourFinder.blobs[pno].pts[j].y - contourFinder.blobs[pno].pts[i].y) * (contourFinder.blobs[pno].pts[j].x - contourFinder.blobs[pno].pts[i].x) < x) {
-                
-                oddNodes=!oddNodes;
-            }
-            
-        }
-        
-        j=i;
-        
-    }
-    
-    return oddNodes;
-    
-}
+
 
 
 //--------------------------------------------------------------
@@ -309,9 +324,27 @@ void testApp::draw(){
     }
     
     
-    
+    //----------after everything else is done----------
+    //lets take note of the old mouse position
     oldMousePos.set(mouseX, mouseY);
-
+    
+    
+    //Also, keep track of old blob positions and directions
+    
+    //start by clearing out the vectors
+    oldBlobPos.clear();
+    
+    //if there are blobs then lets allocate the same number of slots as there are blobs
+    if(contourFinder.blobs.size() > 0){
+        oldBlobPos.resize(contourFinder.blobs.size());
+    }
+    
+    //then lets fill it with the positions of all the blobs
+    for(int i = 0; i < oldBlobPos.size(); i++){
+        oldBlobPos[i].set(contourFinder.blobs[i].centroid);
+    }
+    
+    
 }
 
 
@@ -387,12 +420,15 @@ void testApp::debugVis(){
     ofSetColor(255, 0, 0);
     ofDrawBitmapString("Framerate: " + ofToString(ofGetFrameRate()), 20, 30);
     ofDrawBitmapString("Number of Particles: " + ofToString(pList.size()), 20, 45);
-    ofDrawBitmapString("Dead Particles: " + ofToString(numDead), 20, 60);
-    ofDrawBitmapString("Attractor Size: " + ofToString(attractorSize), 20, 75);
+    ofDrawBitmapString("Disturbed not dead: " + ofToString(numDisturbed), 20, 60);
+    ofDrawBitmapString("Dead Particles: " + ofToString(numDead), 20, 75);
+    ofDrawBitmapString("Attractor Size: " + ofToString(attractorSize), 20, 90);
 
-    ofDrawBitmapString("Number of blobs detected: " + ofToString(contourFinder.blobs.size()), 20, 90);
+    ofDrawBitmapString("Number of blobs detected: " + ofToString(contourFinder.blobs.size()), 20, 120);
     
-    
+    if(blobDirection.size() > 0){
+        ofDrawBitmapString("Blobs[0] magnitude: " + ofToString(blobDirection[0].length()), 20, 135);
+    }
     
     ofPopStyle();
     

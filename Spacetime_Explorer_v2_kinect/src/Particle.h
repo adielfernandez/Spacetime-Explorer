@@ -26,13 +26,15 @@ public:
     void update(ofVec3f _mouse);
     void draw();
 
-    void repel(ofVec3f _pos, float _radius, float _strength);
+    void mouseRepel(ofVec3f _pos, float _radius, float _strength);
+    void blobRepel(ofVec3f _pos, float _strength);
     void attract(ofVec3f _pos, float _radius, float _strength);
     void globalAttract(ofVec3f _pos, float _strength);
     
     
     ofVec3f pos, vel, acc;
     ofVec3f mouseDirection;
+    ofVec3f blobDir;
     
     ofColor col;
 
@@ -41,6 +43,7 @@ public:
     
     float damping;
     float size;
+
     
     
     

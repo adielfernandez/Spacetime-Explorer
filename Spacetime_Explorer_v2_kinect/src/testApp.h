@@ -25,12 +25,12 @@ class testApp : public ofBaseApp{
     ofxKinect kinect;
 	ofxCvGrayscaleImage grayScale;
 	ofxCvContourFinder contourFinder;
+    vector<ofVec2f> oldBlobPos;
+    vector<ofVec2f> blobDirection;
     int nearThreshold;
 	int farThreshold;
     int disturbRad;
-    
-    bool pointInPolygon(int pno,int x, int y);
-    
+        
     //Narrative control
     int narrativeState;
     
@@ -52,6 +52,7 @@ class testApp : public ofBaseApp{
     int numParticles;
     vector<Particle> pList;
     int numDead;
+    int numDisturbed;
     
     
     

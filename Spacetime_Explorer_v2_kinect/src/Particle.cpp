@@ -27,7 +27,7 @@ Particle::Particle(){
 
 
 
-void Particle::repel(ofVec3f _pos, float _radius, float _strength){
+void Particle::mouseRepel(ofVec3f _pos, float _radius, float _strength){
     
     
     ofVec2f diff = pos - _pos;
@@ -69,6 +69,32 @@ void Particle::repel(ofVec3f _pos, float _radius, float _strength){
     
 }
 
+void Particle::blobRepel(ofVec3f _pos, float _strength){
+    
+    
+    
+    ofVec2f diff = pos - _pos;
+    
+    float pct = ofClamp(1 - diff.length()/1000, 0.3, 1);
+    diff.normalize();
+    
+    
+    acc.x += blobDir.x/6 * pct * _strength;
+    acc.y += blobDir.y/6 * pct * _strength;
+    
+        
+        
+    
+    
+
+    
+    
+    
+    
+    
+}
+
+
 void Particle::attract(ofVec3f _pos, float _radius, float _strength){
  
 
@@ -107,8 +133,24 @@ void Particle::globalAttract(ofVec3f _pos, float _strength){
 //------------------------------UPDATE------------------------------
 void Particle::update(ofVec3f _mouse){
     
-    pos += vel;
     vel += acc;
+
+    //clamp velocities so they dont go too fast and get lost
+    float maxSpeed = 100;
+    
+    vel.x = ofClamp(vel.x, -maxSpeed, maxSpeed);
+    vel.y = ofClamp(vel.y, -maxSpeed, maxSpeed);
+
+    pos += vel;
+    
+    if(pos.x < - 1000 || pos.x > ofGetWindowWidth() + 1000){
+        vel.x = 0;
+    }
+    
+    if(pos.y < - 1500 || pos.x > ofGetWindowHeight() + 1500){
+        vel.y = 0;
+    }
+    
     
     vel *= damping;
     
