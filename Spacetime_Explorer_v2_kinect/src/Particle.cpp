@@ -13,8 +13,8 @@ Particle::Particle(){
     
     damping = 0.99;
     
-//    col = (255, 255, 255);
-    col = (255, 230, 165);
+    col = (255, 255, 255);
+//    col = (255, 230, 165);
 //    col.a = ofRandom(20, 150);
     disturbed = false;
     dead = false;

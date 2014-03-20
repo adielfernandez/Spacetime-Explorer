@@ -14,8 +14,8 @@ void testApp::setup(){
     kinect.open();
     
     grayScale.allocate(kinect.width, kinect.height);
-    nearThreshold = 250;
-    farThreshold = 223;
+    nearThreshold = 224;
+    farThreshold = 179;
     
     disturbRad = 200;
     
@@ -198,6 +198,8 @@ void testApp::update(){
                         //count as disturbed and give tangential velocity if within square bounding box
                         if(it -> pos.x > (mapBlobX - mapBlobBoxW/2) && it -> pos.x < (mapBlobX + mapBlobBoxW/2)){
                             if(it -> pos.y > (mapBlobY - mapBlobBoxH/2) && it -> pos.y < (mapBlobY + mapBlobBoxH/2)){
+                                
+
                                 it -> disturbed = true;
                                 
                                 //give the direction of the current blob
@@ -206,6 +208,7 @@ void testApp::update(){
                                 //then repel away from current blob
                                 it -> blobRepel(contourFinder.blobs[i].centroid, 3.0);
                                 
+                            
                                 
                             }
                         }
@@ -238,7 +241,7 @@ void testApp::update(){
         
         
         
-        attractorSize = attractorBase + accretionCounter/120;
+        attractorSize = attractorBase + accretionCounter/100;
         
         
         
