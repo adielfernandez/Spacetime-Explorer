@@ -25,6 +25,7 @@ public:
     
     void update(ofVec3f _mouse);
     void draw();
+    void setup(ofImage *image);
 
     void mouseRepel(ofVec3f _pos, float _radius, float _strength);
     void blobRepel(ofVec3f _pos, float _strength);
@@ -45,7 +46,7 @@ public:
     float damping;
     float size;
 
-    
+    ofImage *sharedImage;
     
     
 };

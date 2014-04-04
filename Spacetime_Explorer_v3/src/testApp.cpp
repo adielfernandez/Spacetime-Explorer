@@ -38,7 +38,12 @@ void testApp::setup(){
     
     //view controls
     transitionTo2 = false;
+    transitionTo2Timer = 0;
+
+    transitionTo3 = false;
+    transitionTo3Timer = 0;
     
+    zooming = false;
     
     //Attractor stuff
     attractorBase = 30;
@@ -46,7 +51,6 @@ void testApp::setup(){
     attractorPos.set(ofGetWindowWidth()/2, ofGetWindowHeight()/2);
     attractionRad = 30;
     attractStrength = 0.6;
-    attractorMax = 175;
     
     mouseRad = 150;
     
@@ -55,7 +59,7 @@ void testApp::setup(){
     fieldRes = 6;
     newParticleField(fieldRes);
 
-    
+    pImg.loadImage("sprite8sm3.png");
     
     
     //UI Stuff
@@ -88,8 +92,13 @@ void testApp::setup(){
     pWhoosh.setVolume(0.1f);
     pWhoosh.setSpeed(1.0f);
     pWhoosh.setMultiPlay(true);
+
+    narrate1.loadSound("pops.mp3");
+    narrate1.setVolume(0.1f);
+    narrate1.setSpeed(1.0f);
+    narrate1.setMultiPlay(false);
     
-    debugVisuals = false;
+    debugVisuals = true;
     
 }
 
@@ -191,8 +200,7 @@ void testApp::update(){
                 ofVec3f distAttractor = attractorPos - it -> pos;
                 if(distAttractor.lengthSquared() < attractorSize * attractorSize){
                 
-                    //if so, add to attractor and make dead
-                    accretionCounter += 1;
+                    //if so, make dead
                     it -> dead = true;
                     it -> vel.set(0, 0);
                     
@@ -276,78 +284,101 @@ void testApp::update(){
                 
                 
             } else {
-                //count number if dead particles
+                //count number of dead particles
                 numDead++;
+                
+                if(pList.size() - numDead < 100){
+                    transitionTo2 = true;
+
+                    
+                }
+                
                 
             } //if(particles are alive) statement 
 
         } //particle for-loop
         
         
-        //if we've gathered all the particles, trigger transition 
-        
-        
-        
-        
         if(transitionTo2 == false){
             
             
-            //add particles to attractor if we're not zooming
-            attractorSize = attractorBase + accretionCounter/50;
+            //change attractor size depending on how many particles have been swallowed
+            attractorSize = ofLerp(attractorBase, 300, (float)numDead/(float)pList.size());
             
-  
+            //update the timer so its current when the transition actually starts
+            transitionTo2Timer = ofGetElapsedTimeMillis();
             
         }
 
         
         
-        
-        
+        //if we've gathered all the particles, trigger transition
+
         //--------------------zoom animation--------------------
+        
         if(transitionTo2){
            
             //play narration clip:
             //"Great job! You've cleared out the neighborhood of all the gas and dust.
             //Lets zoom out to see if we can find more to collect"
             
-            //play sound code
-            
-
-            
-            
+            //if we're not already playing it
+            if(narrate1.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+                narrate1.play();
+            }
             
             //if we're animating...
-            
-            if(zoom.getIsPlaying() == false){
-                zoom.play();
+            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 3500){
+                zooming = true;
+                
+                if(zoom.getIsPlaying() == false){
+                    zoom.play();
+                }
+                
+                float fadeSpeed = 0.03;
+                
+                //change size of attractor
+                attractorSize = ofLerp(attractorSize, 20, fadeSpeed);
+                
+                //fade away the status
+                if(statusCol.a > 0){
+                    statusCol.a -= 5;
+                }
+                
+                //shrink zoom square and fade out color
+                zoomSquareWidth = ofLerp(zoomSquareWidth, 50, fadeSpeed);
+                zoomSquareThick = ofLerp(zoomSquareThick, 1, fadeSpeed);
+                
+                
+                if(zoomSquareWidth < 55){
+                    zoomSquareCol.a = ofLerp(zoomSquareCol.a, 0, fadeSpeed);
+                }
+                
+                //make all particles disturbed
+                for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+                    it -> disturbed = true;
+                }
+                
+                //if we're ready to move on to the next stage (i.e. narration is done),
+                //change narrativeState to 2
+
             }
             
-            float fadeSpeed = 0.03;
             
-            //change size of attractor
-            attractorSize = ofLerp(attractorSize, 20, fadeSpeed);
-            
-            //fade away the status
-            if(statusCol.a > 0){
-                statusCol.a -= 5;
+            //if we're ready reset key variables and increment narrativeState
+            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 9000){
+                
+                //clear out the particles
+                
+                
+                pList.clear();
+                
+                newParticleField(6);
+                
+                narrativeState = 2;
             }
-            
-            //shrink zoom square and fade out color
-            zoomSquareWidth = ofLerp(zoomSquareWidth, 50, fadeSpeed);
-            zoomSquareThick = ofLerp(zoomSquareThick, 1, fadeSpeed);
 
             
-            if(zoomSquareWidth < 55){
-                zoomSquareCol.a = ofLerp(zoomSquareCol.a, 0, fadeSpeed);
-            }
-            
-            //make all particles disturbed
-            for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-                it -> disturbed = true;
-            }
-                        
-            //if we're ready to move on to the next stage (i.e. narration is done),
-            //change narrativeState to 2
             
             
             
@@ -377,15 +408,14 @@ void testApp::update(){
                 
                 
                 //upon first entering stage, fade particles in
-                it -> trans = ofLerp(it -> trans, 255, 0.02);
+                it -> trans = ofLerp(it -> trans, 255, 0.1);
                 
                 
                 //check if inside attractor
                 ofVec3f distAttractor = attractorPos - it -> pos;
                 if(distAttractor.lengthSquared() < attractorSize * attractorSize){
                     
-                    //if so, add to attractor and make dead
-                    accretionCounter += 1;
+                    //if so, make dead
                     it -> dead = true;
                     it -> vel.set(0, 0);
                     
@@ -398,6 +428,11 @@ void testApp::update(){
                 ofVec2f distMouse = it -> pos - mousePos;
                 
                 if(distMouse.lengthSquared() < mouseRad * mouseRad){
+
+                    if(it -> disturbed == false){
+                        pWhoosh.play();
+                    }
+                    
                     it -> disturbed = true;
                     
                     //repulsion from mouse
@@ -433,62 +468,101 @@ void testApp::update(){
 
         
         
-        
-        
-        if(transitionTo2 == false){
+        if(transitionTo3 == false){
             
             
-            //add particles to attractor if we're not zooming
-            attractorSize = attractorBase + accretionCounter/50;
+            //change attractor size depending on how many particles have been swallowed
+            attractorSize = ofLerp(attractorBase, 300, (float)numDead/(float)pList.size());
             
-            
+            //update the timer so its current when the transition actually starts
+            transitionTo3Timer = ofGetElapsedTimeMillis();
             
         }
         
         
         
-        
+        //if we've gathered all the particles, trigger transition
         
         //--------------------zoom animation--------------------
-        if(transitionTo2){
+        
+        if(transitionTo3){
+            
+            //play narration clip:
+            //"Great job! You've cleared out the neighborhood of all the gas and dust.
+            //Lets zoom out to see if we can find more to collect"
+            
+            //if we're not already playing it
+            if(narrate1.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+                narrate1.play();
+            }
             
             //if we're animating...
-            
-            float fadeSpeed = 0.03;
-            
-            //change size of attractor
-            attractorSize = ofLerp(attractorSize, 20, fadeSpeed);
-            
-            //fade away the status
-            if(statusCol.a > 0){
-                statusCol.a -= 5;
+            if(ofGetElapsedTimeMillis() - transitionTo3Timer > 3500){
+                zooming = true;
+                
+                if(zoom.getIsPlaying() == false){
+                    zoom.play();
+                }
+                
+                float fadeSpeed = 0.03;
+                
+                //change size of attractor
+                attractorSize = ofLerp(attractorSize, 20, fadeSpeed);
+                
+                //fade away the status
+                if(statusCol.a > 0){
+                    statusCol.a -= 5;
+                }
+                
+                //shrink zoom square and fade out color
+                zoomSquareWidth = ofLerp(zoomSquareWidth, 50, fadeSpeed);
+                zoomSquareThick = ofLerp(zoomSquareThick, 1, fadeSpeed);
+                
+                
+                if(zoomSquareWidth < 55){
+                    zoomSquareCol.a = ofLerp(zoomSquareCol.a, 0, fadeSpeed);
+                }
+                
+                //make all particles disturbed
+                for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+                    it -> disturbed = true;
+                }
+                
+                //if we're ready to move on to the next stage (i.e. narration is done),
+                //change narrativeState to 2
+                
             }
             
-            //shrink zoom square and fade out color
-            zoomSquareWidth = ofLerp(zoomSquareWidth, 50, fadeSpeed);
-            zoomSquareThick = ofLerp(zoomSquareThick, 1, fadeSpeed);
             
-            
-            if(zoomSquareWidth < 55){
-                zoomSquareCol.a = ofLerp(zoomSquareCol.a, 0, fadeSpeed);
+            //if we're ready reset key variables and increment narrativeState
+            if(ofGetElapsedTimeMillis() - transitionTo3Timer > 9000){
+                
+                //clear out the particles
+                
+                
+                pList.clear();
+                
+                newParticleField(6);
+                
+                narrativeState = 3;
             }
             
-            //make all particles disturbed
-            for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-                it -> disturbed = true;
-            }
+            
+            
+            
+            
+            
             
             
         }
         
         
+
         
         
         
         
-        
-        
-        
+    } else if(narrativeState == 3){
         
     }
     
@@ -517,14 +591,16 @@ void testApp::draw(){
         
         //Draw Attractor
 //        ofSetColor(255, 230, 165, 255*0.09);
-        ofColor out = ofColor(255, 255, 255, 100);
-        ofColor in = ofColor(255, 0, 0, 100);
+        ofColor out = ofColor(255, 240, 200, 80);
+        ofColor in = ofColor(255, 212, 100, 80);
         int numBlobs = 100;
         
         for(int i = 0; i < numBlobs; i++){
         
-            ofSetColor(255, 255 - 255 * i/numBlobs, 225 - 225 * i/numBlobs, 255 * 0.08);
-//            ofSetColor(in.lerp(out, i/numBlobs));
+//            ofSetColor(255, 255 - 255 * i/numBlobs, 225 - 225 * i/numBlobs, 255 * 0.08);
+            ofColor thisCol = out.lerp(in, 0.01);
+            
+            ofSetColor(thisCol);
             
             float blobWobble = ofMap(i, 0, numBlobs, 0.6, 0.1);
             perlinBlob(attractorSize - attractorSize * i/numBlobs, blobWobble, 0 + i*2000, 36*i);
@@ -532,16 +608,6 @@ void testApp::draw(){
         
         }
         
-        for(int i = 0; i < 5; i++){
-            
-            ofSetColor(0, 255 * 0.03);
-            perlinBlob(attractorSize - attractorSize * 0.8, 0.6, 0 + i*2000, 36*i);
-            
-            
-        }
-        
-        ofSetColor(255, 0, 0);
-        ofCircle(ofGetWindowSize()/2, attractorSize*0.1);
 
         
     
@@ -556,30 +622,26 @@ void testApp::draw(){
         }
         
         //Draw Attractor
-        //        ofSetColor(255, 230, 165, 255*0.09);
+        
         ofColor out = ofColor(255, 255, 255, 100);
         ofColor in = ofColor(255, 0, 0, 100);
         int numBlobs = 100;
         
         for(int i = 0; i < numBlobs; i++){
-            
             ofSetColor(255, 255 - 255 * i/numBlobs, 225 - 225 * i/numBlobs, 255 * 0.08);
-            //            ofSetColor(in.lerp(out, i/numBlobs));
+//            ofSetColor(in.lerp(out, i/numBlobs));
             
             float blobWobble = ofMap(i, 0, numBlobs, 0.6, 0.1);
             perlinBlob(attractorSize - attractorSize * i/numBlobs, blobWobble, 0 + i*2000, 36*i);
-            
-            
         }
         
+        //adds a little shading outside the central circle
         for(int i = 0; i < 5; i++){
-            
             ofSetColor(0, 255 * 0.03);
             perlinBlob(attractorSize - attractorSize * 0.8, 0.6, 0 + i*2000, 36*i);
-            
-            
         }
         
+        //draw central red circle
         ofSetColor(255, 0, 0);
         ofCircle(ofGetWindowSize()/2, attractorSize*0.1);
         
@@ -700,7 +762,7 @@ void testApp::drawUI(){
         
         
         //ZOOM STUFF
-        if(transitionTo2){
+        if(zooming){
             
             ofPushStyle();
             ofSetRectMode(OF_RECTMODE_CENTER);
@@ -846,6 +908,8 @@ void testApp::newParticleField(int res){
                 if(noiseVal > 0.5){
                     Particle p;
                     p.pos.set(x + ofRandom(-randomScatter, randomScatter), y + ofRandom(-randomScatter, randomScatter));
+                    
+                    p.setup(&pImg);
                     
                     //add to x pos to center them in window
 //                    p.pos.x += ofGetWindowWidth()/2 - ofGetWindowHeight()/2;

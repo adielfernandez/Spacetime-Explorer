@@ -23,7 +23,12 @@ Particle::Particle(){
     
 }
 
-
+void Particle::setup(ofImage *thisImage){
+    
+    sharedImage = thisImage;
+    
+    
+}
 
 void Particle::mouseRepel(ofVec3f _pos, float _radius, float _strength){
     
@@ -168,6 +173,8 @@ void Particle::draw(){
         ofSetColor(col, trans);
         ofRect(pos, size, size);
         //ofCircle(pos, 20);
+    
+//        sharedImage -> draw(pos);
     
     ofPopStyle();
     

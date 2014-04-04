@@ -38,6 +38,12 @@ class testApp : public ofBaseApp{
     //Narrative control
     int narrativeState;
     bool transitionTo2;
+    int transitionTo2Timer;
+
+    bool transitionTo3;
+    int transitionTo3Timer;
+    
+    bool zooming;
     float zoomSquareWidth;
     float zoomSquareThick;
     ofColor zoomSquareCol;
@@ -48,7 +54,6 @@ class testApp : public ofBaseApp{
     int attractorSize;
     int attractorBase;
     int attractionRad;
-    int accretionCounter;
     float attractStrength;
     int attractorMax;
     //perlin blob
@@ -61,8 +66,7 @@ class testApp : public ofBaseApp{
     vector<Particle> pList;
     int numDead;
     int numDisturbed;
-    
-    
+    ofImage pImg;
     
     
     //Particle Field 
@@ -100,6 +104,7 @@ class testApp : public ofBaseApp{
     //Sound Effects
     ofSoundPlayer zoom;
     ofSoundPlayer pWhoosh;
+    ofSoundPlayer narrate1;
     
     
 };
