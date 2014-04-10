@@ -21,6 +21,14 @@ class testApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
+    //Serial connection
+    int pistonPos;  //0 = level, 255 = bottom
+    int flash;      //0 = off, 1 = light show
+    int pistonSpeed;
+    void sendSerial(long one, long two, long three);
+    ofSerial serial;
+    
+    
     //CV stuff
     ofxMacamPs3Eye ps3eye;
     
@@ -32,6 +40,9 @@ class testApp : public ofBaseApp{
     int threshold;
     int disturbRad;
     int camWidth, camHeight;
+    float leftBound, rightBound;
+    float topBound, bottomBound;
+    float disturbMax, disturbMin;
     
     //shader stuff
     ofVbo vbo;

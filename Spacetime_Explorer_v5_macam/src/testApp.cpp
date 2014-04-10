@@ -7,6 +7,15 @@ void testApp::setup(){
     ofSetFrameRate(60);
     ofEnableAlphaBlending();
 
+    //serial connection
+    ofSetLogLevel(OF_LOG_VERBOSE);
+    
+    int baud = 9600;
+    serial.setup("/dev/tty.usbmodem1411", baud); 
+    
+    pistonPos = 0;
+    pistonSpeed = 120;
+    
     // load the texure
 	ofDisableArbTex();
 	ofLoadImage(texture, "dot.png");
@@ -20,7 +29,7 @@ void testApp::setup(){
         shader.load("shaders/shader");
     #endif
     
-    colorscheme.loadImage("gas.jpg");
+    colorscheme.loadImage("gasDesat.jpg");
 
     
     //camera stuff
@@ -49,11 +58,15 @@ void testApp::setup(){
     grayScale.allocate(camWidth, camHeight);
     colorImage.allocate(camWidth, camHeight);
     threshold = 150;
-    
+    leftBound = 217;
+    rightBound = 1721;
+    topBound = -22;
+    bottomBound = 1115;
 
     
     disturbRad = 50;
-    
+    disturbMin = 50;
+    disturbMax = 100;
     
     //Narrative control
     narrativeState = 1;
@@ -79,7 +92,7 @@ void testApp::setup(){
     attractorPos.set(ofGetWindowWidth()/2, ofGetWindowHeight()/2);
     attractionRad = 30;
     attractStrength = 0.6;
-    
+    attractorMax = 300;
     mouseRad = 150;
     
     
@@ -116,7 +129,7 @@ void testApp::setup(){
     zoom.setSpeed(0.5f);
     zoom.setMultiPlay(false);
     
-    pWhoosh.loadSound("whoosh.mp3");
+    pWhoosh.loadSound("whooshShort.mp3");
     pWhoosh.setVolume(0.1f);
     pWhoosh.setSpeed(1.0f);
     pWhoosh.setMultiPlay(true);
@@ -249,7 +262,10 @@ void testApp::update(){
                 
                 if(distMouse.lengthSquared() < mouseRad * mouseRad){
                     if(it -> disturbed == false){
-                        pWhoosh.play();
+                        if(pWhoosh.getIsPlaying() == false){
+                            pWhoosh.play();
+                        }
+
                     }
                     
                     it -> disturbed = true;
@@ -266,9 +282,12 @@ void testApp::update(){
                     for(int i = 0; i < contourFinder.blobs.size(); i++){
                     //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
                         
-                        //map the position of the blob to the screen size
-                        float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, 0, ofGetWindowWidth());
-                        float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, 0, ofGetWindowHeight());
+                        //new mapping with space considerations
+                        float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                        float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                        
+                        disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+
                         
                         //subtract position of centroid from position of particle
                         ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
@@ -323,7 +342,7 @@ void testApp::update(){
                 if(pList.size() - numDead < 100){
                     transitionTo2 = true;
 
-                    
+
                 }
                 
                 
@@ -336,10 +355,14 @@ void testApp::update(){
             
             
             //change attractor size depending on how many particles have been swallowed
-            attractorSize = ofLerp(attractorBase, 300, (float)numDead/(float)pList.size());
+            attractorSize = ofLerp(attractorBase, attractorMax, (float)numDead/(float)pList.size());
             
             //update the timer so its current when the transition actually starts
             transitionTo2Timer = ofGetElapsedTimeMillis();
+            
+            pistonSpeed = 120;
+
+            
             
         }
 
@@ -351,6 +374,9 @@ void testApp::update(){
         
         if(transitionTo2){
            
+            //set piston speed to move up quickly
+            pistonSpeed = 255;
+            
             //play narration clip:
             //"Great job! You've cleared out the neighborhood of all the gas and dust.
             //Lets zoom out to see if we can find more to collect"
@@ -426,6 +452,13 @@ void testApp::update(){
         vbo.setVertexData(&points[0], total, GL_STATIC_DRAW);
         vbo.setNormalData(&sizes[0], total, GL_STATIC_DRAW);
         vbo.setColorData(&colors[0], total, GL_STATIC_DRAW);
+
+        //send arduino states
+        pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
+
+        sendSerial(pistonPos, pistonSpeed, 0);
+        
+        
         
         
     } else if(narrativeState == 2){
@@ -620,8 +653,19 @@ void testApp::draw(){
         
     } else if(narrativeState == 1){
     
-
+        int numLines = 15;
+        float lineSpacing = ofGetWindowHeight()/numLines;
         
+        ofSetLineWidth(3);
+        ofSetColor(255, 255 * 0.2);
+        for(int i = 0; i < numLines; i++){
+            //horizontal lines
+            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, i * lineSpacing, ofGetWindowWidth()/2 + ofGetWindowHeight()/2, i * lineSpacing);
+            //vertical lines
+            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, 0, ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, ofGetWindowHeight());
+        }
+        
+         
         //draw particles
 //        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
 //            if(it -> dead == false){
@@ -876,6 +920,8 @@ void testApp::debugVis(){
         ofDrawBitmapString("Blobs[0] magnitude: " + ofToString(blobDirection[0].length()), 20, 135);
     }
     
+    ofDrawBitmapString("pistonPos: " + ofToString(pistonPos), 20, 150);
+
     
     ofPopStyle();
     
@@ -883,44 +929,26 @@ void testApp::debugVis(){
     contourFinder.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
     
     if(drawCam){
-        ps3eye.draw(10, 500, camWidth/2, camHeight/2);
+        ps3eye.draw(0, 500, 260, 195);
     }
     
     for(int i = 0; i < contourFinder.blobs.size(); i++){
         ofPushStyle();
         ofSetColor(255, 0, 0);
-        float thisX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, 0, ofGetWindowWidth());
-        float thisY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, 0, ofGetWindowHeight());
-        ofCircle(thisX, thisY, 10);
+        float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+        float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
         
+        disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+        
+        ofCircle(mapBlobX, mapBlobY, 10);
         ofNoFill();
-        ofCircle(thisX, thisY, disturbRad);
+        ofCircle(mapBlobX, mapBlobY, disturbRad);
         
         
         ofPopStyle();
     }
     
-    for(int i = 0; i < contourFinder.blobs.size(); i++){
-        //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
-        
-        //map the position of the blob to the screen size
-        float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, 0, ofGetWindowWidth());
-        float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, 0, ofGetWindowHeight());
-        
-        //                    //subtract position of centroid from position of particle
-        //                    ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
-        //
-        //                    //count as disturbed if within radius (circular boundary)
-        //                    if(distBlob.lengthSquared() < disturbRad * disturbRad){
-        //                        it -> disturbed = true;
-        //                    }
-        
-        ofPushStyle();
-        ofSetColor(0, 255, 0);
-        ofCircle(mapBlobX, mapBlobY, 10);
-        ofPopStyle();
-        
-    }
+
     
 }
 
@@ -1059,6 +1087,28 @@ void testApp::keyPressed(int key){
     
     
 }
+//--------------------------------------------------------------
+
+//package data into a string and send via serial
+//borrowed from Kyle McDonald https://github.com/openframeworks/openFrameworks/issues/279
+void testApp::sendSerial(long one, long two, long three){
+    
+    //package ints as a string separated by commas and with a newline ending
+    string outgoing = ofToString(one) + "," + ofToString(two) + "," + ofToString(three) + "\n";
+    
+    //serial can't handle strings so we turn the string into a char array
+    unsigned char* outgoingCharArray = new unsigned char[outgoing.size()];
+    memcpy(outgoingCharArray, outgoing.c_str(), outgoing.size());
+    
+    //send the char array out via serial
+    serial.writeBytes(outgoingCharArray, outgoing.size());
+    
+    //delete the char array for memory management
+    delete [] outgoingCharArray;
+    
+    
+}
+
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
