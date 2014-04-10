@@ -69,7 +69,7 @@ void testApp::setup(){
     disturbMax = 100;
     
     //Narrative control
-    narrativeState = 1;
+    narrativeState = 0;
         //0 = intro video
         //1 = molecular cloud
         //2 = cloud fragment
@@ -85,6 +85,19 @@ void testApp::setup(){
     transitionTo3Timer = 0;
     
     zooming = false;
+    
+    
+    
+    
+    
+    lineTrans = 0;
+    boxTrans = 0;
+    inButton = false;
+    
+    
+    
+    
+    
     
     //Attractor stuff
     attractorBase = 30;
@@ -108,6 +121,7 @@ void testApp::setup(){
     instructions.setLetterSpacing(0.95);
     instructionA = "Help the body acrete mass by";
     instructionB = "pushing the gas cloud to the center";
+
     instructCol = ofColor(0, 150, 255);
 
     
@@ -140,6 +154,8 @@ void testApp::setup(){
     narrate1.setMultiPlay(false);
     
     debugVisuals = true;
+    
+    sendSerial(0, 255, 0);
     
 }
 
@@ -216,6 +232,51 @@ void testApp::update(){
     
     if(narrativeState == 0){
         //introduction
+        
+        if(lineTrans < 255){
+            lineTrans += 1;
+        }
+        
+//        numBallsinBox = 0;
+//        
+//        if(contourFinder.blobs.size() > 0){
+//            for(int i = 0; i < contourFinder.blobs.size(); i++){
+//                
+//                if(contourFinder.blobs[i].centroid.x > ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100 && contourFinder.blobs[i].centroid.x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2 && contourFinder.blobs[i].centroid.y < 100){
+//                    numBallsinBox++;
+//                
+//                }
+//            }
+//            
+//        }
+//        
+//        if(numBallsinBox > 0){
+//            inButton = true;
+//        } else {
+//            inButton = false;
+//        }
+//        
+//        ofSetColor(255, 0, 0);
+//        ofDrawBitmapString(ofToString(numBallsinBox), 100, 100);
+//        
+//        
+//        if(inButton){
+//            if(boxTrans < 200){
+//                boxTrans += 1;
+//            }
+//            
+//        } else {
+//            boxTrans = 0;
+//        }
+//        
+//        numBallsinBox = 0;
+//        
+//        if(ofGetElapsedTimeMillis() > 10000){
+//            sendSerial(255, 255, 0);
+//        }
+        
+        
+        
         
         
         
@@ -464,167 +525,16 @@ void testApp::update(){
     } else if(narrativeState == 2){
         
         
-        //reset particle counters
-        numDead = 0;
-        numDisturbed = 0;
-        
-        
-        //Update particles
-        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-            
-            //only update non-dead particles
-            if(it -> dead == false){
-                
-                
-                //upon first entering stage, fade particles in
-                it -> trans = ofLerp(it -> trans, 255, 0.1);
-                
-                
-                //check if inside attractor
-                ofVec3f distAttractor = attractorPos - it -> pos;
-                if(distAttractor.lengthSquared() < attractorSize * attractorSize){
                     
-                    //if so, make dead
-                    it -> dead = true;
-                    it -> vel.set(0, 0);
-                    
-                }
-                
-                it -> update(mouseDirection);
-                
-                
-                //if particle is within mouse radius, count it as disturbed
-                ofVec2f distMouse = it -> pos - mousePos;
-                
-                if(distMouse.lengthSquared() < mouseRad * mouseRad){
-
-                    if(it -> disturbed == false){
-                        pWhoosh.play();
-                    }
-                    
-                    it -> disturbed = true;
-                    
-                    //repulsion from mouse
-                    it -> mouseRepel(mousePos, mouseRad, 1.1);
-                    
-                }
-                
-                
-
-                
-                //attraction to Attractor due to its own gravitation for particles within
-                //the attraction radius
-                it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
-                
-                //add another gravitational force once particles are disturbed
-                if(it -> disturbed){
-                    it -> globalAttract(attractorPos, attractStrength);
-                    numDisturbed++;
-                }
-                
-                
-                
-                
-            } else {
-                //count number if dead particles
-                numDead++;
-                
-            } //if(particles are alive) statement
             
-        } //particle for-loop
+            
+            
+            
+            
+            
+            
         
-        
-
-        
-        
-        if(transitionTo3 == false){
-            
-            
-            //change attractor size depending on how many particles have been swallowed
-            attractorSize = ofLerp(attractorBase, 300, (float)numDead/(float)pList.size());
-            
-            //update the timer so its current when the transition actually starts
-            transitionTo3Timer = ofGetElapsedTimeMillis();
-            
-        }
-        
-        
-        
-        //if we've gathered all the particles, trigger transition
-        
-        //--------------------zoom animation--------------------
-        
-        if(transitionTo3){
-            
-            //play narration clip:
-            //"Great job! You've cleared out the neighborhood of all the gas and dust.
-            //Lets zoom out to see if we can find more to collect"
-            
-            //if we're not already playing it
-            if(narrate1.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
-                narrate1.play();
-            }
-            
-            //if we're animating...
-            if(ofGetElapsedTimeMillis() - transitionTo3Timer > 3500){
-                zooming = true;
-                
-                if(zoom.getIsPlaying() == false){
-                    zoom.play();
-                }
-                
-                float fadeSpeed = 0.03;
-                
-                //change size of attractor
-                attractorSize = ofLerp(attractorSize, 20, fadeSpeed);
-                
-                //fade away the status
-                if(statusCol.a > 0){
-                    statusCol.a -= 5;
-                }
-                
-                //shrink zoom square and fade out color
-                zoomSquareWidth = ofLerp(zoomSquareWidth, 50, fadeSpeed);
-                zoomSquareThick = ofLerp(zoomSquareThick, 1, fadeSpeed);
-                
-                
-                if(zoomSquareWidth < 55){
-                    zoomSquareCol.a = ofLerp(zoomSquareCol.a, 0, fadeSpeed);
-                }
-                
-                //make all particles disturbed
-                for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-                    it -> disturbed = true;
-                }
-                
-                //if we're ready to move on to the next stage (i.e. narration is done),
-                //change narrativeState to 2
-                
-            }
-            
-            
-            //if we're ready reset key variables and increment narrativeState
-            if(ofGetElapsedTimeMillis() - transitionTo3Timer > 9000){
-                
-                //clear out the particles
-                
-                
-                pList.clear();
-                
-                newParticleField(6);
-                
-                narrativeState = 3;
-            }
-            
-            
-            
-            
-            
-            
-            
-            
-        }
-        
+    
         
 
         
@@ -647,8 +557,81 @@ void testApp::update(){
 //--------------------------------------------------------------------------------------------------
 void testApp::draw(){
     
+    
+    
+    
 
     if(narrativeState == 0){
+        
+        
+        
+        
+        int numLines = 15;
+        float lineSpacing = ofGetWindowHeight()/numLines;
+        
+        ofSetLineWidth(3);
+        ofSetColor(255, lineTrans);
+        for(int i = 0; i < numLines; i++){
+            //horizontal lines
+            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, i * lineSpacing, ofGetWindowWidth()/2 + ofGetWindowHeight()/2, i * lineSpacing);
+            //vertical lines
+            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, 0, ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, ofGetWindowHeight());
+        }
+
+        
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+            
+            ofPushStyle();
+            ofSetColor(0, 150, 255);
+            
+            ofCircle(mapBlobX, mapBlobY, 10);
+            
+            ofNoFill();
+            ofCircle(mapBlobX, mapBlobY, disturbRad);
+            
+            ofNoFill();
+            ofSetLineWidth(5);
+            ofEllipse(mapBlobX, mapBlobY, 50, 50);
+            
+            
+            ofPopStyle();
+
+        }
+
+        
+        
+        
+        //corner control box
+//        ofPushMatrix();
+//        ofTranslate(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 170, 130);
+//        ofScale(0.2, 0.2);
+//        
+//        ofSetColor(instructCol);
+//        string corner = "Next Stage";
+//        instructions.drawString(corner, 0, 0);
+//        
+//        ofPopMatrix();
+//
+//        
+//        ofPushStyle();
+//
+//        ofNoFill();
+//        ofSetColor(255);
+//        ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 0, 100, 100);
+//        
+//        ofFill();
+//        ofSetColor(0);
+//        ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 0, 100, 100);
+//        ofSetColor(255, boxTrans);
+//        ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 0, 100, 100);
+//        
+//        
+//        ofPopStyle();
+        
         
         
     } else if(narrativeState == 1){
@@ -725,7 +708,28 @@ void testApp::draw(){
         
         }
         
+        //draw UI
+        drawUI();
 
+        
+        //draw blob positions
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+            
+            ofPushStyle();
+            
+            ofSetColor(255, 0, 0);
+            ofCircle(mapBlobX, mapBlobY, 10);
+            ofNoFill();
+            ofCircle(mapBlobX, mapBlobY, disturbRad);
+            
+            ofPopStyle();
+        }
+        
         
     
     } else if(narrativeState == 2){
@@ -769,8 +773,7 @@ void testApp::draw(){
 
     
         
-    //draw UI
-    drawUI();
+
     
     
     //Show all the debugging visuals 
@@ -926,27 +929,13 @@ void testApp::debugVis(){
     ofPopStyle();
     
     //draw camera stuff
-    contourFinder.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+    //contourFinder.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
     
     if(drawCam){
         ps3eye.draw(0, 500, 260, 195);
     }
     
-    for(int i = 0; i < contourFinder.blobs.size(); i++){
-        ofPushStyle();
-        ofSetColor(255, 0, 0);
-        float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
-        float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
-        
-        disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
-        
-        ofCircle(mapBlobX, mapBlobY, 10);
-        ofNoFill();
-        ofCircle(mapBlobX, mapBlobY, disturbRad);
-        
-        
-        ofPopStyle();
-    }
+
     
 
     
@@ -1084,7 +1073,24 @@ void testApp::keyPressed(int key){
     if(key == 'c' || key == 'C'){
         drawCam = !drawCam;
     }
+
     
+    //go to N = 1
+    if(key == 'n' || key == 'N'){
+        narrativeState = 1;
+        sendSerial(0, 255, 0);
+    }
+    
+    
+    //piston to top
+    if(key == '9'){
+        sendSerial(0, 255, 0);
+    
+    }
+    //piston to bottom
+    if(key == '0'){
+        sendSerial(255, 255, 0);
+    }
     
 }
 //--------------------------------------------------------------

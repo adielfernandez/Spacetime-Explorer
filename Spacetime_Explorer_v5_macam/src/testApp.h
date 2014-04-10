@@ -66,6 +66,18 @@ class testApp : public ofBaseApp{
     ofColor zoomSquareCol;
     
     
+    
+    
+    
+    float lineTrans;
+    float boxTrans;
+    bool inButton;
+    int numBallsinBox;
+    
+    
+    
+    
+    
     //Attractor Stuff
     ofVec2f attractorPos;
     int attractorSize;
