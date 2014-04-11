@@ -60,8 +60,8 @@ void testApp::setup(){
     threshold = 150;
     leftBound = 217;
     rightBound = 1721;
-    topBound = -22;
-    bottomBound = 1115;
+    topBound = -47;
+    bottomBound = 1097;
 
     
     disturbRad = 50;
@@ -69,7 +69,7 @@ void testApp::setup(){
     disturbMax = 100;
     
     //Narrative control
-    narrativeState = 0;
+    narrativeState = -1;
         //0 = intro video
         //1 = molecular cloud
         //2 = cloud fragment
@@ -136,22 +136,93 @@ void testApp::setup(){
     zoomSquareThick = 10;
     zoomSquareCol = ofColor(255, 0, 0);
     
- 
+
     //Sound Effects
+    float top = 1.0f;
+    float bottom = -1.0f;
+    
     zoom.loadSound("zoom.mp3");
     zoom.setVolume(1.0f);
     zoom.setSpeed(0.5f);
     zoom.setMultiPlay(false);
+    zoom.setPan(bottom);
     
     pWhoosh.loadSound("whooshShort.mp3");
     pWhoosh.setVolume(0.1f);
     pWhoosh.setSpeed(1.0f);
     pWhoosh.setMultiPlay(true);
-
+    zoom.setPan(bottom);
+    
     narrate1.loadSound("pops.mp3");
     narrate1.setVolume(0.1f);
     narrate1.setSpeed(1.0f);
     narrate1.setMultiPlay(false);
+    zoom.setPan(bottom);
+    
+    
+    
+    //Narration
+        //Idle
+    idle.loadSound("narration/idle/idle.mp3");
+    idle.setVolume(1.0f);
+    idle.setSpeed(1.0f);
+    idle.setPan(1.0f);
+    zoom.setPan(top);
+    
+        //Intro
+//    narrate1.loadSound("01-peoplethink.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("02-WeLiveIn4.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("03-WhileTime.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("04-thisisspacetime.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("05-thingsthatmove.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("06-rollsomeballs.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("07-nowrolltheballs.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("08-easytosee.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("09-thiscurvingof.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("10-wedontnotice.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("11-iftheresenough.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+//    
+//    narrate1.loadSound("12-letssee.mp3");
+//    narrate1.setVolume(1.0f);
+//    narrate1.setSpeed(1.0f);
+
+    //Narrative States
+    //----------Idle----------
+    background.loadImage("idleBackground.jpg");
+    
+    
     
     debugVisuals = true;
     
@@ -229,51 +300,127 @@ void testApp::update(){
     
     
     //------------------------------Interaction stuff------------------------------
+    ofSoundUpdate();
     
-    if(narrativeState == 0){
+    
+    if(narrativeState == -1){
+        
+        sendSerial(100,255,0);
+    
+        numBallsinBox = 0;
+        
+        //Look for blobs and display them
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+            
+            ofPushStyle();
+            ofSetColor(0, 255, 0);
+            ofSetCircleResolution(60);
+            ofCircle(mapBlobX, mapBlobY, 10);
+            
+            ofNoFill();
+            ofSetLineWidth(5);
+            ofEllipse(mapBlobX, mapBlobY, 50, 50);
+            
+            ofPopStyle();
+            
+            
+            //check if any balls are in the circle
+            if(ofDistSquared(contourFinder.blobs[i].centroid.x, contourFinder.blobs[i].centroid.y, ofGetWindowWidth()/2, ofGetWindowHeight()/2) < 200 * 200){
+                numBallsinBox++;
+            }
+            
+            
+        }
+
+//        if(numBallsinBox > 0){
+        if(ofDist(mouseX, mouseY, ofGetWindowWidth()/2, ofGetWindowHeight()/2) < 200){
+            inButton = true;
+        } else {
+            inButton = false;
+        }
+        
+        if(inButton){
+            timeInBox += 1;
+        } else {
+            timeInBox = 0;
+        }
+        
+        //timer circle
+        introTimer.clear();
+        introTimer.arc(ofPoint(ofGetWindowWidth()/2, ofGetWindowHeight()/2), 200, 200, 0, timeInBox, true);
+        
+        introTimer.setStrokeWidth(5);
+        
+        if(inButton){
+            introTimer.setStrokeColor(ofColor(255));
+            introTimer.setFilled(true);
+            introTimer.setFillColor(ofColor(255, 150));
+            
+        } else {
+
+            introTimer.setFilled(false);
+            introTimer.setStrokeColor(ofColor(255, 0));
+        }
+        
+        introTimer.setStrokeWidth(3);
+        introTimer.setCircleResolution(100);
+        
+        
+        
+        
+        //uncomment to make arc filled
+
+        
+    
+    
+    } else if(narrativeState == 0){
         //introduction
         
         if(lineTrans < 255){
             lineTrans += 1;
         }
         
-//        numBallsinBox = 0;
-//        
-//        if(contourFinder.blobs.size() > 0){
-//            for(int i = 0; i < contourFinder.blobs.size(); i++){
-//                
-//                if(contourFinder.blobs[i].centroid.x > ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100 && contourFinder.blobs[i].centroid.x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2 && contourFinder.blobs[i].centroid.y < 100){
-//                    numBallsinBox++;
-//                
-//                }
-//            }
-//            
-//        }
-//        
-//        if(numBallsinBox > 0){
-//            inButton = true;
-//        } else {
-//            inButton = false;
-//        }
-//        
-//        ofSetColor(255, 0, 0);
-//        ofDrawBitmapString(ofToString(numBallsinBox), 100, 100);
-//        
-//        
-//        if(inButton){
-//            if(boxTrans < 200){
-//                boxTrans += 1;
-//            }
-//            
-//        } else {
-//            boxTrans = 0;
-//        }
-//        
-//        numBallsinBox = 0;
-//        
-//        if(ofGetElapsedTimeMillis() > 10000){
-//            sendSerial(255, 255, 0);
-//        }
+        numBallsinBox = 0;
+        
+        if(contourFinder.blobs.size() > 0){
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                
+                if(contourFinder.blobs[i].centroid.x > ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100 && contourFinder.blobs[i].centroid.x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2 && contourFinder.blobs[i].centroid.y < 100){
+                    numBallsinBox++;
+                
+                }
+            }
+            
+        }
+        
+        if(numBallsinBox > 0){
+            inButton = true;
+        } else {
+            inButton = false;
+        }
+        
+        ofSetColor(255, 0, 0);
+        ofDrawBitmapString(ofToString(numBallsinBox), 100, 100);
+        
+        
+        if(inButton){
+            if(boxTrans < 200){
+                boxTrans += 1;
+            }
+            
+        } else {
+            boxTrans = 0;
+        }
+        
+        numBallsinBox = 0;
+        
+        if(ofGetElapsedTimeMillis() > 10000){
+            sendSerial(255, 255, 0);
+        }
         
         
         
@@ -557,26 +704,68 @@ void testApp::update(){
 //--------------------------------------------------------------------------------------------------
 void testApp::draw(){
     
-    
-    
+    if(narrativeState == -1){
     
 
-    if(narrativeState == 0){
         
-        
-        
-        
-        int numLines = 15;
-        float lineSpacing = ofGetWindowHeight()/numLines;
-        
-        ofSetLineWidth(3);
-        ofSetColor(255, lineTrans);
-        for(int i = 0; i < numLines; i++){
-            //horizontal lines
-            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, i * lineSpacing, ofGetWindowWidth()/2 + ofGetWindowHeight()/2, i * lineSpacing);
-            //vertical lines
-            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, 0, ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, ofGetWindowHeight());
+        //Narrator
+        if(ofGetElapsedTimeMillis() - idleTimer > 20000 && idle.getIsPlaying() == false){
+            idlePlay = true;
         }
+        
+        if(idlePlay){
+            idle.play();
+            idlePlay = false;
+
+            idleTimer = ofGetElapsedTimeMillis();
+        }
+
+        
+        //background
+        
+        ofPushStyle();
+        ofPushMatrix();
+        ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2);
+
+        float rotateSpeed = ofGetElapsedTimef() * 10;
+        
+        ofRotate(rotateSpeed);
+        ofSetRectMode(OF_RECTMODE_CENTER);
+        ofSetColor(255, 255);
+        background.draw(0, 0);
+        
+        
+        ofPopStyle();
+        ofPopMatrix();
+        
+        ofSetRectMode(OF_RECTMODE_CORNER);
+        
+        
+
+        
+        
+        drawBlackBars();
+        drawGrid(15, 0.2);
+        
+        //draw timer stuff
+        ofPushStyle();
+        
+        ofNoFill();
+        ofSetColor(255, 255);
+        ofSetCircleResolution(60);
+        ofSetLineWidth(8);
+        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, 200);
+        introTimer.draw();
+        
+        
+        ofPopStyle();
+
+    } else if(narrativeState == 0){
+        
+        
+        
+        
+        drawGrid(15, 1);
 
         
         for(int i = 0; i < contourFinder.blobs.size(); i++){
@@ -816,7 +1005,7 @@ void testApp::draw(){
 }
 
 
-//--------------------------------------------------UI STUFF--------------------------------------------------
+//--------------------------------------------------UI STUFF------------------------------------------
 
 void testApp::drawUI(){
     
@@ -942,6 +1131,30 @@ void testApp::debugVis(){
 }
 
 //----------------------------------------OTHER FUNCTIONS----------------------------------------
+void testApp::drawBlackBars(){
+    ofPushStyle();
+    
+    //left bar
+    ofSetColor(0);
+    ofRect(0,0, (ofGetWindowWidth() - ofGetWindowHeight())/2, ofGetWindowHeight());
+    //right bar
+    ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2,0, (ofGetWindowWidth() - ofGetWindowHeight())/2, ofGetWindowHeight());
+    
+    ofPopStyle();
+}
+
+void testApp::drawGrid(int num, float trans){
+    float lineSpacing = ofGetWindowHeight()/num;
+    
+    ofSetLineWidth(3);
+    ofSetColor(255, 255 * trans);
+    for(int i = 0; i < num; i++){
+        //horizontal lines
+        ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, i * lineSpacing, ofGetWindowWidth()/2 + ofGetWindowHeight()/2, i * lineSpacing);
+        //vertical lines
+        ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, 0, ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, ofGetWindowHeight());
+    }
+}
 
 void testApp::perlinBlob(int base, float range, int randSeed, int rot){
 

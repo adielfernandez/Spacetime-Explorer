@@ -69,10 +69,7 @@ class testApp : public ofBaseApp{
     
     
     
-    float lineTrans;
-    float boxTrans;
-    bool inButton;
-    int numBallsinBox;
+
     
     
     
@@ -121,6 +118,9 @@ class testApp : public ofBaseApp{
     bool drawCam;
     void debugVis();
     void drawUI();
+    void drawBlackBars();
+    void drawGrid(int num, float trans);
+    
     ofTrueTypeFont instructions;
     ofColor instructCol;
     string instructionA;
@@ -139,5 +139,46 @@ class testApp : public ofBaseApp{
     ofSoundPlayer pWhoosh;
     ofSoundPlayer narrate1;
     
+    //Narrator clips
+    //Idle state
+    ofSoundPlayer idle;
+    
+    //Intro video
+    ofSoundPlayer Intro01_peoplethink;
+    ofSoundPlayer Intro02_welivein;
+    ofSoundPlayer Intro03_whiletime;
+    ofSoundPlayer Intro04_thisisspacetime;
+    ofSoundPlayer Intro05_thingsthatmove;
+    ofSoundPlayer Intro06_rollsomeballs;
+    ofSoundPlayer Intro07_nowrollballs;
+    ofSoundPlayer Intro08_easytosee;
+    ofSoundPlayer Intro09_thiscurvingof;
+    ofSoundPlayer Intro10_wedontnotice;
+    ofSoundPlayer Intr011_iftheresenough;
+    ofSoundPlayer Intro12_letssee;
+    
+    //Narrative States
+    //----------Idle----------
+    
+    int idleTimer = 0;
+    bool idlePlay = false;
+    ofImage background;
+    
+    float lineTrans;
+    float boxTrans;
+    bool inButton;
+    int numBallsinBox;
+    float timeInBox = 0;
+    ofPath introTimer;
     
 };
+
+
+
+
+
+
+
+
+
+
