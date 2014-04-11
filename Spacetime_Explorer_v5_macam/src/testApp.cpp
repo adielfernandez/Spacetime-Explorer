@@ -68,6 +68,9 @@ void testApp::setup(){
     disturbMin = 50;
     disturbMax = 100;
     
+    cvObjectCol = ofColor(0, 255, 0);
+    
+    
     //Narrative control
     narrativeState = -1;
         //0 = intro video
@@ -137,6 +140,8 @@ void testApp::setup(){
     zoomSquareCol = ofColor(255, 0, 0);
     
 
+    
+
     //Sound Effects
     float top = 1.0f;
     float bottom = -1.0f;
@@ -166,61 +171,94 @@ void testApp::setup(){
     idle.loadSound("narration/idle/idle.mp3");
     idle.setVolume(1.0f);
     idle.setSpeed(1.0f);
-    idle.setPan(1.0f);
-    zoom.setPan(top);
+    idle.setPan(top);
+    
     
         //Intro
-//    narrate1.loadSound("01-peoplethink.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("02-WeLiveIn4.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("03-WhileTime.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("04-thisisspacetime.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("05-thingsthatmove.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("06-rollsomeballs.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("07-nowrolltheballs.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("08-easytosee.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("09-thiscurvingof.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("10-wedontnotice.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("11-iftheresenough.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-//    
-//    narrate1.loadSound("12-letssee.mp3");
-//    narrate1.setVolume(1.0f);
-//    narrate1.setSpeed(1.0f);
-
+    Intro01_peoplethink.loadSound("narration/intro/01-peoplethink.mp3");
+    Intro01_peoplethink.setVolume(1.0f);
+    Intro01_peoplethink.setSpeed(1.0f);
+    Intro01_peoplethink.setPan(top);
+    
+    Intro02_welivein.loadSound("narration/intro/02-welivein4.mp3");
+    Intro02_welivein.setVolume(1.0f);
+    Intro02_welivein.setSpeed(1.0f);
+    Intro02_welivein.setPan(top);
+    
+    Intro03_whiletime.loadSound("narration/intro/03-whiletime.mp3");
+    Intro03_whiletime.setVolume(1.0f);
+    Intro03_whiletime.setSpeed(1.0f);
+    Intro03_whiletime.setPan(top);
+    
+    Intro04_thisisspacetime.loadSound("narration/intro/04-thisisspacetime.mp3");
+    Intro04_thisisspacetime.setVolume(1.0f);
+    Intro04_thisisspacetime.setSpeed(1.0f);
+    Intro04_thisisspacetime.setPan(top);
+    
+    Intro05_thingsthatmove.loadSound("narration/intro/05-thingsthatmove.mp3");
+    Intro05_thingsthatmove.setVolume(1.0f);
+    Intro05_thingsthatmove.setSpeed(1.0f);
+    Intro05_thingsthatmove.setPan(top);
+    
+    Intro06_rollsomeballs.loadSound("narration/intro/06-rollsomeballs.mp3");
+    Intro06_rollsomeballs.setVolume(1.0f);
+    Intro06_rollsomeballs.setSpeed(1.0f);
+    Intro06_rollsomeballs.setPan(top);
+    
+    Intro07_nowrollballs.loadSound("narration/intro/07-nowrolltheballs.mp3");
+    Intro07_nowrollballs.setVolume(1.0f);
+    Intro07_nowrollballs.setSpeed(1.0f);
+    Intro07_nowrollballs.setPan(top);
+    
+    Intro08_easytosee.loadSound("narration/intro/08-easytosee.mp3");
+    Intro08_easytosee.setVolume(1.0f);
+    Intro08_easytosee.setSpeed(1.0f);
+    Intro08_easytosee.setPan(top);
+    
+    Intro09_thiscurvingof.loadSound("narration/intro/09-thiscurvingof.mp3");
+    Intro09_thiscurvingof.setVolume(1.0f);
+    Intro09_thiscurvingof.setSpeed(1.0f);
+    Intro09_thiscurvingof.setPan(top);
+    
+    Intro10_wedontnotice.loadSound("narration/intro/10-wedontnotice.mp3");
+    Intro10_wedontnotice.setVolume(1.0f);
+    Intro10_wedontnotice.setSpeed(1.0f);
+    Intro10_wedontnotice.setPan(top);
+    
+    Intro11_iftheresenough.loadSound("narration/intro/11-iftheresenough.mp3");
+    Intro11_iftheresenough.setVolume(1.0f);
+    Intro11_iftheresenough.setSpeed(1.0f);
+    Intro11_iftheresenough.setPan(top);
+    
+    Intro12_letssee.loadSound("narration/intro/12-letssee.mp3");
+    Intro12_letssee.setVolume(1.0f);
+    Intro12_letssee.setSpeed(1.0f);
+    Intro12_letssee.setPan(top);
+    
+    
     //Narrative States
     //----------Idle----------
     background.loadImage("idleBackground.jpg");
+    handWithBall.loadImage("handwithball.png");
+    handWithBall.rotate90(2);
+    handWithBall.setAnchorPercent(1.0, 0.0);
+    
+    //----------Intro----------
+    milkyWay.loadImage("milkyway.jpg");
+    milkyWay.setAnchorPercent(0.5, 0.5);
+    milkyWayTrans = 0;
+    shuttle.loadImage("shuttle.png");
+    shuttle.setAnchorPercent(0.5, 0.5);
+    shuttle.rotate90(2);
+    shuttleDimensions.loadImage("shuttleDimensions.png");
+    shuttleDimensions.setAnchorPercent(0.5, 0.5);
+    shuttleDimensions.rotate90(2);
+    shuttleTrans = 0;
+    shuttleDimTrans = 0;
+    timeArrow.loadImage("timearrow.png");
+    timeArrow.setAnchorPercent(0, 0.5);
+    timeArrow.rotate90(2);
+    arrowStartX = 1080;
     
     
     
@@ -230,7 +268,20 @@ void testApp::setup(){
     
 }
 
-//--------------------------------------------------------------
+//----------------------------------------------------------------------------------
+//                ___  ___  ________  ________  ________  _________  _______
+//                |\  \|\  \|\   __  \|\   ___ \|\   __  \|\___   ___\\  ___ \
+//                \ \  \\\  \ \  \|\  \ \  \_|\ \ \  \|\  \|___ \  \_\ \   __/|
+//                 \ \  \\\  \ \   ____\ \  \ \\ \ \   __  \   \ \  \ \ \  \_|/__
+//                  \ \  \\\  \ \  \___|\ \  \_\\ \ \  \ \  \   \ \  \ \ \  \_|\ \
+//                   \ \_______\ \__\    \ \_______\ \__\ \__\   \ \__\ \ \_______\
+//                    \|_______|\|__|     \|_______|\|__|\|__|    \|__|  \|_______|
+//
+//----------------------------------------------------------------------------------
+
+
+
+
 
 void testApp::update(){
 
@@ -306,6 +357,21 @@ void testApp::update(){
     if(narrativeState == -1){
         
         sendSerial(100,255,0);
+        
+        
+        //Narrator
+        if(ofGetElapsedTimeMillis() - idleTimer > 20000 && idle.getIsPlaying() == false){
+            idlePlay = true;
+        }
+        
+        if(idlePlay){
+            idle.play();
+            idlePlay = false;
+            
+            idleTimer = ofGetElapsedTimeMillis();
+
+        }
+        
     
         numBallsinBox = 0;
         
@@ -317,7 +383,7 @@ void testApp::update(){
             disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
             
             ofPushStyle();
-            ofSetColor(0, 255, 0);
+            ofSetColor(cvObjectCol);
             ofSetCircleResolution(60);
             ofCircle(mapBlobX, mapBlobY, 10);
             
@@ -337,43 +403,60 @@ void testApp::update(){
         }
 
 //        if(numBallsinBox > 0){
-        if(ofDist(mouseX, mouseY, ofGetWindowWidth()/2, ofGetWindowHeight()/2) < 200){
+        if(ofDist(mouseX, mouseY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100){
             inButton = true;
         } else {
             inButton = false;
         }
         
-        if(inButton){
-            timeInBox += 1;
-        } else {
+        if(!inButton){
             timeInBox = 0;
-        }
+        } else if(inButton && transitionToIntro == false){
+            timeInBox += 4;
+        } 
+        
+        
+        
+        
+        idleTimerCol = ofColor(255, 150).lerp(ofColor(cvObjectCol,150), ofMap(timeInBox, 0, 360, 0, 1));
         
         //timer circle
-        introTimer.clear();
-        introTimer.arc(ofPoint(ofGetWindowWidth()/2, ofGetWindowHeight()/2), 200, 200, 0, timeInBox, true);
+        idleTimerPath.clear();
+        idleTimerPath.arc(ofPoint(0,0), 100, 100, 0, timeInBox, true);
         
-        introTimer.setStrokeWidth(5);
+        idleTimerPath.setStrokeWidth(5);
         
         if(inButton){
-            introTimer.setStrokeColor(ofColor(255));
-            introTimer.setFilled(true);
-            introTimer.setFillColor(ofColor(255, 150));
+            idleTimerPath.setStrokeColor(ofColor(255, 0));
+            idleTimerPath.setFilled(true);
+                        
+            idleTimerPath.setFillColor(idleTimerCol);
             
         } else {
 
-            introTimer.setFilled(false);
-            introTimer.setStrokeColor(ofColor(255, 0));
+            idleTimerPath.setFilled(false);
+            idleTimerPath.setStrokeColor(ofColor(255, 0));
         }
         
-        introTimer.setStrokeWidth(3);
-        introTimer.setCircleResolution(100);
+        idleTimerPath.setStrokeWidth(3);
+        idleTimerPath.setCircleResolution(50);
         
         
+        if(timeInBox > 359){
+            transitionToIntro = true;
+        }
         
-        
-        //uncomment to make arc filled
-
+        if(transitionToIntro){
+            timeInBox = 360;
+            
+            blackOutTrans += 2;
+            
+            if(blackOutTrans > 255){
+                narrativeState = 0;
+                
+            }
+            
+        }
         
     
     
@@ -696,49 +779,46 @@ void testApp::update(){
 
 
 
+//-------------------------------------------------------------------------------------//
+//                    ________   ________   ________  ___       ___                    //
+//                    |\   ___ \ |\   __  \|\   __  \|\  \     |\  \                   //
+//                     \ \  \_|\ \ \  \|\  \ \  \|\  \ \  \    \ \  \                  //
+//                      \ \  \ \\ \ \   _  _\ \   __  \ \  \  __\ \  \                 //
+//                       \ \  \_\\ \ \  \\  \\ \  \ \  \ \  \|\__\_\  \                //
+//                        \ \_______\ \__\\ _\\ \__\ \__\ \____________\               //
+//                         \|_______|\|__|\|__|\|__|\|__|\|____________|               //
+//                                                                                     //
+//-------------------------------------------------------------------------------------//
 
-//--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-//-----------------------------------------DRAW-----------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
+
+
+
 void testApp::draw(){
     
     if(narrativeState == -1){
     
 
         
-        //Narrator
-        if(ofGetElapsedTimeMillis() - idleTimer > 20000 && idle.getIsPlaying() == false){
-            idlePlay = true;
-        }
-        
-        if(idlePlay){
-            idle.play();
-            idlePlay = false;
 
-            idleTimer = ofGetElapsedTimeMillis();
-        }
 
         
-        //background
-        
+        //Draw background
         ofPushStyle();
         ofPushMatrix();
         ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2);
 
-        float rotateSpeed = ofGetElapsedTimef() * 10;
+        float rotateSpeed = ofGetElapsedTimef() * 3;
         
         ofRotate(rotateSpeed);
         ofSetRectMode(OF_RECTMODE_CENTER);
         ofSetColor(255, 255);
         background.draw(0, 0);
         
+        ofSetRectMode(OF_RECTMODE_CORNER);
         
         ofPopStyle();
         ofPopMatrix();
         
-        ofSetRectMode(OF_RECTMODE_CORNER);
         
         
 
@@ -751,21 +831,180 @@ void testApp::draw(){
         ofPushStyle();
         
         ofNoFill();
-        ofSetColor(255, 255);
-        ofSetCircleResolution(60);
+        ofSetCircleResolution(30);
         ofSetLineWidth(8);
-        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, 200);
-        introTimer.draw();
         
+//        ofCircle(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150, 100);
+        
+        ofPushMatrix();
+        ofTranslate(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150);
+        ofRotate(90);
+        idleTimerPath.draw();
+        
+        if(inButton){
+            ofSetColor(idleTimerCol, 255);
+        } else {
+            ofSetColor(255, 255);
+        }
+        
+        ofCircle(0,0, 100);
+        ofRotate(6);
+        ofCircle(0,0, 100);
+        ofPopMatrix();
         
         ofPopStyle();
 
+        
+        
+
+        ofVec2f handStart = ofPoint(ofGetWindowWidth()/2, ofGetWindowHeight()/2);
+        ofVec2f handEnd = ofPoint(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150);
+        
+        idleHandPos = idleHandPos.interpolate(handEnd, 0.025);
+
+        if(idleHandPos.distance(handEnd) < 5){
+            idleHandPos = handStart;
+
+        }
+        
+        
+        //draw moving hand
+        ofSetColor(255);
+        ofPushMatrix();
+        ofTranslate(idleHandPos);
+
+        handWithBall.draw(0,0);
+        
+        ofPopMatrix();
+        
+        //draw text
+        string idleMessage = "Hold ball here to begin";
+
+        ofPushMatrix();
+        ofTranslate(ofGetWindowWidth()/2 + 250, 135);
+        ofScale(0.3, 0.3);
+        ofRotate(180);
+        
+        instructions.drawString(idleMessage, 0, 0);
+        
+        ofPopMatrix();
+        
+        if(transitionToIntro){
+            ofSetColor(0, blackOutTrans);
+            ofSetRectMode(OF_RECTMODE_CENTER);
+            ofRect(ofGetWindowSize()/2, ofGetWindowHeight(), ofGetWindowHeight());
+            ofSetRectMode(OF_RECTMODE_CORNER);
+        }
+        
+        
+        
     } else if(narrativeState == 0){
         
+        if(startedIntro == false){
+            introStartTime = ofGetElapsedTimeMillis();
+            startedIntro = true;
+        }
+            
+        int currentTime = ofGetElapsedTimeMillis() - introStartTime;
+
+        
+
+        ofSetColor(255, milkyWayTrans);
+        milkyWay.draw(ofGetWindowSize()/2);
+        
+        //fade in milky way
+        if(currentTime < 1500 && milkyWayTrans < 255){
+            milkyWayTrans += 2;
+        }
         
         
         
-        drawGrid(15, 1);
+        
+        //play first narration clip
+        if(currentTime > 1000 && currentTime < 1500 && !Intro01_peoplethink.getIsPlaying()){
+            playIntro01 = true;
+        }
+        
+        if(playIntro01){
+            Intro01_peoplethink.play();
+            playIntro01 = false;
+        }
+        
+        //play second narration clip
+        if(currentTime > 10000 && currentTime < 10500 && !Intro02_welivein.getIsPlaying()){
+            playIntro02 = true;
+        }
+        
+        if(playIntro02){
+            Intro02_welivein.play();
+            playIntro02 = false;
+        }
+        
+        
+        //fade the shuttle in
+        if(shuttleTrans < 255 && currentTime > 7000 && currentTime < 9000){
+            shuttleTrans += 4;
+        }
+        
+
+        //if we're in the middle, fade overlay in
+        if(shuttleDimTrans < 255 && currentTime > 11000 && currentTime < 13000){
+            shuttleDimTrans += 5;
+        }
+        
+        //if we're at the end of the middle, fade overlay out
+        if(shuttleDimTrans > 0 && currentTime > 17000 && currentTime < 19000){
+            shuttleDimTrans -= 4;
+        }
+
+
+        ofSetColor(255, shuttleTrans);
+        shuttle.draw(ofGetWindowSize()/2, shuttle.width * 0.5, shuttle.height * 0.5);
+        
+        ofSetColor(255, shuttleDimTrans);
+        shuttleDimensions.draw(ofGetWindowSize()/2, shuttleDimensions.width * 0.5, shuttleDimensions.height * 0.5);
+
+        
+        
+        //play third narration clip
+        if(currentTime > 17000 && currentTime < 17500 && !Intro03_whiletime.getIsPlaying()){
+            playIntro03 = true;
+        }
+        
+        if(playIntro03){
+            Intro03_whiletime.play();
+            playIntro03 = false;
+        }
+        
+        if(currentTime > 18000 && currentTime < 25000){
+            
+            if(arrowStartX > 300){
+                arrowStartX -= 3;
+            }
+            
+            ofPushMatrix();
+            ofTranslate(arrowStartX, 200);
+            ofSetColor(255, 255);
+            timeArrow.draw(0,0);
+            ofPopMatrix();
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        drawGrid(15, 0.0);
 
         
         for(int i = 0; i < contourFinder.blobs.size(); i++){
@@ -775,7 +1014,7 @@ void testApp::draw(){
             disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
             
             ofPushStyle();
-            ofSetColor(0, 150, 255);
+            ofSetColor(cvObjectCol);
             
             ofCircle(mapBlobX, mapBlobY, 10);
             
@@ -794,33 +1033,9 @@ void testApp::draw(){
         
         
         
-        //corner control box
-//        ofPushMatrix();
-//        ofTranslate(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 170, 130);
-//        ofScale(0.2, 0.2);
-//        
-//        ofSetColor(instructCol);
-//        string corner = "Next Stage";
-//        instructions.drawString(corner, 0, 0);
-//        
-//        ofPopMatrix();
-//
-//        
-//        ofPushStyle();
-//
-//        ofNoFill();
-//        ofSetColor(255);
-//        ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 0, 100, 100);
-//        
-//        ofFill();
-//        ofSetColor(0);
-//        ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 0, 100, 100);
-//        ofSetColor(255, boxTrans);
-//        ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 0, 100, 100);
-//        
-//        
-//        ofPopStyle();
-        
+        drawBlackBars();
+        ofSetColor(255);
+        ofDrawBitmapString(ofToString(currentTime), 1600, 30);
         
         
     } else if(narrativeState == 1){
@@ -1130,203 +1345,9 @@ void testApp::debugVis(){
     
 }
 
-//----------------------------------------OTHER FUNCTIONS----------------------------------------
-void testApp::drawBlackBars(){
-    ofPushStyle();
-    
-    //left bar
-    ofSetColor(0);
-    ofRect(0,0, (ofGetWindowWidth() - ofGetWindowHeight())/2, ofGetWindowHeight());
-    //right bar
-    ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2,0, (ofGetWindowWidth() - ofGetWindowHeight())/2, ofGetWindowHeight());
-    
-    ofPopStyle();
-}
-
-void testApp::drawGrid(int num, float trans){
-    float lineSpacing = ofGetWindowHeight()/num;
-    
-    ofSetLineWidth(3);
-    ofSetColor(255, 255 * trans);
-    for(int i = 0; i < num; i++){
-        //horizontal lines
-        ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, i * lineSpacing, ofGetWindowWidth()/2 + ofGetWindowHeight()/2, i * lineSpacing);
-        //vertical lines
-        ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, 0, ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, ofGetWindowHeight());
-    }
-}
-
-void testApp::perlinBlob(int base, float range, int randSeed, int rot){
-
-    float speed = 0.2;
-    float fringeWidth = base * range;
-
-    ofPushMatrix();{
-        ofTranslate( ofGetWindowSize() / 2);
-        ofRotate(rot);
-
-        ofBeginShape();
-        for (int i = 0; i < 100; i++){
-            
-            //Code borrowed from Charley Whitney (Algorithmic Animations Fall 2013)
-            float add = ofNoise(i/20.0f, ofGetElapsedTimef() * speed + randSeed);
-            
-            //this will draw a circle with a min radius of the incoming value
-            //plus the fringe value
-            ofVertex( (base - fringeWidth * add) * cos((i/100.0)*TWO_PI),
-                     (base - fringeWidth * add) * sin((i/100.0)*TWO_PI));
-            
-        }
-        
-        //ofVertex(firstX, firstY);
-        
-        ofEndShape();
-        
-    }ofPopMatrix();
-
-}
-
-
-void testApp::newParticleField(int res){
-    int particleResolution = res;
-    int randomScatter = 30;
-    
-    randomPerl = ofRandom(1000);
-    
-    float perlinScale = 0.005;
-    
-    sizes.clear();
-    
-    for(int y = 0; y < ofGetWindowHeight(); y += particleResolution){
-        for(int x = ofGetWindowWidth()/2 - ofGetWindowHeight()/2; x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2; x += particleResolution){
-            
-            //calculate point distance from attractor
-            float distSq = ofDistSquared(x, y, attractorPos.x, attractorPos.y);
-            
-            //create new points only if outside attractor
-            if(distSq > (attractorSize + attractionRad) * (attractorSize + attractionRad)){
-                float noiseVal = ofNoise(x * perlinScale + randomPerl, y * perlinScale + randomPerl);
-                
-                if(noiseVal > 0.5){
-                    Particle p;
-                    p.pos.set(x + ofRandom(-randomScatter, randomScatter), y + ofRandom(-randomScatter, randomScatter));
-
-                    p.col = colorscheme.getColor(x, y);
-                    p.col.a = trans;
-                    p.size = ofRandom(pSmall, pBig);
-                    pList.push_back(p);
-                    
-                    ofColor c;
-                    c = p.col;
-                    float r = ofNormalize(c.r, 0, 255);
-                    float g = ofNormalize(c.g, 0, 255);
-                    float b = ofNormalize(c.b, 0, 255);
-                    ofFloatColor cF = ofFloatColor(r, g, b, trans);
-                    colors.push_back(cF);
-                    
-                    //duplicate positions in point vector and size vector
-                    ofVec3f point;
-                    point.set(p.pos);
-                    points.push_back(point);
-                    
-                    
-                    float s = p.size;
-                    //float size = 40;
-                    sizes.push_back(ofVec3f(100));
-                    
-                }
-                
-
-
-                
-                
-                
-                
-            }
-        }
-    }
-}
 
 
 
-//--------------------------------------------------------------
-void testApp::keyPressed(int key){
-
-    //change mouse radius
-    if(key == '1'){
-        mouseRad = 60;
-    } else if(key == '2'){
-        mouseRad = 150;
-    } else if(key == '3'){
-        mouseRad = 300;
-    }
-    
-    
-    //toggle debug info
-    if(key == 'd' || key == 'D'){
-        debugVisuals = !debugVisuals;
-    }
-    
-    
-    //disturb all particles on keypress
-    if(key == ' '){
-        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-            it -> disturbed = true;
-        }
-    }
-    
-
-    //toggle zoom animation
-    if(key == 'z' || key == 'Z'){
-        transitionTo2 = !transitionTo2;
-    }
-    
-
-    //toggle camera draw
-    if(key == 'c' || key == 'C'){
-        drawCam = !drawCam;
-    }
-
-    
-    //go to N = 1
-    if(key == 'n' || key == 'N'){
-        narrativeState = 1;
-        sendSerial(0, 255, 0);
-    }
-    
-    
-    //piston to top
-    if(key == '9'){
-        sendSerial(0, 255, 0);
-    
-    }
-    //piston to bottom
-    if(key == '0'){
-        sendSerial(255, 255, 0);
-    }
-    
-}
-//--------------------------------------------------------------
-
-//package data into a string and send via serial
-//borrowed from Kyle McDonald https://github.com/openframeworks/openFrameworks/issues/279
-void testApp::sendSerial(long one, long two, long three){
-    
-    //package ints as a string separated by commas and with a newline ending
-    string outgoing = ofToString(one) + "," + ofToString(two) + "," + ofToString(three) + "\n";
-    
-    //serial can't handle strings so we turn the string into a char array
-    unsigned char* outgoingCharArray = new unsigned char[outgoing.size()];
-    memcpy(outgoingCharArray, outgoing.c_str(), outgoing.size());
-    
-    //send the char array out via serial
-    serial.writeBytes(outgoingCharArray, outgoing.size());
-    
-    //delete the char array for memory management
-    delete [] outgoingCharArray;
-    
-    
-}
 
 
 //--------------------------------------------------------------
@@ -1368,3 +1389,205 @@ void testApp::gotMessage(ofMessage msg){
 void testApp::dragEvent(ofDragInfo dragInfo){ 
 
 }
+
+
+//--------------------------------------------------------------
+void testApp::keyPressed(int key){
+    
+    //change mouse radius
+    if(key == '1'){
+        mouseRad = 60;
+    } else if(key == '2'){
+        mouseRad = 150;
+    } else if(key == '3'){
+        mouseRad = 300;
+    }
+    
+    
+    //toggle debug info
+    if(key == 'd' || key == 'D'){
+        debugVisuals = !debugVisuals;
+    }
+    
+    
+    //disturb all particles on keypress
+    if(key == ' '){
+        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+            it -> disturbed = true;
+        }
+    }
+    
+    
+    //toggle zoom animation
+    if(key == 'z' || key == 'Z'){
+        transitionTo2 = !transitionTo2;
+    }
+    
+    
+    //toggle camera draw
+    if(key == 'c' || key == 'C'){
+        drawCam = !drawCam;
+    }
+    
+    
+    //go to N = 1
+    if(key == 'n' || key == 'N'){
+        narrativeState = 1;
+        sendSerial(0, 255, 0);
+    }
+    
+    
+    //piston to top
+    if(key == '9'){
+        sendSerial(0, 255, 0);
+        
+    }
+    //piston to bottom
+    if(key == '0'){
+        sendSerial(255, 255, 0);
+    }
+    
+}
+
+
+
+//----------------------------------------OTHER FUNCTIONS-------------------------------
+void testApp::drawBlackBars(){
+    ofPushStyle();
+    
+    //left bar
+    ofSetColor(0);
+    ofRect(0,0, (ofGetWindowWidth() - ofGetWindowHeight())/2, ofGetWindowHeight());
+    //right bar
+    ofRect(ofGetWindowWidth()/2 + ofGetWindowHeight()/2,0, (ofGetWindowWidth() - ofGetWindowHeight())/2, ofGetWindowHeight());
+    
+    ofPopStyle();
+}
+
+void testApp::drawGrid(int num, float trans){
+    float lineSpacing = ofGetWindowHeight()/num;
+    
+    ofSetLineWidth(3);
+    ofSetColor(255, 255 * trans);
+    for(int i = 0; i < num; i++){
+        //horizontal lines
+        ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, i * lineSpacing, ofGetWindowWidth()/2 + ofGetWindowHeight()/2, i * lineSpacing);
+        //vertical lines
+        ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, 0, ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, ofGetWindowHeight());
+    }
+}
+
+void testApp::perlinBlob(int base, float range, int randSeed, int rot){
+    
+    float speed = 0.2;
+    float fringeWidth = base * range;
+    
+    ofPushMatrix();{
+        ofTranslate( ofGetWindowSize() / 2);
+        ofRotate(rot);
+        
+        ofBeginShape();
+        for (int i = 0; i < 100; i++){
+            
+            //Code borrowed from Charley Whitney (Algorithmic Animations Fall 2013)
+            float add = ofNoise(i/20.0f, ofGetElapsedTimef() * speed + randSeed);
+            
+            //this will draw a circle with a min radius of the incoming value
+            //plus the fringe value
+            ofVertex( (base - fringeWidth * add) * cos((i/100.0)*TWO_PI),
+                     (base - fringeWidth * add) * sin((i/100.0)*TWO_PI));
+            
+        }
+        
+        //ofVertex(firstX, firstY);
+        
+        ofEndShape();
+        
+    }ofPopMatrix();
+    
+}
+
+
+void testApp::newParticleField(int res){
+    int particleResolution = res;
+    int randomScatter = 30;
+    
+    randomPerl = ofRandom(1000);
+    
+    float perlinScale = 0.005;
+    
+    sizes.clear();
+    
+    for(int y = 0; y < ofGetWindowHeight(); y += particleResolution){
+        for(int x = ofGetWindowWidth()/2 - ofGetWindowHeight()/2; x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2; x += particleResolution){
+            
+            //calculate point distance from attractor
+            float distSq = ofDistSquared(x, y, attractorPos.x, attractorPos.y);
+            
+            //create new points only if outside attractor
+            if(distSq > (attractorSize + attractionRad) * (attractorSize + attractionRad)){
+                float noiseVal = ofNoise(x * perlinScale + randomPerl, y * perlinScale + randomPerl);
+                
+                if(noiseVal > 0.5){
+                    Particle p;
+                    p.pos.set(x + ofRandom(-randomScatter, randomScatter), y + ofRandom(-randomScatter, randomScatter));
+                    
+                    p.col = colorscheme.getColor(x, y);
+                    p.col.a = trans;
+                    p.size = ofRandom(pSmall, pBig);
+                    pList.push_back(p);
+                    
+                    ofColor c;
+                    c = p.col;
+                    float r = ofNormalize(c.r, 0, 255);
+                    float g = ofNormalize(c.g, 0, 255);
+                    float b = ofNormalize(c.b, 0, 255);
+                    ofFloatColor cF = ofFloatColor(r, g, b, trans);
+                    colors.push_back(cF);
+                    
+                    //duplicate positions in point vector and size vector
+                    ofVec3f point;
+                    point.set(p.pos);
+                    points.push_back(point);
+                    
+                    
+                    float s = p.size;
+                    //float size = 40;
+                    sizes.push_back(ofVec3f(100));
+                    
+                }
+                
+                
+                
+                
+                
+                
+                
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------
+
+//package data into a string and send via serial
+//borrowed from Kyle McDonald https://github.com/openframeworks/openFrameworks/issues/279
+void testApp::sendSerial(long one, long two, long three){
+    
+    //package ints as a string separated by commas and with a newline ending
+    string outgoing = ofToString(one) + "," + ofToString(two) + "," + ofToString(three) + "\n";
+    
+    //serial can't handle strings so we turn the string into a char array
+    unsigned char* outgoingCharArray = new unsigned char[outgoing.size()];
+    memcpy(outgoingCharArray, outgoing.c_str(), outgoing.size());
+    
+    //send the char array out via serial
+    serial.writeBytes(outgoingCharArray, outgoing.size());
+    
+    //delete the char array for memory management
+    delete [] outgoingCharArray;
+    
+    
+}
+
+

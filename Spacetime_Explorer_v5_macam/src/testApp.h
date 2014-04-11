@@ -5,6 +5,7 @@
 #include "Particle.h"
 #include "ofxMacamPs3Eye.h"
 
+
 class testApp : public ofBaseApp{
 	public:
 		void setup();
@@ -43,6 +44,8 @@ class testApp : public ofBaseApp{
     float leftBound, rightBound;
     float topBound, bottomBound;
     float disturbMax, disturbMin;
+    
+    ofColor cvObjectCol;
     
     //shader stuff
     ofVbo vbo;
@@ -133,6 +136,7 @@ class testApp : public ofBaseApp{
     string statusB;
     float statusScale;
 
+    ofImage handWithBall;
     
     //Sound Effects
     ofSoundPlayer zoom;
@@ -154,12 +158,11 @@ class testApp : public ofBaseApp{
     ofSoundPlayer Intro08_easytosee;
     ofSoundPlayer Intro09_thiscurvingof;
     ofSoundPlayer Intro10_wedontnotice;
-    ofSoundPlayer Intr011_iftheresenough;
+    ofSoundPlayer Intro11_iftheresenough;
     ofSoundPlayer Intro12_letssee;
     
     //Narrative States
     //----------Idle----------
-    
     int idleTimer = 0;
     bool idlePlay = false;
     ofImage background;
@@ -169,7 +172,35 @@ class testApp : public ofBaseApp{
     bool inButton;
     int numBallsinBox;
     float timeInBox = 0;
-    ofPath introTimer;
+    ofPath idleTimerPath;
+    bool idleHand;
+    float idleHandLerp = 0;
+    ofVec2f idleHandPos;
+    ofColor idleTimerCol;
+    float blackOutTrans = 0;
+    bool transitionToIntro;
+    
+    //----------Intro----------
+    bool startedIntro;
+    int introStartTime;
+    bool playIntro01;
+    bool playIntro02;
+    bool playIntro03;
+    bool playIntro04;
+    bool playIntro05;
+    bool playIntro06;
+    bool playIntro07;
+    
+    
+    
+    ofImage milkyWay;
+    float milkyWayTrans;
+    ofImage shuttle;
+    ofImage shuttleDimensions;
+    float shuttleTrans;
+    float shuttleDimTrans;
+    ofImage timeArrow;
+    float arrowStartX;
     
 };
 
