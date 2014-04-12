@@ -146,6 +146,7 @@ class testApp : public ofBaseApp{
     //Narrator clips
     //Idle state
     ofSoundPlayer idle;
+    ofSoundPlayer welcome;
     
     //Intro video
     ofSoundPlayer Intro01_peoplethink;
@@ -165,6 +166,7 @@ class testApp : public ofBaseApp{
     //----------Idle----------
     int idleTimer = 0;
     bool idlePlay = false;
+    bool welcomePlay = false;
     ofImage background;
     
     float lineTrans;
@@ -190,17 +192,55 @@ class testApp : public ofBaseApp{
     bool playIntro05;
     bool playIntro06;
     bool playIntro07;
-    
+    bool playIntro08;
+    bool playIntro09;
+    bool playIntro10;
+    bool playIntro11;
+    bool playIntro12;
     
     
     ofImage milkyWay;
     float milkyWayTrans;
     ofImage shuttle;
+    ofVec2f shuttlePos;
     ofImage shuttleDimensions;
     float shuttleTrans;
     float shuttleDimTrans;
     ofImage timeArrow;
     float arrowStartX;
+    
+    ofEasyCam gridCam;
+    float gridTrans;
+    float flatGridTrans;
+    float gridRot;
+    ofPath rollTimerPath;
+    float rollTimer;
+    ofColor rollTimerCol;
+    bool useRollTimer;
+    int intro2Timer;
+    int introStage;
+    ofImage bowlingball;
+    float bowlingballTrans;
+    float bowlingballScale;
+    float rollTimerRad = 75;
+    ofPoint rollTimerPos;
+    int stage2Time;
+    float rollTimerTrans;
+    
+    ofImage warpedIsGravity;
+    float warpedIsGravityTrans;
+    ofVec2f warpedGravPos;
+    float warpedRot;
+    float warpedSize;
+    
+    ofImage earth;
+    float earthSwitchScale;
+    
+    ofPath lightArc;
+    ofPoint lightArcCenter;
+    float lightArcRad;
+    float lightArcAngle;
+    float lightArcTrans = 255;
     
 };
 

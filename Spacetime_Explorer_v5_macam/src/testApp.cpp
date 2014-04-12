@@ -169,10 +169,14 @@ void testApp::setup(){
     //Narration
         //Idle
     idle.loadSound("narration/idle/idle.mp3");
-    idle.setVolume(1.0f);
+    idle.setVolume(0.5f);
     idle.setSpeed(1.0f);
     idle.setPan(top);
     
+    welcome.loadSound("narration/idle/01welcome.mp3");
+    welcome.setVolume(1.0f);
+    welcome.setSpeed(1.0f);
+    welcome.setPan(top);
     
         //Intro
     Intro01_peoplethink.loadSound("narration/intro/01-peoplethink.mp3");
@@ -258,7 +262,18 @@ void testApp::setup(){
     timeArrow.loadImage("timearrow.png");
     timeArrow.setAnchorPercent(0, 0.5);
     timeArrow.rotate90(2);
-    arrowStartX = 1080;
+    arrowStartX = ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + 1080;
+    shuttlePos.set(ofGetWindowWidth()/2, ofGetWindowHeight()/2 + 50);
+    gridCam.setDistance(1000);
+    bowlingball.loadImage("bowlingball.png");
+    bowlingball.setAnchorPercent(0.5, 0.5);
+    bowlingballTrans = 0;
+    warpedIsGravity.loadImage("warpedisgravity.png");
+    warpedIsGravity.setAnchorPercent(0.5, 0.5);
+    warpedIsGravity.rotate90(2);
+    earth.loadImage("earth.png");
+    earth.setAnchorPercent(0.5, 0.5);
+    
     
     
     
@@ -380,34 +395,36 @@ void testApp::update(){
             float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
             float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
             
-            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
-            
-            ofPushStyle();
-            ofSetColor(cvObjectCol);
-            ofSetCircleResolution(60);
-            ofCircle(mapBlobX, mapBlobY, 10);
-            
-            ofNoFill();
-            ofSetLineWidth(5);
-            ofEllipse(mapBlobX, mapBlobY, 50, 50);
-            
-            ofPopStyle();
+//            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+//            
+//            ofPushStyle();
+//            ofSetColor(cvObjectCol);
+//            ofSetCircleResolution(60);
+//            ofCircle(mapBlobX, mapBlobY, 10);
+//            
+//            ofNoFill();
+//            ofSetLineWidth(5);
+//            ofEllipse(mapBlobX, mapBlobY, 50, 50);
+//            
+//            ofPopStyle();
             
             
             //check if any balls are in the circle
-            if(ofDistSquared(contourFinder.blobs[i].centroid.x, contourFinder.blobs[i].centroid.y, ofGetWindowWidth()/2, ofGetWindowHeight()/2) < 200 * 200){
+            if(ofDistSquared(mapBlobX, mapBlobY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100 * 100){
                 numBallsinBox++;
             }
             
             
         }
 
-//        if(numBallsinBox > 0){
-        if(ofDist(mouseX, mouseY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100){
+        if(numBallsinBox > 0 || ofDist(mouseX, mouseY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100){
             inButton = true;
         } else {
             inButton = false;
         }
+        
+        
+        
         
         if(!inButton){
             timeInBox = 0;
@@ -444,6 +461,12 @@ void testApp::update(){
         
         if(timeInBox > 359){
             transitionToIntro = true;
+            
+            if(welcomePlay == false){
+                welcome.play();
+                welcomePlay = true;
+            }
+            
         }
         
         if(transitionToIntro){
@@ -451,8 +474,10 @@ void testApp::update(){
             
             blackOutTrans += 2;
             
-            if(blackOutTrans > 255){
+            if(blackOutTrans > 255 && idle.getIsPlaying() == false){
                 narrativeState = 0;
+                
+                
                 
             }
             
@@ -463,49 +488,96 @@ void testApp::update(){
     } else if(narrativeState == 0){
         //introduction
         
-        if(lineTrans < 255){
-            lineTrans += 1;
-        }
         
-        numBallsinBox = 0;
+        //do detection in timer, other stuff is in the draw loop
+        if(useRollTimer){
         
-        if(contourFinder.blobs.size() > 0){
+            if(rollTimerTrans < 255){
+                rollTimerTrans += 1;
+            }
+            
+            
+            
+            
+            
+            rollTimerPos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 100);
+        
+            numBallsinBox = 0;
+            
+            //Look for blobs and display them
             for(int i = 0; i < contourFinder.blobs.size(); i++){
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
                 
-                if(contourFinder.blobs[i].centroid.x > ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100 && contourFinder.blobs[i].centroid.x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2 && contourFinder.blobs[i].centroid.y < 100){
+                //check if any balls are in the circle
+                if(ofDistSquared(mapBlobX, mapBlobY, rollTimerPos.x, rollTimerPos.y) < rollTimerRad * rollTimerRad){
                     numBallsinBox++;
-                
                 }
+                
+                
             }
             
-        }
+            if(numBallsinBox > 0 || ofDist(mouseX, mouseY, rollTimerPos.x, rollTimerPos.y) < rollTimerRad){
+                inButton = true;
+            } else {
+                inButton = false;
+            }
+            
+            
+            
+            
+            if(!inButton){
+                timeInBox = 0;
+            } else if(inButton){
+                timeInBox += 4;
+            }
+            
+            
+            
+            
+            rollTimerCol = ofColor(255, 150).lerp(ofColor(cvObjectCol,150), ofMap(timeInBox, 0, 360, 0, 1));
+            
+            //timer circle
+            rollTimerPath.clear();
+            rollTimerPath.arc(ofPoint(0,0), rollTimerRad, rollTimerRad, 0, timeInBox, true);
+            
+            
+            if(inButton){
+                rollTimerPath.setStrokeColor(ofColor(255, 0));
+                rollTimerPath.setFilled(true);
+                
+                rollTimerPath.setFillColor(ofColor(rollTimerCol, 150));
+                
+            } else {
+                
+                rollTimerPath.setFilled(false);
+                rollTimerPath.setStrokeColor(ofColor(255, 0));
+            }
+            
+            rollTimerPath.setStrokeWidth(3);
+            rollTimerPath.setCircleResolution(50);
         
-        if(numBallsinBox > 0){
-            inButton = true;
-        } else {
-            inButton = false;
-        }
-        
-        ofSetColor(255, 0, 0);
-        ofDrawBitmapString(ofToString(numBallsinBox), 100, 100);
-        
-        
-        if(inButton){
-            if(boxTrans < 200){
-                boxTrans += 1;
+            
+            if(timeInBox > 359){
+                
+                //go to next part of narrative
+                timeInBox = 0;
+                useRollTimer = false;
+
+                intro2Timer = ofGetElapsedTimeMillis();
+                
+                //0 for first part, 1 for part between ball rolls, 2 for last part
+                introStage++;
+                
+                
             }
             
         } else {
-            boxTrans = 0;
+            rollTimerTrans = 0;
         }
-        
-        numBallsinBox = 0;
-        
-        if(ofGetElapsedTimeMillis() > 10000){
-            sendSerial(255, 255, 0);
-        }
-        
-        
+    
+
+
         
         
         
@@ -889,6 +961,28 @@ void testApp::draw(){
         
         ofPopMatrix();
         
+        //draw CV objects
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+            
+            ofPushStyle();
+            ofSetColor(cvObjectCol);
+            ofSetCircleResolution(60);
+            ofCircle(mapBlobX, mapBlobY, 10);
+            
+            ofNoFill();
+            ofSetLineWidth(5);
+            ofEllipse(mapBlobX, mapBlobY, 50, 50);
+            
+            ofPopStyle();
+
+        }
+        
+        
+        
         if(transitionToIntro){
             ofSetColor(0, blackOutTrans);
             ofSetRectMode(OF_RECTMODE_CENTER);
@@ -902,6 +996,8 @@ void testApp::draw(){
         
         if(startedIntro == false){
             introStartTime = ofGetElapsedTimeMillis();
+            sendSerial(0, 150, 0);
+            cvObjectCol = ofColor(255, 0);
             startedIntro = true;
         }
             
@@ -931,7 +1027,7 @@ void testApp::draw(){
         }
         
         //play second narration clip
-        if(currentTime > 10000 && currentTime < 10500 && !Intro02_welivein.getIsPlaying()){
+        if(currentTime > 9500 && currentTime < 10000 && !Intro02_welivein.getIsPlaying()){
             playIntro02 = true;
         }
         
@@ -953,19 +1049,11 @@ void testApp::draw(){
         }
         
         //if we're at the end of the middle, fade overlay out
-        if(shuttleDimTrans > 0 && currentTime > 17000 && currentTime < 19000){
+        if(shuttleDimTrans > 0 && currentTime > 16200 && currentTime < 19000){
             shuttleDimTrans -= 4;
         }
 
 
-        ofSetColor(255, shuttleTrans);
-        shuttle.draw(ofGetWindowSize()/2, shuttle.width * 0.5, shuttle.height * 0.5);
-        
-        ofSetColor(255, shuttleDimTrans);
-        shuttleDimensions.draw(ofGetWindowSize()/2, shuttleDimensions.width * 0.5, shuttleDimensions.height * 0.5);
-
-        
-        
         //play third narration clip
         if(currentTime > 17000 && currentTime < 17500 && !Intro03_whiletime.getIsPlaying()){
             playIntro03 = true;
@@ -976,36 +1064,414 @@ void testApp::draw(){
             playIntro03 = false;
         }
         
-        if(currentTime > 18000 && currentTime < 25000){
+        //move in time arrow and move out shuttle
+        if(currentTime > 17000 && currentTime < 24000){
             
-            if(arrowStartX > 300){
-                arrowStartX -= 3;
+            if(arrowStartX > ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + 300 && currentTime < 21000){
+                arrowStartX -= 4;
             }
             
-            ofPushMatrix();
-            ofTranslate(arrowStartX, 200);
-            ofSetColor(255, 255);
-            timeArrow.draw(0,0);
-            ofPopMatrix();
+            if(currentTime > 21000){
+                arrowStartX -= 8;
+                shuttlePos.x -= 6;
+                shuttlePos.y += 3;
+                
+            }
+            
+            
         }
         
         
         
         
+        //draw space shuttle and images 
+        float shuttleSize = 0.75;
+        ofSetColor(255, shuttleTrans);
+        shuttle.draw(shuttlePos, shuttle.width * shuttleSize, shuttle.height * shuttleSize);
+        
+        ofSetColor(255, shuttleDimTrans);
+        shuttleDimensions.draw(shuttlePos, shuttleDimensions.width * shuttleSize, shuttleDimensions.height * shuttleSize);
+        
+        ofPushMatrix();
+        ofTranslate(arrowStartX, 200);
+        ofSetColor(255, 255);
+        timeArrow.draw(0,0);
+        ofPopMatrix();
+        
+        
+        //play fourth narration clip
+        if(currentTime > 24000 && currentTime < 24500 && !Intro04_thisisspacetime.getIsPlaying()){
+            playIntro04 = true;
+        }
+        
+        if(playIntro04){
+            Intro04_thisisspacetime.play();
+            playIntro04 = false;
+        }
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        drawGrid(15, 0.0);
 
+        //create 3D grid
+        if(currentTime > 24000 && currentTime < 24500 && gridTrans < 255){
+            gridTrans += 2;
+        }
+        
+        if(currentTime > 34000 && gridTrans > 0){
+            gridTrans -= 2;
+        }
+        
+        gridCam.begin();
+        
+        int gridUnit = 200;
+        int gridLength = 1200;
+        
+        
+        for(int z = 0; z < gridLength; z += gridUnit){
+            for(int y = 0; y < gridLength; y += gridUnit){
+                for(int x = 0; x < gridLength; x += gridUnit){
+                    float u = gridUnit/2;
+                    
+                    ofPushMatrix();
+                    
+                    if(currentTime > 25000){
+                        ofRotate(gridRot, 1, 0.5, 0);
+                        gridRot += 0.001;
+                    }
+                    ofTranslate(-gridLength/2, -gridLength/2, -gridLength/2);
+                    ofSetLineWidth(2);
+                    ofSetColor(255, gridTrans);
+                    //XY - z
+                    ofLine(x - u, y - u, z - u, x - u, y + u, z - u);
+                    ofLine(x - u, y + u, z - u, x + u, y + u, z - u);
+                    ofLine(x + u, y + u, z - u, x + u, y - u, z - u);
+                    ofLine(x + u, y - u, z - u, x - u, y - u, z - u);
+                    //XY + z
+                    ofLine(x - u, y - u, z + u, x - u, y + u, z + u);
+                    ofLine(x - u, y + u, z + u, x + u, y + u, z + u);
+                    ofLine(x + u, y + u, z + u, x + u, y - u, z + u);
+                    ofLine(x + u, y - u, z + u, x - u, y - u, z + u);
+                    //Z lines
+                    ofLine(x - u, y - u, z + u, x - u, y - u, z - u);
+                    ofLine(x - u, y + u, z + u, x - u, y + u, z - u);
+                    ofLine(x + u, y + u, z + u, x + u, y + u, z - u);
+                    ofLine(x + u, y - u, z + u, x + u, y - u, z - u);
+                    ofPopMatrix();
+                }
+            }
+        }
+        
+        gridCam.end();
+        
+        if(currentTime > 34000 && flatGridTrans < 150){
+            //drawGrid(15, flatGridTrans);
+            
+            flatGridTrans += 1;
+        }
+        
+        //play fifth narration clip
+        if(currentTime > 36000 && currentTime < 36500 && !Intro05_thingsthatmove.getIsPlaying()){
+            playIntro05 = true;
+            cvObjectCol = ofColor(0,255,0);
+        }
+        
+        if(playIntro05){
+            Intro05_thingsthatmove.play();
+            playIntro05 = false;
+        }
+        
+        //and immediately play the next clip
+        if(currentTime > 41000 && currentTime < 41500 && !Intro05_thingsthatmove.getIsPlaying() && !Intro06_rollsomeballs.getIsPlaying()){
+            playIntro06 = true;
+        }
+        
+        if(playIntro06){
+            Intro06_rollsomeballs.play();
+            playIntro06 = false;
+
+        }
+
+        //if it has been a few seconds, present timer option to move on
+        if(currentTime > 45000 && currentTime < 45500){
+            useRollTimer = true;
+        }
+        
+        
+        //draw flat grid
+        drawGrid(15, flatGridTrans/255);
+
+        //draw roll timer
+        if(useRollTimer){
+            //draw timer stuff
+            ofPushStyle();
+            
+            ofNoFill();
+            ofSetCircleResolution(30);
+            ofSetLineWidth(8);
+            
+            ofPushMatrix();
+            ofTranslate(rollTimerPos);
+            ofRotate(90);
+            rollTimerPath.draw();
+            
+            if(inButton){
+                ofSetColor(rollTimerCol, rollTimerTrans);
+            } else {
+                ofSetColor(255, rollTimerTrans);
+            }
+            
+            ofCircle(0,0, rollTimerRad);
+            ofRotate(6);
+            ofCircle(0,0, rollTimerRad);
+            ofPopMatrix();
+            
+            ofPopStyle();
+            
+            //draw text
+            string rollMessage = "Hold ball here to continue";
+            
+            ofPushMatrix();
+            ofTranslate(ofGetWindowWidth()/2 + 325, rollTimerPos.y - 10);
+            ofScale(0.3, 0.3);
+            ofRotate(180);
+            ofSetColor(255, rollTimerTrans);
+            instructions.drawString(rollMessage, 0, 0);
+            
+            ofPopMatrix();
+
+            
+            
+        }
+
+        //second stage of intro after flat ball roll
+        if(introStage == 1){
+            
+            stage2Time = ofGetElapsedTimeMillis() - intro2Timer;
+            
+            if(stage2Time > 1000 && stage2Time < 1500 && !Intro07_nowrollballs.getIsPlaying()){
+                playIntro07 = true;
+            }
+            
+            if(playIntro07){
+                Intro07_nowrollballs.play();
+                playIntro07 = false;
+                
+            }
+            
+            if(stage2Time > 3000 && stage2Time < 7000){
+                if(bowlingballTrans < 255){
+                    bowlingballTrans += 2;
+                } else if(bowlingballTrans > 200){
+                    sendSerial(255, 255, 0);
+                }
+
+            }
+            
+            if(stage2Time > 8000){
+                useRollTimer = true;
+            }
+            
+
+            
+
+        } else if(introStage == 2){
+            
+            stage2Time = ofGetElapsedTimeMillis() - intro2Timer;
+            
+            //play clip 8
+            if(stage2Time > 1000 && stage2Time < 1500 && !Intro08_easytosee.getIsPlaying()){
+                playIntro08 = true;
+                
+            }
+            
+            if(playIntro08){
+                Intro08_easytosee.play();
+                playIntro08 = false;
+                
+            }
+            
+            if(stage2Time > 4000 && stage2Time < 6500){
+                
+                if(warpedIsGravityTrans < 255){
+                    warpedIsGravityTrans += 2;
+                }
+                
+                //set initial position for sign
+                warpedGravPos.set(0, ofGetWindowHeight()/2 - 200);
+            }
+
+            if(stage2Time > 10000 && stage2Time < 14000){
+                if(earthSwitchScale < 2.0){
+                    earthSwitchScale += 0.01;
+                }
+            }
+            
+            
+            if(stage2Time > 13000 && stage2Time < 17000){
+                
+                //make it spiral into the center
+                warpedRot += 2;
+                if(warpedSize < 1.0){
+                    warpedSize += 0.005;
+                }
+                
+                warpedGravPos.set(warpedGravPos.x, warpedGravPos.y - 1);
+                
+
+                
+            }
+            
+            
+            //play clip 9
+            if(stage2Time > 6000 && stage2Time < 6500 && !Intro09_thiscurvingof.getIsPlaying()){
+                playIntro09 = true;
+            }
+            
+            if(playIntro09){
+                Intro09_thiscurvingof.play();
+                playIntro09 = false;
+                
+            }
+            
+            
+            
+            
+            //draw sign
+            ofSetColor(255, warpedIsGravityTrans);
+
+            ofPushMatrix();
+            ofTranslate(ofGetWindowSize()/2);
+            ofRotate(warpedRot);
+            ofTranslate(warpedGravPos);
+            
+            ofScale(1.0f - warpedSize, 1.0f - warpedSize);
+            
+            
+            warpedIsGravity.draw(0, 0);
+            ofPopMatrix();
+            
+            
+            //play clip 10
+            if(stage2Time > 13000 && stage2Time < 13500 && !Intro10_wedontnotice.getIsPlaying()){
+                playIntro10 = true;
+            }
+            
+            if(playIntro10){
+                Intro10_wedontnotice.play();
+                playIntro10 = false;
+                
+            }
+            
+            
+            //play clip 11
+            if(stage2Time > 22000 && stage2Time < 22500 && !Intro11_iftheresenough.getIsPlaying()){
+                playIntro11 = true;
+            }
+            
+            if(playIntro11){
+                Intro11_iftheresenough.play();
+                playIntro11 = false;
+                
+            }
+            
+            if(stage2Time > 23000 && stage2Time < 25000){
+                lightArcAngle += 1;
+            }
+            
+            if(stage2Time > 25000){
+                if(lightArcTrans > 1){
+                    lightArcTrans -= 2;
+                }
+            }
+            
+            
+            //play last clip
+            if(stage2Time > 30000 && stage2Time < 30500 && !Intro12_letssee.getIsPlaying()){
+                playIntro12 = true;
+            }
+            
+            if(playIntro12){
+                Intro12_letssee.play();
+                playIntro12 = false;
+                
+            }
+            
+            
+            if(stage2Time > 37000){
+                narrativeState = 1;
+            }
+            
+            
+        }
+        
+        
+        
+        ofSetColor(255, bowlingballTrans);
+        ofPushMatrix();
+        ofTranslate(ofGetWindowSize()/2);
+
+        ofScale(ofClamp(1.0f - earthSwitchScale, 0, 1), ofClamp(1.0f - earthSwitchScale, 0, 1));
+        bowlingball.draw(0, 0, bowlingball.width * 0.4, bowlingball.height * 0.4);
+        
+        
+        ofPopMatrix();
+        
+        //draw Earth over bowling ball
+        ofSetColor(255);
+        ofPushMatrix();
+        ofTranslate(ofGetWindowSize()/2);
+        ofScale(ofClamp(earthSwitchScale - 1.0f, 0, 1), ofClamp(earthSwitchScale - 1.0f, 0, 1));
+        earth.draw(0, 0, earth.width * 0.4, earth.height * 0.4);
+        
+        
+        ofPopMatrix();
+        
+        ofPushMatrix();
+        
+        lightArc.clear();
+        lightArc.arc(ofPoint(0,0), 2400, 2400, lightArcAngle - 180, lightArcAngle, true);
+        lightArc.setStrokeWidth(10);
+        lightArc.setStrokeColor(ofColor(255, 255, 0, lightArcTrans));
+        lightArc.setFilled(false);
+        lightArc.setCircleResolution(180);
+
+        ofTranslate(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 - 1000, -1000);
+        
+        lightArc.draw(0,0);
+        ofRotate(1);
+        lightArc.draw(0,0);
+        
+        ofPopMatrix();
+        
+        ofPushMatrix();
+        
+        lightArc.clear();
+        lightArc.arc(ofPoint(0,0), 2850, 2850, lightArcAngle - 90, lightArcAngle + 90, true);
+        lightArc.setStrokeWidth(10);
+        lightArc.setStrokeColor(ofColor(255, 255, 0, lightArcTrans));
+        lightArc.setFilled(false);
+        lightArc.setCircleResolution(180);
+        
+        ofTranslate(ofGetWindowWidth()/2 + 2500, ofGetWindowHeight()/2);
+        
+        lightArc.draw(0,0);
+        ofRotate(1);
+        lightArc.draw(0,0);
+        
+        ofPopMatrix();
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         for(int i = 0; i < contourFinder.blobs.size(); i++){
             float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
@@ -1030,12 +1496,27 @@ void testApp::draw(){
 
         }
 
+        ofPushStyle();
+        ofSetColor(cvObjectCol);
+        
+        ofCircle(mouseX, mouseY, 10);
+                
+        ofNoFill();
+        ofSetLineWidth(5);
+        ofEllipse(mouseX, mouseY, 50, 50);
+        
+        
+        ofPopStyle();
         
         
         
         drawBlackBars();
         ofSetColor(255);
-        ofDrawBitmapString(ofToString(currentTime), 1600, 30);
+        ofDrawBitmapString("currentTime: " + ofToString(currentTime), 1600, 30);
+        
+        ofDrawBitmapString("stage 2 time: " + ofToString(stage2Time), 1600, 50);
+        ofDrawBitmapString("intro Stage: " + ofToString(introStage), 1600, 70);
+        
         
         
     } else if(narrativeState == 1){
