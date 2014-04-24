@@ -29,7 +29,7 @@ void testApp::setup(){
         shader.load("shaders/shader");
     #endif
     
-    colorscheme.loadImage("gasDesat.jpg");
+    colorscheme.loadImage("m16.jpg");
 
     
     //camera stuff
@@ -122,10 +122,10 @@ void testApp::setup(){
     //UI Stuff
     instructions.loadFont("avenir.ttc", 100, true, true);
     instructions.setLetterSpacing(0.95);
-    instructionA = "Help the body acrete mass by";
-    instructionB = "pushing the gas cloud to the center";
+    instructionA = "Use the balls to push the";
+    instructionB = "gas and dust to the center";
 
-    instructCol = ofColor(0, 150, 255);
+    instructCol = ofColor(255);
 
     
     status.loadFont("avenir.ttc", 100, true, true);
@@ -147,7 +147,7 @@ void testApp::setup(){
     float bottom = -1.0f;
     
     zoom.loadSound("zoom.mp3");
-    zoom.setVolume(1.0f);
+    zoom.setVolume(0.5f);
     zoom.setSpeed(0.5f);
     zoom.setMultiPlay(false);
     zoom.setPan(bottom);
@@ -239,6 +239,31 @@ void testApp::setup(){
     Intro12_letssee.setSpeed(1.0f);
     Intro12_letssee.setPan(top);
     
+        //stage 1
+    stage1_01_wearenow.loadSound("narration/stage1/01-wearenow.mp3");
+    stage1_01_wearenow.setVolume(1.0f);
+    stage1_01_wearenow.setSpeed(1.0f);
+    stage1_01_wearenow.setPan(top);
+
+    stage1_02_useyourhands.loadSound("narration/stage1/02-useyourhands.mp3");
+    stage1_02_useyourhands.setVolume(1.0f);
+    stage1_02_useyourhands.setSpeed(1.0f);
+    stage1_02_useyourhands.setPan(top);
+    
+    stage1_03_seehow.loadSound("narration/stage1/03-seehow.mp3");
+    stage1_03_seehow.setVolume(1.0f);
+    stage1_03_seehow.setSpeed(1.0f);
+    stage1_03_seehow.setPan(top);
+    
+    stage1_04_keepgathering.loadSound("narration/stage1/04-keepgathering.mp3");
+    stage1_04_keepgathering.setVolume(1.0f);
+    stage1_04_keepgathering.setSpeed(1.0f);
+    stage1_04_keepgathering.setPan(top);
+    
+    stage1_05_youvecreated.loadSound("narration/stage1/05-youvecreated.mp3");
+    stage1_05_youvecreated.setVolume(1.0f);
+    stage1_05_youvecreated.setSpeed(1.0f);
+    stage1_05_youvecreated.setPan(top);
     
     //Narrative States
     //----------Idle----------
@@ -275,7 +300,7 @@ void testApp::setup(){
     earth.setAnchorPercent(0.5, 0.5);
     
     
-    
+    glow.loadImage("glow.png");
     
     debugVisuals = true;
     
@@ -284,7 +309,7 @@ void testApp::setup(){
 }
 
 //----------------------------------------------------------------------------------
-//                ___  ___  ________  ________  ________  _________  _______
+//                 ___  ___  ________  ________  ________  _________  _______
 //                |\  \|\  \|\   __  \|\   ___ \|\   __  \|\___   ___\\  ___ \
 //                \ \  \\\  \ \  \|\  \ \  \_|\ \ \  \|\  \|___ \  \_\ \   __/|
 //                 \ \  \\\  \ \   ____\ \  \ \\ \ \   __  \   \ \  \ \ \  \_|/__
@@ -529,7 +554,7 @@ void testApp::update(){
             if(!inButton){
                 timeInBox = 0;
             } else if(inButton){
-                timeInBox += 4;
+                timeInBox += 2;
             }
             
             
@@ -638,39 +663,40 @@ void testApp::update(){
                 
                 }
                 
-                
-                //if there are blobs and particle is within radius of blobs, count it as disturbed
-                if(contourFinder.blobs.size() > 0){
-                    
-                    for(int i = 0; i < contourFinder.blobs.size(); i++){
-                    //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                if(ballInfluence){
+                    //if there are blobs and particle is within radius of blobs, count it as disturbed
+                    if(contourFinder.blobs.size() > 0){
                         
-                        //new mapping with space considerations
-                        float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
-                        float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
-                        
-                        disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+                        for(int i = 0; i < contourFinder.blobs.size(); i++){
+                        //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                            
+                            //new mapping with space considerations
+                            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                            
+                            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
 
-                        
-                        //subtract position of centroid from position of particle
-                        ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
+                            
+                            //subtract position of centroid from position of particle
+                            ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
 
-                        //count as disturbed if within radius (circular boundary)
-                        if(distBlob.lengthSquared() < disturbRad * disturbRad){
-                            it -> disturbed = true;
-                            
-                            //give the direction of the current blob
-                            it -> blobDir = blobDirection[i];
-                            
-                            //then repel away from current blob
-                            it -> blobRepel(contourFinder.blobs[i].centroid, 1.0);
-                            
+                            //count as disturbed if within radius (circular boundary)
+                            if(distBlob.lengthSquared() < disturbRad * disturbRad){
+                                it -> disturbed = true;
+                                
+                                //give the direction of the current blob
+                                it -> blobDir = blobDirection[i];
+                                
+                                //then repel away from current blob
+                                it -> blobRepel(contourFinder.blobs[i].centroid, 1.0);
+                                
+                            }
+                        
                         }
-                    
+                        
                     }
-                    
                 }
-                
+            
                 //attraction to Attractor due to its own gravitation for particles within
                 //the attraction radius
                 it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
@@ -702,7 +728,7 @@ void testApp::update(){
                 //count number of dead particles
                 numDead++;
                 
-                if(pList.size() - numDead < 100){
+                if(pList.size() - numDead < 300){
                     transitionTo2 = true;
 
 
@@ -745,8 +771,8 @@ void testApp::update(){
             //Lets zoom out to see if we can find more to collect"
             
             //if we're not already playing it
-            if(narrate1.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
-                narrate1.play();
+            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+                stage1_05_youvecreated.play();
             }
             
             //if we're animating...
@@ -812,9 +838,9 @@ void testApp::update(){
         
         //upload all the info to the vbo
         int total = (int)points.size();
-        vbo.setVertexData(&points[0], total, GL_STATIC_DRAW);
-        vbo.setNormalData(&sizes[0], total, GL_STATIC_DRAW);
-        vbo.setColorData(&colors[0], total, GL_STATIC_DRAW);
+        particleVBO.setVertexData(&points[0], total, GL_STATIC_DRAW);
+        particleVBO.setNormalData(&sizes[0], total, GL_STATIC_DRAW);
+        particleVBO.setColorData(&colors[0], total, GL_STATIC_DRAW);
 
         //send arduino states
         pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
@@ -844,6 +870,9 @@ void testApp::update(){
         
         
     } else if(narrativeState == 3){
+        
+        
+        
         
     }
     
@@ -995,13 +1024,13 @@ void testApp::draw(){
     } else if(narrativeState == 0){
         
         if(startedIntro == false){
-            introStartTime = ofGetElapsedTimeMillis();
+            stageStartTime = ofGetElapsedTimeMillis();
             sendSerial(0, 150, 0);
             cvObjectCol = ofColor(255, 0);
             startedIntro = true;
         }
             
-        int currentTime = ofGetElapsedTimeMillis() - introStartTime;
+        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
 
         
 
@@ -1228,7 +1257,7 @@ void testApp::draw(){
             ofPopStyle();
             
             //draw text
-            string rollMessage = "Hold ball here to continue";
+            string rollMessage = "Hold ball here for next stage";
             
             ofPushMatrix();
             ofTranslate(ofGetWindowWidth()/2 + 325, rollTimerPos.y - 10);
@@ -1519,19 +1548,69 @@ void testApp::draw(){
         
         
         
-    } else if(narrativeState == 1){
+    } else if(narrativeState == 1){ //-------------------STAGE 1--------------------------
     
-        int numLines = 15;
-        float lineSpacing = ofGetWindowHeight()/numLines;
-        
-        ofSetLineWidth(3);
-        ofSetColor(255, 255 * 0.2);
-        for(int i = 0; i < numLines; i++){
-            //horizontal lines
-            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, i * lineSpacing, ofGetWindowWidth()/2 + ofGetWindowHeight()/2, i * lineSpacing);
-            //vertical lines
-            ofLine(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, 0, ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + i * lineSpacing, ofGetWindowHeight());
+        //stage setup
+        if(startedStage1 == false){
+            stageStartTime = ofGetElapsedTimeMillis();
+            sendSerial(0, 255, 0);
+            cvObjectCol = ofColor(255, 0, 0, 255);
+            startedStage1 = true;
+            ballInfluence = false;
+            announced = false;
         }
+        
+        
+        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+
+        
+        //play audio clips
+        if(currentTime > 2000 && currentTime < 2500 && !stage1_01_wearenow.getIsPlaying()){
+            playStage1_01 = true;
+    
+        }
+
+        
+        if(playStage1_01){
+            stage1_01_wearenow.play();
+            playStage1_01 = false;
+        }
+        
+        
+        if(currentTime > 12000 && currentTime < 12500 && !stage1_02_useyourhands.getIsPlaying()){
+            playStage1_02 = true;
+        }
+        
+        if(playStage1_02){
+            stage1_02_useyourhands.play();
+            playStage1_02 = false;
+            cvObjectCol = ofColor(0, 255, 0);
+            ballInfluence = true;
+
+        }
+        
+        
+        if(numDead > 5000 && announced == false){
+            playStage1_03 = true;
+            announced = true;
+        }
+        
+        if(playStage1_03){
+            stage1_03_seehow.play();
+            announcedTimer = ofGetElapsedTimeMillis();
+        }
+        
+//        if(ofGetElapsedTimeMillis() - announcedTimer > 8000 && ofGetElapsedTimeMillis() - announcedTimer < 8500){
+//            playStage1_04 = true;
+//        }
+//        
+//        if(playStage1_04){
+//            stage1_04_keepgathering.play();
+//        }
+        
+        drawGrid(15, 0.2);
+        
+
         
          
         //draw particles
@@ -1560,7 +1639,7 @@ void testApp::draw(){
         // bind the texture so that when all the points
         // are drawn they are replace with our dot image
         texture.bind();
-        vbo.draw(GL_POINTS, 0, (int)points.size());
+        particleVBO.draw(GL_POINTS, 0, (int)points.size());
         texture.unbind();
         
         shader.end();
@@ -1607,7 +1686,7 @@ void testApp::draw(){
             
             ofPushStyle();
             
-            ofSetColor(255, 0, 0);
+            ofSetColor(cvObjectCol);
             ofCircle(mapBlobX, mapBlobY, 10);
             ofNoFill();
             ofCircle(mapBlobX, mapBlobY, disturbRad);
@@ -1618,50 +1697,80 @@ void testApp::draw(){
         
     
     } else if(narrativeState == 2){
-        
-        
-        //draw particles
-        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-            if(it -> dead == false){
-                it -> draw();
+
+    
+        if(starCreated == false){
+            for (int i = 0; i < 1000; i++){
+                
+                sunCol1 = ofColor(255, 255, 150);
+                sunCol2 = ofColor(255, 100, 20);
+                starCreated = true;
+
+                //Circle distribution code from Charlie Whitney (flocking sketch - algo - fall 2013)
+                
+                float phi = ofRandom( 0, TWO_PI );
+                float costheta = ofRandom( -1.0f, 1.0f );
+                
+                float rho = sqrt( 1.0f - costheta * costheta );
+                float x = rho * cos( phi );
+                float y = rho * sin( phi );
+                float z = costheta;
+                
+                ofVec3f randVec(x, y, z);
+                
+                ofVec3f pos = randVec * ofRandom( 25.0f, 50.0f );
+                ofVec3f vel(ofRandom(-10, 10),ofRandom(-10, 10),ofRandom(-10, 10));
+                
+                
+                SunParticle s;
+                s.setParams(pos, vel);
+                s.col = sunCol1.lerp(sunCol2, ofRandom(0,1));
+                
+                sunList.push_back(s);
+                
             }
-        }
-        
-        //Draw Attractor
-        
-        ofColor out = ofColor(255, 255, 255, 100);
-        ofColor in = ofColor(255, 0, 0, 100);
-        int numBlobs = 100;
-        
-        for(int i = 0; i < numBlobs; i++){
-            ofSetColor(255, 255 - 255 * i/numBlobs, 225 - 225 * i/numBlobs, 255 * 0.08);
-//            ofSetColor(in.lerp(out, i/numBlobs));
             
-            float blobWobble = ofMap(i, 0, numBlobs, 0.6, 0.1);
-            perlinBlob(attractorSize - attractorSize * i/numBlobs, blobWobble, 0 + i*2000, 36*i);
+        
         }
         
-        //adds a little shading outside the central circle
-        for(int i = 0; i < 5; i++){
-            ofSetColor(0, 255 * 0.03);
-            perlinBlob(attractorSize - attractorSize * 0.8, 0.6, 0 + i*2000, 36*i);
+        
+        ofSetColor(sunCol1);
+        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
+        
+        //place glow image on top of star
+        ofPushMatrix();
+        
+        ofTranslate(ofGetWindowSize()/2);
+        ofSetRectMode(OF_RECTMODE_CENTER);
+        ofSetCircleResolution(50);
+        ofSetColor(255, 220, 50, 255 * 0.9);
+        ofCircle(0, 0, 150);
+        glow.draw(0, 0, 350, 350);
+        
+        ofSetRectMode(OF_RECTMODE_CORNER);
+        
+        ofPopMatrix();
+        
+        
+        //update sun particles
+        for( vector<SunParticle>::iterator it = sunList.begin(); it != sunList.end(); it++){
+            it -> update();
+            it -> draw();
+            
         }
         
-        //draw central red circle
-        ofSetColor(255, 0, 0);
-        ofCircle(ofGetWindowSize()/2, attractorSize*0.1);
         
-        
-        
+    } else {
+        startedStage1 = false;
     }
-        
-
     
-        
 
     
     
-    //Show all the debugging visuals 
+
+    
+    
+    //Show all the debugging visuals
     if(debugVisuals){
         debugVis();
     }
@@ -1720,7 +1829,7 @@ void testApp::drawUI(){
             ofTranslate(0, ofGetWindowHeight()/2 - borderPadding);
             ofRotate(180);
             
-            ofScale(0.23, 0.23);
+            ofScale(0.3, 0.3);
             
             //draw bounding boxes
             ofSetColor(0, 255 * 0.4);
@@ -1877,11 +1986,13 @@ void testApp::keyPressed(int key){
     
     //change mouse radius
     if(key == '1'){
-        mouseRad = 60;
+        narrativeState = -1;
     } else if(key == '2'){
-        mouseRad = 150;
+        narrativeState = 0;
     } else if(key == '3'){
-        mouseRad = 300;
+        narrativeState = 1;
+    } else if(key == '4'){
+        narrativeState = 2;
     }
     
     

@@ -4,7 +4,7 @@
 #include "ofxOpenCv.h"
 #include "Particle.h"
 #include "ofxMacamPs3Eye.h"
-
+#include "SunParticle.h"
 
 class testApp : public ofBaseApp{
 	public:
@@ -48,7 +48,7 @@ class testApp : public ofBaseApp{
     ofColor cvObjectCol;
     
     //shader stuff
-    ofVbo vbo;
+    ofVbo particleVBO;
     ofShader shader;
     ofTexture texture;
     vector<ofVec3f> points;
@@ -184,7 +184,7 @@ class testApp : public ofBaseApp{
     
     //----------Intro----------
     bool startedIntro;
-    int introStartTime;
+    int stageStartTime;
     bool playIntro01;
     bool playIntro02;
     bool playIntro03;
@@ -242,6 +242,32 @@ class testApp : public ofBaseApp{
     float lightArcAngle;
     float lightArcTrans = 255;
     
+    //----------Stage 1----------
+    bool startedStage1;
+    
+    ofSoundPlayer stage1_01_wearenow;
+    ofSoundPlayer stage1_02_useyourhands;
+    ofSoundPlayer stage1_03_seehow;
+    ofSoundPlayer stage1_04_keepgathering;
+    ofSoundPlayer stage1_05_youvecreated;
+    
+    bool playStage1_01;
+    bool playStage1_02;
+    bool playStage1_03;
+    bool playStage1_04;
+    bool playStage1_05;
+    
+    bool ballInfluence;
+    bool announced;
+    int announcedTimer;
+    
+    
+    //----------Stage 2----------
+    vector<SunParticle> sunList;
+    ofColor sunCol1;
+    ofColor sunCol2;
+    bool starCreated;
+    ofImage glow;
 };
 
 

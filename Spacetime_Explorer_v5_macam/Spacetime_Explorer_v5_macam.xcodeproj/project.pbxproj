@@ -31,6 +31,7 @@
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		BE7F222AFD9FA8DBE437A166 /* Histogram.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FA78573E3DEDCF46DB814B /* Histogram.m */; };
 		D706C0C818F3EED20071A711 /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D706C0C618F3EED20071A711 /* Particle.cpp */; };
+		D77BBA9418F98E8800954E65 /* SunParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D77BBA9218F98E8800954E65 /* SunParticle.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
 		E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */; };
@@ -205,6 +206,8 @@
 		D48085375648E882F2DD0A8B /* blobtrack.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = blobtrack.hpp; path = ../../addons/ofxOpenCv/libs/opencv/include/opencv2/legacy/blobtrack.hpp; sourceTree = SOURCE_ROOT; };
 		D706C0C618F3EED20071A711 /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particle.cpp; sourceTree = "<group>"; };
 		D706C0C718F3EED20071A711 /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
+		D77BBA9218F98E8800954E65 /* SunParticle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SunParticle.cpp; sourceTree = "<group>"; };
+		D77BBA9318F98E8800954E65 /* SunParticle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SunParticle.h; sourceTree = "<group>"; };
 		D7807F04CC89FAF3870D0368 /* ofxMacamPs3Eye.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxMacamPs3Eye.h; path = ../../addons/ofxMacamPs3Eye/src/ofxMacamPs3Eye.h; sourceTree = SOURCE_ROOT; };
 		D84500FB6969501365F37B6C /* lsh_table.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = lsh_table.h; path = ../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/lsh_table.h; sourceTree = SOURCE_ROOT; };
 		D923CECC93BE9FF42D8F8094 /* general.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = general.h; path = ../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/general.h; sourceTree = SOURCE_ROOT; };
@@ -629,6 +632,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D77BBA9218F98E8800954E65 /* SunParticle.cpp */,
+				D77BBA9318F98E8800954E65 /* SunParticle.h */,
 				D706C0C618F3EED20071A711 /* Particle.cpp */,
 				D706C0C718F3EED20071A711 /* Particle.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
@@ -805,6 +810,7 @@
 				18209A6C34FB2C54A22C05DB /* ofxMacamPs3Eye.mm in Sources */,
 				B93E64DCEA33DBD4ADF05547 /* PS3EyeWindowAppDelegate.m in Sources */,
 				D706C0C818F3EED20071A711 /* Particle.cpp in Sources */,
+				D77BBA9418F98E8800954E65 /* SunParticle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
