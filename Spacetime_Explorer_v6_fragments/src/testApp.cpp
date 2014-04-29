@@ -20,7 +20,7 @@ void testApp::setup(){
 	ofDisableArbTex();
 	ofLoadImage(pTex, "dot.png");
 	ofLoadImage(sunCrescent, "crescent.png");
-	ofLoadImage(sunSmoke, "sunSmoke.png");
+	ofLoadImage(sunSmoke, "particleTest2.png");
     
     ofEnableArbTex();
     
@@ -336,6 +336,19 @@ void testApp::setup(){
     //----------Stage 2: Protostar----------
     protoGlow.loadImage("protoGlow.png");
     protoGlow.setAnchorPercent(0.5, 0.5);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    //----------Stage 4: star----------
+    glow.loadImage("glow.png");
+    glow.setAnchorPercent(0.5, 0.5);
+    
     
   
     
@@ -1235,12 +1248,217 @@ void testApp::update(){
             
             createMainFragment();
             
+            
+//            createSunSmoke();
+            
             setupStage3 = true;
         }
         
         
         
         
+        if(pTrans < 0.2){
+            pTrans += 0.003;
+        }
+        
+        //reset particle counters
+        numDead = 0;
+        numDisturbed = 0;
+        
+        //clear out points vector so the only particles in there are ones that are alive
+        pPoints.clear();
+        pSizes.clear();
+        pColors.clear();
+        
+        
+        //Update particles
+        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+            
+            //only update non-dead particles
+            if(it -> dead == false){
+                
+                
+                //upon first entering stage, fade particles in (DOES NOT WORK)
+//                it -> trans = ofLerp(it -> trans, 255, 0.02);
+                
+                
+                //check if inside attractor
+                ofVec3f distAttractor = attractorPos - it -> pos;
+                if(distAttractor.lengthSquared() < attractorSize * attractorSize){
+                    
+                    //if so, make dead
+                    it -> dead = true;
+                    it -> vel.set(0, 0);
+                    
+                }
+                
+                it -> update(mouseDirection);
+                
+                
+                //if particle is within mouse radius, count it as disturbed
+                ofVec2f distMouse = it -> pos - mousePos;
+                
+                if(distMouse.lengthSquared() < mouseRad * mouseRad){
+                    if(it -> disturbed == false){
+                        if(pWhoosh.getIsPlaying() == false){
+                            pWhoosh.play();
+                        }
+                        
+                    }
+                    
+                    it -> disturbed = true;
+                    
+                    //repulsion from mouse
+                    it -> mouseRepel(mousePos, mouseRad, 1.1);
+                    
+                }
+                
+                if(ballInfluence){
+                    //if there are blobs and particle is within radius of blobs, count it as disturbed
+                    if(contourFinder.blobs.size() > 0){
+                        
+                        for(int i = 0; i < contourFinder.blobs.size(); i++){
+                            //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                            
+                            //new mapping with space considerations
+                            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                            
+                            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+                            
+                            
+                            //subtract position of centroid from position of particle
+                            ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
+                            
+                            //count as disturbed if within radius (circular boundary)
+                            if(distBlob.lengthSquared() < disturbRad * disturbRad){
+                                it -> disturbed = true;
+                                
+                                //give the direction of the current blob
+                                it -> blobDir = blobDirection[i];
+                                
+                                //then repel away from current blob
+                                it -> blobRepel(contourFinder.blobs[i].centroid, 1.0);
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                
+                //attraction to Attractor due to its own gravitation for particles within
+                //the attraction radius
+                it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
+                
+                //add another gravitational force once particles are disturbed
+                if(it -> disturbed){
+                    it -> globalAttract(attractorPos, attractStrength);
+                    numDisturbed++;
+                }
+                
+                
+                //clear out the last positions and add the particle's position to the points vector
+                ofVec3f partPos;
+                partPos = it -> pos;
+                pPoints.push_back(partPos);
+                
+                float s = it -> size;
+                pSizes.push_back(ofVec3f(s));
+                
+                ofColor c = it-> col;
+                //normalize on a 0-400 scales instead of 255 to desaturate
+                float r = ofNormalize(c.r, 0, 400);
+                float g = ofNormalize(c.g, 0, 400);
+                float b = ofNormalize(c.b, 0, 400);
+                float a =ofNormalize(c.a, 0, 255);
+                ofFloatColor cF = ofFloatColor(r, g, b, pTrans);
+                pColors.push_back(cF);
+                
+                
+            } else {
+                //count number of dead particles
+                numDead++;
+                
+                if(pList.size() - numDead < 300){
+                    
+                    narrativeState = 4;
+                    pList.clear();
+                    
+                }
+                
+                
+            } //if(particles are alive) statement
+            
+        } //particle update for-loop
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //upload all the info to the vbo
+        int total = (int)pPoints.size();
+        particleVBO.setVertexData(&pPoints[0], total, GL_STATIC_DRAW);
+        particleVBO.setNormalData(&pSizes[0], total, GL_STATIC_DRAW);
+        particleVBO.setColorData(&pColors[0], total, GL_STATIC_DRAW);
+        
+        //send arduino states
+        pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
+        
+        sendSerial(pistonPos, pistonSpeed, 0);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    } else if(narrativeState == 4) {
+        
+        //--------------------STAR UPDATE--------------------
+        
+        
+        //stage setup
+        if(setupStage4 == false){
+
+            
+            stageStartTime = ofGetElapsedTimeMillis();
+//            sendSerial(0, 255, 0);
+            cvObjectCol = ofColor(255, 0, 0, 255);
+            ballInfluence = false;
+            announced = false;
+            
+
+            
+            
+            createSunSmoke();
+            
+            setupStage4 = true;
+
+        
+        }
+        
+        
+        
+        
+        
+        
+        
+    } else if(narrativeState == 5){
         
         
         
@@ -2652,6 +2870,138 @@ void testApp::draw(){
 
         
         
+    } else if(narrativeState == 4){
+        
+        
+        
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+
+        drawGrid(15, 0.2);
+
+        ofSetColor(sunCol1);
+        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
+        
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+
+        ofSetColor(sunCol1);
+        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
+
+        //place glow image on top of star
+        ofPushMatrix();
+
+        ofTranslate(ofGetWindowSize()/2);
+
+        ofSetCircleResolution(50);
+        ofSetColor(255, 220, 50, 255);
+        ofCircle(0, 0, 175);
+        glow.draw(0, 0, 400, 400);
+        glow.draw(0, 0, 400, 400);
+        
+        ofPopMatrix();
+
+        
+        
+
+        
+        
+
+//        //update sun particles
+//        for( vector<SunParticle>::iterator it = sunPList.begin(); it != sunPList.end(); it++){
+//            it -> update();
+//            it -> draw();
+//            
+//        }
+        
+        
+        
+        
+        //clear vectors for VBO of old data
+        //update the particles
+        //push them to VBO vectors
+        
+        pPoints.clear();
+        pSizes.clear();
+        pColors.clear();
+        
+        
+        for( int i = 0; i < sunPList.size(); i++){
+            
+            sunPList[i].update();
+            
+            
+            //first color
+            ofColor c;
+            c = sunPList[i].col;
+            float r = ofNormalize(c.r, 0, 400);
+            float g = ofNormalize(c.g, 0, 400);
+            float b = ofNormalize(c.b, 0, 400);
+            float a = ofNormalize(c.a, 0, 255);
+            ofFloatColor cF = ofFloatColor(r, g, b, 0.5);
+            pColors.push_back(cF);
+            
+            
+            //now for the points and size vectors
+            ofVec3f point;
+            point.set(sunPList[i].pos);
+            pPoints.push_back(point);
+            
+            
+            float s = sunPList[i].size;
+            //float size = 40;
+
+            pSizes.push_back(ofVec3f(s));
+            
+        }
+        
+        //upload all the info to the vbo
+        int total = (int)pPoints.size();
+        particleVBO.setVertexData(&pPoints[0], total, GL_STATIC_DRAW);
+        particleVBO.setNormalData(&pSizes[0], total, GL_STATIC_DRAW);
+        particleVBO.setColorData(&pColors[0], total, GL_STATIC_DRAW);
+        
+        
+        
+        
+        //shader stuff to place images where particles are
+    	glDepthMask(GL_FALSE);
+        
+        //ofSetColor(255);
+        
+        // this makes everything look glowy :)
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        ofEnablePointSprites();
+        
+        // bind the shader and camera
+        // everything inside this function
+        // will be effected by the shader/camera
+        shader.begin();
+        
+        // bind the texture so that when all the points
+        // are drawn they are replace with our dot image
+        sunSmoke.bind();
+
+        particleVBO.draw(GL_POINTS, 0, (int)pPoints.size());
+        
+        sunSmoke.unbind();
+        
+        shader.end();
+        
+        ofDisablePointSprites();
+        ofDisableBlendMode();
+        
+
+        
+        
+        
+        
+    } else if(narrativeState == 5){
+        
+        
+        
+        
+        
+        
+        
     }
     
 
@@ -2878,15 +3228,17 @@ void testApp::keyPressed(int key){
     
     //change mouse radius
     if(key == '1'){
-        narrativeState = -1;
+        narrativeState = -1;        //welcome screen
     } else if(key == '2'){
-        narrativeState = 0;
+        narrativeState = 0;         //intro video
     } else if(key == '3'){
-        narrativeState = 1;
+        narrativeState = 1;         //gas cloud (first interactive stage
     } else if(key == '4'){
-        narrativeState = 2;
+        narrativeState = 2;         //protostar stage
     } else if(key == '5'){
-        narrativeState = 4;
+        narrativeState = 3;         //protostar reactions
+    } else if(key == '6'){
+        narrativeState = 4;         //star birth
     }
     
     
@@ -3132,7 +3484,51 @@ void testApp::createClump(int _x, int _y, float _rad, int num){
     
 }
 
+void testApp::createSunSmoke(){
+    
+    sunPList.clear();
+    
+    
+    for (int i = 0; i < 1000; i++){
+        
+        //Circle distribution code from Charlie Whitney (flocking sketch - algo - fall 2013)
+        
+        float phi = ofRandom( 0, TWO_PI );
+        float costheta = ofRandom( -1.0f, 1.0f );
+        
+        float rho = sqrt( 1.0f - costheta * costheta );
+        float x = rho * cos( phi );
+        float y = rho * sin( phi );
+        float z = costheta;
+        
+        ofVec3f randVec(x, y, z);
+        
+//        ofVec3f pos = randVec;
+        ofVec3f pos = ofVec3f(ofGetWindowSize()/2);
+        
+        ofVec3f vel = ofVec3f(ofRandom(-10, 10), ofRandom(-10, 10), ofRandom(0, 20));
+        
+        SunParticle s;
+        s.setParams(pos, vel);
+        
+        sunCol1 = ofColor(255, 255, 100);
+        sunCol2 = ofColor(255, 200, 20);
+        s.col = sunCol1.lerp(sunCol2, ofRandom(0,1));
+        s.size = ofRandom(pSmall, pBig);
+        sunPList.push_back(s);
+        
 
+        
+        
+    }
+    
+
+    
+    
+    
+    
+    
+}
 
 
 void testApp::createMainFragment(){     //make sure to only call after newParticleField()
@@ -3168,28 +3564,7 @@ void testApp::createMainFragment(){     //make sure to only call after newPartic
 //        f.size = ofRandom(10, 11);
         mainFragment.push_back(f);
         
-        //now add the parameters to the vectors so we can use the shader
-        
-        //first color
-//        ofColor c;
-//        c = f.col;
-//        float r = ofNormalize(c.r, 0, 255);
-//        float g = ofNormalize(c.g, 0, 255);
-//        float b = ofNormalize(c.b, 0, 255);
-//        ofFloatColor cF = ofFloatColor(r, g, b, pTrans);
-//        colors.push_back(cF);
-//        
-//        
-//        //now for the points and size vectors
-//        ofVec3f point;
-//        point.set(f.pos);
-//        points.push_back(point);
-//        
-//        
-//        float s = f.size;
-//        //float size = 40;
-//        sizes.push_back(ofVec3f(100));
-        
+
 
         
     }

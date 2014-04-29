@@ -64,18 +64,7 @@ class testApp : public ofBaseApp{
     vector<ofVec3f> fragSizes;
     vector<ofFloatColor> fragColors;
     
-    //Narrative control
-    int narrativeState;
-    bool transitionTo2;
-    int transitionTo2Timer;
 
-    bool transitionTo3;
-    int transitionTo3Timer;
-    
-    bool zooming;
-    float zoomSquareWidth;
-    float zoomSquareThick;
-    ofColor zoomSquareCol;
     
     
     
@@ -172,6 +161,22 @@ class testApp : public ofBaseApp{
     ofSoundPlayer Intro10_wedontnotice;
     ofSoundPlayer Intro11_iftheresenough;
     ofSoundPlayer Intro12_letssee;
+    
+    
+    
+    //Narrative control
+    int narrativeState;
+    bool transitionTo2;
+    int transitionTo2Timer;
+    
+    bool transitionTo3;
+    int transitionTo3Timer;
+    
+    bool zooming;
+    float zoomSquareWidth;
+    float zoomSquareThick;
+    ofColor zoomSquareCol;
+    
     
     //Narrative States
     //----------Idle----------
@@ -287,6 +292,7 @@ class testApp : public ofBaseApp{
     
     
     //----------Stage 2----------
+    //---------Protostar---------
 
     bool setupStage2;
     
@@ -309,12 +315,22 @@ class testApp : public ofBaseApp{
     
     
     //----------Stage 3----------
+    //-----Protostar to star-----
     
     bool setupStage3;
     
-    bool sun;
+
+    //----------Stage 4----------
+    //-----Protostar to star-----
     
-    //vector(
+    bool setupStage4;
+    
+    ofColor sunCol1;
+    ofColor sunCol2;
+    ofImage glow;
+    
+    vector<SunParticle> sunPList;
+    void createSunSmoke();
     
     
     

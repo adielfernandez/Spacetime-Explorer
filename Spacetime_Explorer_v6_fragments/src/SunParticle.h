@@ -33,10 +33,13 @@ public:
     ofVec3f vel;
     ofVec3f frc;
     
-    ofVec3f damping;
+    float damping;
     
     int lifeSpan;
-    int trans;
+    float trans;
     ofColor col;
+    float size;
+    int ageOfDeath;
+    
     
 };
