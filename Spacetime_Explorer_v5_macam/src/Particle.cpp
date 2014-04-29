@@ -23,12 +23,12 @@ Particle::Particle(){
     
 }
 
-void Particle::setup(ofImage *thisImage){
-    
-    sharedImage = thisImage;
-    
-    
-}
+//void Particle::setup(ofImage *thisImage){
+//    
+//    sharedImage = thisImage;
+//    
+//    
+//}
 
 void Particle::mouseRepel(ofVec3f _pos, float _radius, float _strength){
     

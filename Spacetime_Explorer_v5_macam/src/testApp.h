@@ -96,7 +96,7 @@ class testApp : public ofBaseApp{
     int numDead;
     int numDisturbed;
     ofImage colorscheme;
-    float trans;
+    float pTrans;
     int pBig;
     int pSmall;
     
@@ -243,7 +243,8 @@ class testApp : public ofBaseApp{
     float lightArcTrans = 255;
     
     //----------Stage 1----------
-    bool startedStage1;
+    //-------Cloud Fragment------
+    bool setupStage1;
     
     ofSoundPlayer stage1_01_wearenow;
     ofSoundPlayer stage1_02_useyourhands;
@@ -257,17 +258,31 @@ class testApp : public ofBaseApp{
     bool playStage1_04;
     bool playStage1_05;
     
+    
     bool ballInfluence;
     bool announced;
     int announcedTimer;
-    
+    bool test;
     
     //----------Stage 2----------
-    vector<SunParticle> sunList;
-    ofColor sunCol1;
-    ofColor sunCol2;
-    bool starCreated;
-    ofImage glow;
+
+    bool setupStage2;
+    
+    ofSoundPlayer stage2_01_useyourhands;
+    ofSoundPlayer stage2_02_sometimescloud;
+    ofSoundPlayer stage2_03_startingtogetwarm;
+    ofSoundPlayer stage2_04_fragmentprotostar;
+    ofSoundPlayer stage2_05_littlemoremass;
+    
+    bool playStage2_01;
+    bool playStage2_02;
+    bool playStage2_03;
+    bool playStage2_04;
+    bool playStage2_05;
+    
+    bool newFragment;
+    
+    
 };
 
 

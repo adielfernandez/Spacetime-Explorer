@@ -114,10 +114,10 @@ void testApp::setup(){
     
     //CREATE PARTICLE FIELD
     fieldRes = 8;
-    trans = 0.2;
+    pTrans = 0.2;
     pSmall = 15;
     pBig = 80;
-    newParticleField(fieldRes);
+
     
     //UI Stuff
     instructions.loadFont("avenir.ttc", 100, true, true);
@@ -268,9 +268,9 @@ void testApp::setup(){
     //Narrative States
     //----------Idle----------
     background.loadImage("idleBackground.jpg");
-    handWithBall.loadImage("handwithball.png");
+    handWithBall.loadImage("palmwithballgreen.png");
     handWithBall.rotate90(2);
-    handWithBall.setAnchorPercent(1.0, 0.0);
+    handWithBall.setAnchorPercent(0.5, 0.5);
     
     //----------Intro----------
     milkyWay.loadImage("milkyway.jpg");
@@ -299,8 +299,10 @@ void testApp::setup(){
     earth.loadImage("earth.png");
     earth.setAnchorPercent(0.5, 0.5);
     
+  
     
-    glow.loadImage("glow.png");
+    //Load glowy image for star placeholder
+//    glow.loadImage("glow.png");
     
     debugVisuals = true;
     
@@ -611,6 +613,24 @@ void testApp::update(){
     } else if(narrativeState == 1){
     
         
+        //--------------------CLOUD FRAGMENT UPDATE--------------------
+        
+        //stage setup
+        if(setupStage1 == false){
+            fieldRes = 8;
+            pList.clear();
+            newParticleField(fieldRes);
+            stageStartTime = ofGetElapsedTimeMillis();
+            sendSerial(0, 255, 0);
+            cvObjectCol = ofColor(255, 0, 0, 255);
+            ballInfluence = false;
+            announced = false;
+            
+            setupStage1 = true;
+        }
+        
+        
+        
         //reset particle counters
         numDead = 0;
         numDisturbed = 0;
@@ -720,7 +740,7 @@ void testApp::update(){
                 float r = ofNormalize(c.r, 0, 255);
                 float g = ofNormalize(c.g, 0, 255);
                 float b = ofNormalize(c.b, 0, 255);
-                ofFloatColor cF = ofFloatColor(r, g, b, trans);
+                ofFloatColor cF = ofFloatColor(r, g, b, pTrans);
                 colors.push_back(cF);
                 
                 
@@ -776,7 +796,7 @@ void testApp::update(){
             }
             
             //if we're animating...
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 3500){
+            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 5500){
                 zooming = true;
                 
                 if(zoom.getIsPlaying() == false){
@@ -853,10 +873,260 @@ void testApp::update(){
     } else if(narrativeState == 2){
         
         
+        //--------------------PROTOSTAR UPDATE--------------------
+        
+        
+        //stage setup
+        if(setupStage2 == false){
+            pList.clear();
+            fieldRes = 7;
+            newParticleField(fieldRes);
+            stageStartTime = ofGetElapsedTimeMillis();
+            sendSerial(0, 255, 0);
+            cvObjectCol = ofColor(255, 0, 0, 255);
+            ballInfluence = false;
+            announced = false;
+            
+            setupStage2 = true;
+        }
+        
+        
+        
+        //reset particle counters
+        numDead = 0;
+        numDisturbed = 0;
+        
+        //clear out points vector so the only particles in there are ones that are alive
+        points.clear();
+        sizes.clear();
+        colors.clear();
+        
+        
+        //Update particles
+        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+            
+            //only update non-dead particles
+            if(it -> dead == false){
+                
+                
+                //upon first entering stage, fade particles in
+                it -> trans = ofLerp(it -> trans, 255, 0.02);
+                
+                
+                //check if inside attractor
+                ofVec3f distAttractor = attractorPos - it -> pos;
+                if(distAttractor.lengthSquared() < attractorSize * attractorSize){
                     
+                    //if so, make dead
+                    it -> dead = true;
+                    it -> vel.set(0, 0);
+                    
+                }
+                
+                it -> update(mouseDirection);
+                
+                
+                //if particle is within mouse radius, count it as disturbed
+                ofVec2f distMouse = it -> pos - mousePos;
+                
+                if(distMouse.lengthSquared() < mouseRad * mouseRad){
+                    if(it -> disturbed == false){
+                        if(pWhoosh.getIsPlaying() == false){
+                            pWhoosh.play();
+                        }
+                        
+                    }
+                    
+                    it -> disturbed = true;
+                    
+                    //repulsion from mouse
+                    it -> mouseRepel(mousePos, mouseRad, 1.1);
+                    
+                }
+                
+                if(ballInfluence){
+                    //if there are blobs and particle is within radius of blobs, count it as disturbed
+                    if(contourFinder.blobs.size() > 0){
+                        
+                        for(int i = 0; i < contourFinder.blobs.size(); i++){
+                            //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                            
+                            //new mapping with space considerations
+                            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                            
+                            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+                            
+                            
+                            //subtract position of centroid from position of particle
+                            ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
+                            
+                            //count as disturbed if within radius (circular boundary)
+                            if(distBlob.lengthSquared() < disturbRad * disturbRad){
+                                it -> disturbed = true;
+                                
+                                //give the direction of the current blob
+                                it -> blobDir = blobDirection[i];
+                                
+                                //then repel away from current blob
+                                it -> blobRepel(contourFinder.blobs[i].centroid, 1.0);
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                
+                //attraction to Attractor due to its own gravitation for particles within
+                //the attraction radius
+                it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
+                
+                //add another gravitational force once particles are disturbed
+                if(it -> disturbed){
+                    it -> globalAttract(attractorPos, attractStrength);
+                    numDisturbed++;
+                }
+                
+                
+                //clear out the last positions and add the particle's position to the points vector
+                ofVec3f partPos;
+                partPos = it -> pos;
+                points.push_back(partPos);
+                
+                float s = it -> size;
+                sizes.push_back(ofVec3f(s));
+                
+                ofColor c = it-> col;
+                float r = ofNormalize(c.r, 0, 255);
+                float g = ofNormalize(c.g, 0, 255);
+                float b = ofNormalize(c.b, 0, 255);
+                ofFloatColor cF = ofFloatColor(r, g, b, pTrans);
+                colors.push_back(cF);
+                
+                
+            } else {
+                //count number of dead particles
+                numDead++;
+                
+                if(pList.size() - numDead < 300){
+                    transitionTo2 = true;
+                    
+                    
+                }
+                
+                
+            } //if(particles are alive) statement
+            
+        } //particle for-loop
+        
+        
+        if(transitionTo2 == false){
+            
+            
+            //change attractor size depending on how many particles have been swallowed
+            attractorSize = ofLerp(attractorBase, attractorMax, (float)numDead/(float)pList.size());
+            
+            //update the timer so its current when the transition actually starts
+            transitionTo2Timer = ofGetElapsedTimeMillis();
+            
+            pistonSpeed = 120;
             
             
             
+        }
+        
+        
+        
+        //if we've gathered all the particles, trigger transition
+        
+        //--------------------zoom animation--------------------
+        
+        if(transitionTo2){
+            
+            //set piston speed to move up quickly
+            pistonSpeed = 255;
+            
+            //play narration clip:
+            //"Great job! You've cleared out the neighborhood of all the gas and dust.
+            //Lets zoom out to see if we can find more to collect"
+            
+            //if we're not already playing it
+            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+                stage1_05_youvecreated.play();
+            }
+            
+            //if we're animating...
+            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 5500){
+                zooming = true;
+                
+                if(zoom.getIsPlaying() == false){
+                    zoom.play();
+                }
+                
+                float fadeSpeed = 0.03;
+                
+                //change size of attractor
+                attractorSize = ofLerp(attractorSize, 20, fadeSpeed);
+                
+                //fade away the status
+                if(statusCol.a > 0){
+                    statusCol.a -= 5;
+                }
+                
+                //shrink zoom square and fade out color
+                zoomSquareWidth = ofLerp(zoomSquareWidth, 50, fadeSpeed);
+                zoomSquareThick = ofLerp(zoomSquareThick, 1, fadeSpeed);
+                
+                
+                if(zoomSquareWidth < 55){
+                    zoomSquareCol.a = ofLerp(zoomSquareCol.a, 0, fadeSpeed);
+                }
+                
+                //make all particles disturbed
+                for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+                    it -> disturbed = true;
+                }
+                
+                //if we're ready to move on to the next stage (i.e. narration is done),
+                //change narrativeState to 2
+                
+            }
+            
+            
+            //if we're ready reset key variables and increment narrativeState
+            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 9000){
+                
+                //clear out the particles
+                
+                
+                pList.clear();
+                
+                newParticleField(6);
+                
+                narrativeState = 2;
+            }
+            
+            
+            
+            
+            
+            
+            
+            
+        }
+        
+        
+        //upload all the info to the vbo
+        int total = (int)points.size();
+        particleVBO.setVertexData(&points[0], total, GL_STATIC_DRAW);
+        particleVBO.setNormalData(&sizes[0], total, GL_STATIC_DRAW);
+        particleVBO.setColorData(&colors[0], total, GL_STATIC_DRAW);
+        
+        //send arduino states
+        pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
+        
+        sendSerial(pistonPos, pistonSpeed, 0);
             
             
             
@@ -875,6 +1145,67 @@ void testApp::update(){
         
         
     }
+    
+    
+    
+    
+    
+    
+    
+    //----------------------------------------------------------------------------------//
+    //                                                                                  //
+    //                                                                                  //
+    //                             RESET INDIVIDUAL STAGES                              //
+    //                                                                                  //
+    //                                                                                  //
+    //                                                                                  //
+    //----------------------------------------------------------------------------------//
+    
+    
+    if(narrativeState != -1){
+        
+    }
+    
+    if(narrativeState != 0){
+        
+    }
+    
+    if(narrativeState != 1){
+        
+        setupStage1 = false;
+        transitionTo2 = false;
+        
+        
+        
+        
+    }
+    
+    if(narrativeState != 2){
+        
+        
+        setupStage2 = false;
+        transitionTo3 = false;
+        
+    }
+    
+    if(narrativeState != 3){
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 }
 
@@ -908,7 +1239,7 @@ void testApp::draw(){
         ofPushMatrix();
         ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2);
 
-        float rotateSpeed = ofGetElapsedTimef() * 3;
+        float rotateSpeed = ofGetElapsedTimef() * -3;
         
         ofRotate(rotateSpeed);
         ofSetRectMode(OF_RECTMODE_CENTER);
@@ -982,7 +1313,7 @@ void testApp::draw(){
         string idleMessage = "Hold ball here to begin";
 
         ofPushMatrix();
-        ofTranslate(ofGetWindowWidth()/2 + 250, 135);
+        ofTranslate(ofGetWindowWidth()/2 + 250, 120);
         ofScale(0.3, 0.3);
         ofRotate(180);
         
@@ -1548,17 +1879,11 @@ void testApp::draw(){
         
         
         
-    } else if(narrativeState == 1){ //-------------------STAGE 1--------------------------
+    } else if(narrativeState == 1){
+        
+        //-------------------STAGE 1: CLOUD FRAGMENT--------------------------
     
-        //stage setup
-        if(startedStage1 == false){
-            stageStartTime = ofGetElapsedTimeMillis();
-            sendSerial(0, 255, 0);
-            cvObjectCol = ofColor(255, 0, 0, 255);
-            startedStage1 = true;
-            ballInfluence = false;
-            announced = false;
-        }
+
         
         
         int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
@@ -1577,7 +1902,7 @@ void testApp::draw(){
         }
         
         
-        if(currentTime > 12000 && currentTime < 12500 && !stage1_02_useyourhands.getIsPlaying()){
+        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
             playStage1_02 = true;
         }
         
@@ -1590,27 +1915,43 @@ void testApp::draw(){
         }
         
         
-        if(numDead > 5000 && announced == false){
+        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
             playStage1_03 = true;
             announced = true;
+            cout << "play narration" << endl;
         }
         
         if(playStage1_03){
             stage1_03_seehow.play();
             announcedTimer = ofGetElapsedTimeMillis();
+            playStage1_03 = false;
         }
         
-//        if(ofGetElapsedTimeMillis() - announcedTimer > 8000 && ofGetElapsedTimeMillis() - announcedTimer < 8500){
-//            playStage1_04 = true;
-//        }
-//        
-//        if(playStage1_04){
-//            stage1_04_keepgathering.play();
-//        }
+        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
+            playStage1_04 = true;
+            test = true;
+        }
+        
+        if(playStage1_04){
+            stage1_04_keepgathering.play();
+            playStage1_04 = false;
+        }
         
         drawGrid(15, 0.2);
-        
 
+        
+        
+        
+//        if(test){
+//            ofPushStyle();
+//            
+//            ofSetColor(255, 0, 0);
+//            ofCircle(300, 300, 100);
+//            
+//            ofPopStyle();
+//        }
+        
+        
         
          
         //draw particles
@@ -1669,7 +2010,6 @@ void testApp::draw(){
             float blobWobble = ofMap(i, 0, numBlobs, 0.6, 0.1);
             perlinBlob(attractorSize - attractorSize * i/numBlobs, blobWobble, 0 + i*2000, 36*i);
       
-        
         }
         
         //draw UI
@@ -1698,70 +2038,168 @@ void testApp::draw(){
     
     } else if(narrativeState == 2){
 
-    
-        if(starCreated == false){
-            for (int i = 0; i < 1000; i++){
-                
-                sunCol1 = ofColor(255, 255, 150);
-                sunCol2 = ofColor(255, 100, 20);
-                starCreated = true;
+        
+        
+        //-------------------STAGE 2: PROTOSTAR--------------------------
+        
 
-                //Circle distribution code from Charlie Whitney (flocking sketch - algo - fall 2013)
-                
-                float phi = ofRandom( 0, TWO_PI );
-                float costheta = ofRandom( -1.0f, 1.0f );
-                
-                float rho = sqrt( 1.0f - costheta * costheta );
-                float x = rho * cos( phi );
-                float y = rho * sin( phi );
-                float z = costheta;
-                
-                ofVec3f randVec(x, y, z);
-                
-                ofVec3f pos = randVec * ofRandom( 25.0f, 50.0f );
-                ofVec3f vel(ofRandom(-10, 10),ofRandom(-10, 10),ofRandom(-10, 10));
-                
-                
-                SunParticle s;
-                s.setParams(pos, vel);
-                s.col = sunCol1.lerp(sunCol2, ofRandom(0,1));
-                
-                sunList.push_back(s);
-                
-            }
-            
         
+        
+        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        
+        
+        //play first clip: "help the fragment gather more gas"
+        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
+            playStage2_01 = true;
+            
+        }
+        
+        
+        if(playStage2_01){
+            stage2_01_useyourhands.play();
+            playStage2_01 = false;
         }
         
         
-        ofSetColor(sunCol1);
-        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
-        
-        //place glow image on top of star
-        ofPushMatrix();
-        
-        ofTranslate(ofGetWindowSize()/2);
-        ofSetRectMode(OF_RECTMODE_CENTER);
-        ofSetCircleResolution(50);
-        ofSetColor(255, 220, 50, 255 * 0.9);
-        ofCircle(0, 0, 150);
-        glow.draw(0, 0, 350, 350);
-        
-        ofSetRectMode(OF_RECTMODE_CORNER);
-        
-        ofPopMatrix();
         
         
-        //update sun particles
-        for( vector<SunParticle>::iterator it = sunList.begin(); it != sunList.end(); it++){
-            it -> update();
-            it -> draw();
+        //trigger second clip and create a new fragment
+        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
+            playStage1_02 = true;
+        }
+        
+        if(playStage1_02){
+            stage1_02_useyourhands.play();
+            playStage1_02 = false;
+            cvObjectCol = ofColor(0, 255, 0);
+            ballInfluence = true;
             
         }
+        
+        
+        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
+            playStage1_03 = true;
+            announced = true;
+            cout << "play narration" << endl;
+        }
+        
+        if(playStage1_03){
+            stage1_03_seehow.play();
+            announcedTimer = ofGetElapsedTimeMillis();
+            playStage1_03 = false;
+        }
+        
+        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
+            playStage1_04 = true;
+            test = true;
+        }
+        
+        if(playStage1_04){
+            stage1_04_keepgathering.play();
+            playStage1_04 = false;
+        }
+        
+        drawGrid(15, 0.2);
+        
+
+        
+        
+        
+        
+        //draw particles
+//        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+//            if(it -> dead == false){
+//                it -> draw();
+//            }
+//        }
+        
+        
+        
+        //shader stuff to place images where particles are
+    	glDepthMask(GL_FALSE);
+        
+        //ofSetColor(255);
+        
+        // this makes everything look glowy :)
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        ofEnablePointSprites();
+        
+        // bind the shader and camera
+        // everything inside this function
+        // will be effected by the shader/camera
+        shader.begin();
+        
+        // bind the texture so that when all the points
+        // are drawn they are replace with our dot image
+        texture.bind();
+        particleVBO.draw(GL_POINTS, 0, (int)points.size());
+        texture.unbind();
+        
+        shader.end();
+        
+        ofDisablePointSprites();
+        ofDisableBlendMode();
+        
+        
+        ofEnableAlphaBlending();
+        
+        
+        
+        
+        //Draw Attractor
+        
+        ofColor out = ofColor(255, 255, 255, 100);
+        ofColor in = ofColor(255, 0, 0, 100);
+        int numBlobs = 100;
+        
+        for(int i = 0; i < numBlobs; i++){
+            ofSetColor(255, 255 - 255 * i/numBlobs, 225 - 225 * i/numBlobs, 255 * 0.08);
+            //            ofSetColor(in.lerp(out, i/numBlobs));
+            
+            float blobWobble = ofMap(i, 0, numBlobs, 0.6, 0.1);
+            perlinBlob(attractorSize - attractorSize * i/numBlobs, blobWobble, 0 + i*2000, 36*i);
+        }
+        
+        //adds a little shading outside the central circle
+        for(int i = 0; i < 5; i++){
+            ofSetColor(0, 255 * 0.03);
+            perlinBlob(attractorSize - attractorSize * 0.8, 0.6, 0 + i*2000, 36*i);
+        }
+        
+        //draw central red circle
+        ofSetColor(255, 0, 0);
+        ofCircle(ofGetWindowSize()/2, attractorSize*0.1);
+
+        
+        //draw UI
+        drawUI();
+        
+        
+        //draw blob positions
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+            
+            ofPushStyle();
+            
+            ofSetColor(cvObjectCol);
+            ofCircle(mapBlobX, mapBlobY, 10);
+            ofNoFill();
+            ofCircle(mapBlobX, mapBlobY, disturbRad);
+            
+            ofPopStyle();
+        }
+        
+
+        
+
         
         
     } else {
-        startedStage1 = false;
+        setupStage1 = false;
     }
     
 
@@ -1774,16 +2212,7 @@ void testApp::draw(){
     if(debugVisuals){
         debugVis();
     }
-    
-    
-    
-    
-    
-
-
-    
-    
-    
+   
     
     
     //----------after everything else is done----------
@@ -1808,6 +2237,20 @@ void testApp::draw(){
     
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //--------------------------------------------------UI STUFF------------------------------------------
@@ -1993,6 +2436,8 @@ void testApp::keyPressed(int key){
         narrativeState = 1;
     } else if(key == '4'){
         narrativeState = 2;
+    } else if(key == '5'){
+        narrativeState = 4;
     }
     
     
@@ -2022,21 +2467,19 @@ void testApp::keyPressed(int key){
     }
     
     
-    //go to N = 1
-    if(key == 'n' || key == 'N'){
-        narrativeState = 1;
-        sendSerial(0, 255, 0);
-    }
+
     
     
     //piston to top
     if(key == '9'){
         sendSerial(0, 255, 0);
+        cout << "piston up" << endl;
         
     }
     //piston to bottom
     if(key == '0'){
         sendSerial(255, 255, 0);
+        cout << "piston down" << endl;
     }
     
 }
@@ -2104,11 +2547,14 @@ void testApp::newParticleField(int res){
     int particleResolution = res;
     int randomScatter = 30;
     
+    ofSeedRandom(ofRandom(1000));
     randomPerl = ofRandom(1000);
     
     float perlinScale = 0.005;
     
+    pList.clear();
     sizes.clear();
+    points.clear();
     
     for(int y = 0; y < ofGetWindowHeight(); y += particleResolution){
         for(int x = ofGetWindowWidth()/2 - ofGetWindowHeight()/2; x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2; x += particleResolution){
@@ -2125,7 +2571,7 @@ void testApp::newParticleField(int res){
                     p.pos.set(x + ofRandom(-randomScatter, randomScatter), y + ofRandom(-randomScatter, randomScatter));
                     
                     p.col = colorscheme.getColor(x, y);
-                    p.col.a = trans;
+                    p.col.a = pTrans;
                     p.size = ofRandom(pSmall, pBig);
                     pList.push_back(p);
                     
@@ -2134,7 +2580,7 @@ void testApp::newParticleField(int res){
                     float r = ofNormalize(c.r, 0, 255);
                     float g = ofNormalize(c.g, 0, 255);
                     float b = ofNormalize(c.b, 0, 255);
-                    ofFloatColor cF = ofFloatColor(r, g, b, trans);
+                    ofFloatColor cF = ofFloatColor(r, g, b, pTrans);
                     colors.push_back(cF);
                     
                     //duplicate positions in point vector and size vector

@@ -1,0 +1,3 @@
+ofxOpenCv
+ofxAutoReloadedShader
+ofxMacamPs3Eye
