@@ -11,7 +11,7 @@ void testApp::setup(){
     ofSetLogLevel(OF_LOG_VERBOSE);
     
     int baud = 9600;
-    serial.setup("/dev/tty.usbmodem1411", baud); 
+    serial.setup("/dev/tty.usbmodem1421", baud); 
     
     pistonPos = 0;
     pistonSpeed = 120;

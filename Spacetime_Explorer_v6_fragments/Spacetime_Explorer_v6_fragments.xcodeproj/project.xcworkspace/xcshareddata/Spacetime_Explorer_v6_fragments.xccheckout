@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>1C5A5165-3101-499D-BCCE-E2C3FEF9B01D</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Spacetime_Explorer_v6_fragments</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>956DC2DE-EFC7-499E-AF49-A3BE33966686</key>
+		<string>https://github.com/adielfernandez/Spacetime-Explorer.git</string>
+		<key>FB8A0536-7C04-4DBB-A11F-86774DBB614C</key>
+		<string>https://github.com/andreasmuller/ofxAutoReloadedShader.git</string>
+		<key>FE0734E8-DF0A-4046-84FD-56738E54A6C0</key>
+		<string>https://github.com/paulobarcelos/ofxMacamPs3Eye.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Spacetime_Explorer_v6_fragments/Spacetime_Explorer_v6_fragments.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>956DC2DE-EFC7-499E-AF49-A3BE33966686</key>
+		<string>../../..</string>
+		<key>FB8A0536-7C04-4DBB-A11F-86774DBB614C</key>
+		<string>../../../../addons/ofxAutoReloadedShader</string>
+		<key>FE0734E8-DF0A-4046-84FD-56738E54A6C0</key>
+		<string>../../../../addons/ofxMacamPs3Eye</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/adielfernandez/Spacetime-Explorer.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>956DC2DE-EFC7-499E-AF49-A3BE33966686</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>FB8A0536-7C04-4DBB-A11F-86774DBB614C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxAutoReloadedShader</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>FE0734E8-DF0A-4046-84FD-56738E54A6C0</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxMacamPs3Eye</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>956DC2DE-EFC7-499E-AF49-A3BE33966686</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Spacetime-Explorer</string>
+		</dict>
+	</array>
+</dict>
+</plist>
