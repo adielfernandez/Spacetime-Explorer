@@ -11,14 +11,14 @@ void testApp::setup(){
     ofSetLogLevel(OF_LOG_VERBOSE);
     
     int baud = 9600;
-    serial.setup("/dev/tty.usbmodem1411", baud); 
+    serial.setup("/dev/tty.usbmodem1421", baud); 
     
     pistonPos = 0;
     pistonSpeed = 120;
     
     // load the texure
 	ofDisableArbTex();
-	ofLoadImage(pTex, "dot.png");
+	ofLoadImage(pTex, "dotsmall.png");
 	ofLoadImage(sunCrescent, "crescent.png");
 	ofLoadImage(sunSmoke, "particleTest2.png");
     
@@ -666,7 +666,7 @@ void testApp::update(){
         
         //stage setup
         if(setupStage1 == false){
-            fieldRes = 7;
+            fieldRes = 12;
             pList.clear();
             newParticleField(fieldRes);
             
@@ -2414,6 +2414,10 @@ void testApp::draw(){
         
         //----------draw Cloud Fragment----------
         
+        
+        
+        
+        
   
         float scaleFactor = ofMap(attractorLerp, 0.0, 1.0, 0, 250);
         
@@ -2489,7 +2493,7 @@ void testApp::draw(){
         
         ofPushMatrix();
         ofTranslate(ofGetWindowSize()/2);
-        fragmentVBO.draw(GL_POINTS, 0, (int)fragPoints.size());
+//        fragmentVBO.draw(GL_POINTS, 0, (int)fragPoints.size());
         ofPopMatrix();
         
 
