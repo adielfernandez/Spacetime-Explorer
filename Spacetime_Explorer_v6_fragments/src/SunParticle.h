@@ -40,6 +40,6 @@ public:
     ofColor col;
     float size;
     int ageOfDeath;
-    
+    bool explode;
     
 };

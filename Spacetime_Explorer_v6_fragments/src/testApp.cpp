@@ -83,11 +83,9 @@ void testApp::setup(){
     
     
     //view controls
-    transitionTo2 = false;
-    transitionTo2Timer = 0;
+    transitionToNext = false;
+    transitionToNextTimer = 0;
 
-    transitionTo3 = false;
-    transitionTo3Timer = 0;
     
     zooming = false;
     
@@ -682,6 +680,10 @@ void testApp::update(){
             
             setupStage1 = true;
             
+
+            progressCol = ofColor(0, 255, 0);
+            
+            
             pTrans = 0;
             
         }
@@ -809,7 +811,7 @@ void testApp::update(){
                 numDead++;
                 
                 if(pList.size() - numDead < 300){
-                    transitionTo2 = true;
+                    transitionToNext = true;
 
 
                 }
@@ -831,7 +833,7 @@ void testApp::update(){
         
         
         
-        if(transitionTo2 == false){
+        if(transitionToNext == false){
             
             
             //change attractor size depending on how many particles have been swallowed
@@ -839,7 +841,7 @@ void testApp::update(){
             attractorLerp = (float)numDead/(float)pList.size();
             
             //update the timer so its current when the transition actually starts
-            transitionTo2Timer = ofGetElapsedTimeMillis();
+            transitionToNextTimer = ofGetElapsedTimeMillis();
             
             pistonSpeed = 120;
 
@@ -853,7 +855,7 @@ void testApp::update(){
 
         //--------------------zoom animation--------------------
         
-        if(transitionTo2){
+        if(transitionToNext){
            
             //set piston speed to move up quickly
             pistonSpeed = 255;
@@ -863,12 +865,12 @@ void testApp::update(){
             //Lets zoom out to see if we can find more to collect"
             
             //if we're not already playing it
-            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionToNextTimer < 1000){
                 stage1_05_youvecreated.play();
             }
             
             //if we're animating...
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 5500){
+            if(ofGetElapsedTimeMillis() - transitionToNextTimer > 5500){
                 zooming = true;
                 
                 if(zoom.getIsPlaying() == false){
@@ -907,7 +909,7 @@ void testApp::update(){
             
             
             //if we're ready reset key variables and increment narrativeState
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 9000){
+            if(ofGetElapsedTimeMillis() - transitionToNextTimer > 9000){
                 
                 narrativeState = 2;
             }
@@ -965,7 +967,312 @@ void testApp::update(){
             
             createMainFragment();
             
+            statusCol.a = 255;
+            statusA = "Status: Protostar";
+            statusB = "";
+            
+            
             setupStage2 = true;
+            
+            pTrans = 0;
+            
+        }
+        
+        if(pTrans < 0.2){
+            pTrans += 0.003;
+        }
+        
+        //reset particle counters
+        numDead = 0;
+        numDisturbed = 0;
+        
+        //clear out points vector so the only particles in there are ones that are alive
+        pPoints.clear();
+        pSizes.clear();
+        pColors.clear();
+        
+        
+        //Update particles
+        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+            
+            //only update non-dead particles
+            if(it -> dead == false){
+                
+                
+                //upon first entering stage, fade particles in
+                it -> trans = ofLerp(it -> trans, 255, 0.02);
+                
+                
+                //check if inside attractor
+                ofVec3f distAttractor = attractorPos - it -> pos;
+                if(distAttractor.lengthSquared() < attractorSize * attractorSize){
+                    
+                    //if so, make dead
+                    it -> dead = true;
+                    it -> vel.set(0, 0);
+                    
+                }
+                
+                it -> update(mouseDirection);
+                
+                
+                
+
+                
+                ofVec3f distClump = it -> pos - clumpPos;
+                if(distClump.lengthSquared() < 75 * 75){
+//                    locateClump = false;
+                }
+                
+                
+                //if particle is within mouse radius, count it as disturbed
+                ofVec2f distMouse = it -> pos - mousePos;
+                
+                if(distMouse.lengthSquared() < mouseRad * mouseRad){
+                    if(it -> disturbed == false){
+                        if(pWhoosh.getIsPlaying() == false){
+                            pWhoosh.play();
+                        }
+                        
+                    }
+                    
+                    it -> disturbed = true;
+                    
+                    //repulsion from mouse
+                    it -> mouseRepel(mousePos, mouseRad, 1.1);
+                    
+                }
+                
+                if(ballInfluence){
+                    //if there are blobs and particle is within radius of blobs, count it as disturbed
+                    if(contourFinder.blobs.size() > 0){
+                        
+                        for(int i = 0; i < contourFinder.blobs.size(); i++){
+                            //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                            
+                            //new mapping with space considerations
+                            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                            
+                            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+                            
+                            
+                            //subtract position of centroid from position of particle
+                            ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
+                            
+                            //count as disturbed if within radius (circular boundary)
+                            if(distBlob.lengthSquared() < disturbRad * disturbRad){
+                                it -> disturbed = true;
+                                
+                                //give the direction of the current blob
+                                it -> blobDir = blobDirection[i];
+                                
+                                //then repel away from current blob
+                                it -> blobRepel(contourFinder.blobs[i].centroid, 1.0);
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                
+                //attraction to Attractor due to its own gravitation for particles within
+                //the attraction radius
+                it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
+                
+                //add another gravitational force once particles are disturbed
+                if(it -> disturbed){
+                    it -> globalAttract(attractorPos, attractStrength);
+                    numDisturbed++;
+                }
+                
+                
+                //clear out the last positions and add the particle's position to the points vector
+                ofVec3f partPos;
+                partPos = it -> pos;
+                pPoints.push_back(partPos);
+                
+                float s = it -> size;
+                pSizes.push_back(ofVec3f(s));
+                
+                ofColor c = it-> col;
+                //normalize on a 0-400 scales instead of 255 to desaturate
+                float r = ofNormalize(c.r, 0, 400);
+                float g = ofNormalize(c.g, 0, 400);
+                float b = ofNormalize(c.b, 0, 400);
+                float a =ofNormalize(c.a, 0, 255);
+                ofFloatColor cF = ofFloatColor(r, g, b, pTrans);
+                pColors.push_back(cF);
+                
+                
+            } else {
+                //count number of dead particles
+                numDead++;
+                
+                if(pList.size() - numDead < 300){
+                    transitionToNext = true;
+                    
+                    
+                }
+                
+                
+            } //if(particles are alive) statement
+            
+        } //particle update for-loop
+        
+
+        
+        
+        if(ofDistSquared(mouseX, mouseY, clumpPos.x, clumpPos.y) < 75 * 75){
+            locateClump = false;
+        }
+        
+        
+        
+        
+        
+        
+        if(transitionToNext == false){
+            
+            
+            //change attractor size depending on how many particles have been swallowed
+            attractorSize = ofLerp(attractorBase, attractorMax, (float)numDead/(float)pList.size());
+            attractorLerp = (float)numDead/(float)pList.size();
+            
+            //update the timer so its current when the transition actually starts
+            transitionToNextTimer = ofGetElapsedTimeMillis();
+            
+            pistonSpeed = 120;
+            
+            
+            
+        }
+        
+        
+        
+        //if we've gathered all the particles, trigger transition
+        
+        //--------------------zoom animation--------------------
+        
+        if(transitionToNext){
+            
+            //set piston speed to move up quickly
+            pistonSpeed = 255;
+            
+            //play narration clip:
+            //"Great job! You've cleared out the neighborhood of all the gas and dust.
+            //Lets zoom out to see if we can find more to collect"
+            
+            //if we're not already playing it
+            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionToNextTimer < 1000){
+                stage1_05_youvecreated.play();
+            }
+            
+            //if we're animating...
+            if(ofGetElapsedTimeMillis() - transitionToNextTimer > 5500){
+                zooming = true;
+                
+                if(zoom.getIsPlaying() == false){
+                    zoom.play();
+                }
+                
+                float fadeSpeed = 0.03;
+                
+                //change size of attractor
+                attractorSize = ofLerp(attractorSize, 20, fadeSpeed);
+                attractorLerp = ofLerp(attractorLerp, 0.0f, fadeSpeed);
+                
+                //fade away the status
+                if(statusCol.a > 0){
+                    statusCol.a -= 5;
+                }
+                
+                //shrink zoom square and fade out color
+                zoomSquareWidth = ofLerp(zoomSquareWidth, 50, fadeSpeed);
+                zoomSquareThick = ofLerp(zoomSquareThick, 1, fadeSpeed);
+                
+                
+                if(zoomSquareWidth < 55){
+                    zoomSquareCol.a = ofLerp(zoomSquareCol.a, 0, fadeSpeed);
+                }
+                
+                //make all particles disturbed
+                for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+                    it -> disturbed = true;
+                }
+                
+                //if we're ready to move on to the next stage (i.e. narration is done),
+                //change narrativeState to 2
+                
+            }
+            
+            
+            //if we're ready reset key variables and increment narrativeState
+            if(ofGetElapsedTimeMillis() - transitionToNextTimer > 9000){
+                
+                narrativeState = 3;
+                
+            }
+            
+            
+            
+            
+            
+            
+            
+            
+        } 
+        
+
+        
+        
+        //upload all the info to the vbo
+        int total = (int)pPoints.size();
+        particleVBO.setVertexData(&pPoints[0], total, GL_STATIC_DRAW);
+        particleVBO.setNormalData(&pSizes[0], total, GL_STATIC_DRAW);
+        particleVBO.setColorData(&pColors[0], total, GL_STATIC_DRAW);
+        
+        //send arduino states
+        pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
+        
+        sendSerial(pistonPos, pistonSpeed, 0);
+            
+            
+            
+            
+        
+    
+        
+
+        
+        
+        
+        
+    } else if(narrativeState == 3){
+        
+        //--------------------PROTOSTAR TO STAR UPDATE--------------------
+        
+        //stage setup
+        if(setupStage3 == false){
+            pList.clear();
+            fieldRes = 7;
+            newParticleField(fieldRes);
+            
+            stageStartTime = ofGetElapsedTimeMillis();
+            sendSerial(0, 255, 0);
+            cvObjectCol = ofColor(255, 0, 0, 255);
+            ballInfluence = false;
+            announced = false;
+            
+            createMainFragment();
+            
+            statusCol.a = 255;
+            statusA = "Status: Late";
+            statusB = "Protostar";
+            
+            
+            setupStage3 = true;
             
             pTrans = 0;
             
@@ -1095,7 +1402,7 @@ void testApp::update(){
                 numDead++;
                 
                 if(pList.size() - numDead < 300){
-                    transitionTo2 = true;
+                    transitionToNext = true;
                     
                     
                 }
@@ -1106,14 +1413,14 @@ void testApp::update(){
         } //particle update for-loop
         
         
-
         
         
         
         
         
         
-        if(transitionTo2 == false){
+        
+        if(transitionToNext == false){
             
             
             //change attractor size depending on how many particles have been swallowed
@@ -1121,7 +1428,7 @@ void testApp::update(){
             attractorLerp = (float)numDead/(float)pList.size();
             
             //update the timer so its current when the transition actually starts
-            transitionTo2Timer = ofGetElapsedTimeMillis();
+            transitionToNextTimer = ofGetElapsedTimeMillis();
             
             pistonSpeed = 120;
             
@@ -1135,7 +1442,7 @@ void testApp::update(){
         
         //--------------------zoom animation--------------------
         
-        if(transitionTo2){
+        if(transitionToNext){
             
             //set piston speed to move up quickly
             pistonSpeed = 255;
@@ -1145,12 +1452,12 @@ void testApp::update(){
             //Lets zoom out to see if we can find more to collect"
             
             //if we're not already playing it
-            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionToNextTimer < 1000){
                 stage1_05_youvecreated.play();
             }
             
             //if we're animating...
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 5500){
+            if(ofGetElapsedTimeMillis() - transitionToNextTimer > 5500){
                 zooming = true;
                 
                 if(zoom.getIsPlaying() == false){
@@ -1189,9 +1496,9 @@ void testApp::update(){
             
             
             //if we're ready reset key variables and increment narrativeState
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 9000){
+            if(ofGetElapsedTimeMillis() - transitionToNextTimer > 9000){
                 
-                narrativeState = 3;
+                narrativeState = 4;
                 
             }
             
@@ -1202,208 +1509,7 @@ void testApp::update(){
             
             
             
-        } 
-        
-
-        
-        
-        //upload all the info to the vbo
-        int total = (int)pPoints.size();
-        particleVBO.setVertexData(&pPoints[0], total, GL_STATIC_DRAW);
-        particleVBO.setNormalData(&pSizes[0], total, GL_STATIC_DRAW);
-        particleVBO.setColorData(&pColors[0], total, GL_STATIC_DRAW);
-        
-        //send arduino states
-        pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
-        
-        sendSerial(pistonPos, pistonSpeed, 0);
-            
-            
-            
-            
-        
-    
-        
-
-        
-        
-        
-        
-    } else if(narrativeState == 3){
-        
-        //--------------------PROTOSTAR TO STAR UPDATE--------------------
-        
-        
-        //stage setup
-        if(setupStage3 == false){
-            pList.clear();
-            fieldRes = 7;
-            newParticleField(fieldRes);
-            
-            stageStartTime = ofGetElapsedTimeMillis();
-            sendSerial(0, 255, 0);
-            cvObjectCol = ofColor(255, 0, 0, 255);
-            ballInfluence = false;
-            announced = false;
-            
-            createMainFragment();
-            
-            
-//            createSunSmoke();
-            
-            setupStage3 = true;
         }
-        
-        
-        
-        
-        if(pTrans < 0.2){
-            pTrans += 0.003;
-        }
-        
-        //reset particle counters
-        numDead = 0;
-        numDisturbed = 0;
-        
-        //clear out points vector so the only particles in there are ones that are alive
-        pPoints.clear();
-        pSizes.clear();
-        pColors.clear();
-        
-        
-        //Update particles
-        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-            
-            //only update non-dead particles
-            if(it -> dead == false){
-                
-                
-                //upon first entering stage, fade particles in (DOES NOT WORK)
-//                it -> trans = ofLerp(it -> trans, 255, 0.02);
-                
-                
-                //check if inside attractor
-                ofVec3f distAttractor = attractorPos - it -> pos;
-                if(distAttractor.lengthSquared() < attractorSize * attractorSize){
-                    
-                    //if so, make dead
-                    it -> dead = true;
-                    it -> vel.set(0, 0);
-                    
-                }
-                
-                it -> update(mouseDirection);
-                
-                
-                //if particle is within mouse radius, count it as disturbed
-                ofVec2f distMouse = it -> pos - mousePos;
-                
-                if(distMouse.lengthSquared() < mouseRad * mouseRad){
-                    if(it -> disturbed == false){
-                        if(pWhoosh.getIsPlaying() == false){
-                            pWhoosh.play();
-                        }
-                        
-                    }
-                    
-                    it -> disturbed = true;
-                    
-                    //repulsion from mouse
-                    it -> mouseRepel(mousePos, mouseRad, 1.1);
-                    
-                }
-                
-                if(ballInfluence){
-                    //if there are blobs and particle is within radius of blobs, count it as disturbed
-                    if(contourFinder.blobs.size() > 0){
-                        
-                        for(int i = 0; i < contourFinder.blobs.size(); i++){
-                            //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
-                            
-                            //new mapping with space considerations
-                            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
-                            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
-                            
-                            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
-                            
-                            
-                            //subtract position of centroid from position of particle
-                            ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
-                            
-                            //count as disturbed if within radius (circular boundary)
-                            if(distBlob.lengthSquared() < disturbRad * disturbRad){
-                                it -> disturbed = true;
-                                
-                                //give the direction of the current blob
-                                it -> blobDir = blobDirection[i];
-                                
-                                //then repel away from current blob
-                                it -> blobRepel(contourFinder.blobs[i].centroid, 1.0);
-                                
-                            }
-                            
-                        }
-                        
-                    }
-                }
-                
-                //attraction to Attractor due to its own gravitation for particles within
-                //the attraction radius
-                it -> attract(attractorPos, attractorSize + attractionRad, attractStrength);
-                
-                //add another gravitational force once particles are disturbed
-                if(it -> disturbed){
-                    it -> globalAttract(attractorPos, attractStrength);
-                    numDisturbed++;
-                }
-                
-                
-                //clear out the last positions and add the particle's position to the points vector
-                ofVec3f partPos;
-                partPos = it -> pos;
-                pPoints.push_back(partPos);
-                
-                float s = it -> size;
-                pSizes.push_back(ofVec3f(s));
-                
-                ofColor c = it-> col;
-                //normalize on a 0-400 scales instead of 255 to desaturate
-                float r = ofNormalize(c.r, 0, 400);
-                float g = ofNormalize(c.g, 0, 400);
-                float b = ofNormalize(c.b, 0, 400);
-                float a =ofNormalize(c.a, 0, 255);
-                ofFloatColor cF = ofFloatColor(r, g, b, pTrans);
-                pColors.push_back(cF);
-                
-                
-            } else {
-                //count number of dead particles
-                numDead++;
-                
-                if(pList.size() - numDead < 300){
-                    
-                    narrativeState = 4;
-                    pList.clear();
-                    
-                }
-                
-                
-            } //if(particles are alive) statement
-            
-        } //particle update for-loop
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
@@ -1418,6 +1524,9 @@ void testApp::update(){
         pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
         
         sendSerial(pistonPos, pistonSpeed, 0);
+        
+        
+        
         
         
         
@@ -1441,18 +1550,31 @@ void testApp::update(){
             cvObjectCol = ofColor(255, 0, 0, 255);
             ballInfluence = false;
             announced = false;
-            
 
-            
             
             createSunSmoke();
             
+            for( vector<SunParticle>::iterator it = sunPList.begin(); it!=sunPList.end(); it++){
+                it -> explode = true;
+            }
+
             setupStage4 = true;
 
+            statusA = "Status: Main";
+            statusB = "Sequence Star";
+            
+            
+            
         
         }
         
-        
+        if(ofGetElapsedTimeMillis() - stageStartTime > 3000){
+            for( vector<SunParticle>::iterator it = sunPList.begin(); it!=sunPList.end(); it++){
+                it -> explode = false;
+            }
+            
+
+        }
         
         
         
@@ -1494,7 +1616,7 @@ void testApp::update(){
     if(narrativeState != 1){
         
         setupStage1 = false;
-        transitionTo2 = false;
+        transitionToNext = false;
         
         
         
@@ -1505,16 +1627,20 @@ void testApp::update(){
         
         
         setupStage2 = false;
-        transitionTo3 = false;
+        transitionToNext = false;
         
     }
     
     if(narrativeState != 3){
-        
+
+        setupStage3 = false;
+        transitionToNext = false;
     }
     
     
-    
+    if(narrativeState != 4){
+        setupStage4 = false;
+    }
     
     
     
@@ -2250,16 +2376,16 @@ void testApp::draw(){
         
         
         //CHANGE THIS START TIME TO SOMETHING THAT WORKS SO IT DOESNT PLAY UNLESS THE PREVIOUS ONE HAS
-//        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
-//            playStage1_04 = true;
-//            test = true;
-//        }
-//        
-//        if(playStage1_04){
-//            stage1_04_keepgathering.play();
-//            playStage1_04 = false;
-//        }
-//
+        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
+            playStage1_04 = true;
+            test = true;
+        }
+        
+        if(playStage1_04){
+            stage1_04_keepgathering.play();
+            playStage1_04 = false;
+        }
+
 //        if(test){
 //            ofPushStyle();
 //            
@@ -2360,16 +2486,15 @@ void testApp::draw(){
         pTex.bind();
         
         particleVBO.draw(GL_POINTS, 0, (int)pPoints.size());
-
-        pTex.unbind();
         
-        
-        sunCrescent.bind();
         ofPushMatrix();
         ofTranslate(ofGetWindowSize()/2);
         fragmentVBO.draw(GL_POINTS, 0, (int)fragPoints.size());
         ofPopMatrix();
-        sunCrescent.unbind();
+        
+
+        pTex.unbind();
+        
         
         shader.end();
         
@@ -2448,13 +2573,13 @@ void testApp::draw(){
         
         
         //trigger second clip and create a new fragment
-        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
-            playStage1_02 = true;
+        if(currentTime > 6000 && currentTime < 6500 && !stage2_02_sometimescloud.getIsPlaying()){
+            playStage2_02 = true;
         }
         
-        if(playStage1_02){
-            stage1_02_useyourhands.play();
-            playStage1_02 = false;
+        if(playStage2_02){
+            stage2_02_sometimescloud.play();
+            playStage2_02 = false;
             cvObjectCol = ofColor(0, 255, 0);
             ballInfluence = true;
             
@@ -2607,10 +2732,7 @@ void testApp::draw(){
         
         
         
-        
-        if(ofDistSquared(mouseX, mouseY, clumpPos.x, clumpPos.y) < 75 * 75){
-            locateClump = false;
-        }
+
         
         
         if(locateClump){
@@ -2664,59 +2786,68 @@ void testApp::draw(){
         
     } else if(narrativeState == 3) {
 
+        
+        //--------------------PROTOSTAR TO SUN DRAW--------------------
+        
+        
+        
         int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        
+            cvObjectCol = ofColor(0, 255, 0);
+            ballInfluence = true;
+
         
         
         //play first clip: "help the fragment gather more gas"
-        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
-            playStage2_01 = true;
-            
-        }
-        
-        
-        if(playStage2_01){
-            stage2_01_useyourhands.play();
-            playStage2_01 = false;
-        }
-        
-        
-        
-        
-        //trigger second clip and create a new fragment
-        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
-            playStage1_02 = true;
-        }
-        
-        if(playStage1_02){
-            stage1_02_useyourhands.play();
-            playStage1_02 = false;
-            cvObjectCol = ofColor(0, 255, 0);
-            ballInfluence = true;
-            
-        }
-        
-        
-        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
-            playStage1_03 = true;
-            announced = true;
-            cout << "play narration" << endl;
-        }
-        
-        if(playStage1_03){
-            stage1_03_seehow.play();
-            announcedTimer = ofGetElapsedTimeMillis();
-            playStage1_03 = false;
-        }
-        
-        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
-            playStage1_04 = true;
-            test = true;
-        }
-        
-        if(playStage1_04){
-            stage1_04_keepgathering.play();
-            playStage1_04 = false;
-        }
+//        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
+//            playStage2_01 = true;
+//            
+//        }
+//        
+//        
+//        if(playStage2_01){
+//            stage2_01_useyourhands.play();
+//            playStage2_01 = false;
+//        }
+//        
+//        
+//        
+//        
+//        //trigger second clip and create a new fragment
+//        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
+//            playStage1_02 = true;
+//        }
+//        
+//        if(playStage1_02){
+//            stage1_02_useyourhands.play();
+//            playStage1_02 = false;
+//            cvObjectCol = ofColor(0, 255, 0);
+//            ballInfluence = true;
+//            
+//        }
+//        
+//        
+//        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
+//            playStage1_03 = true;
+//            announced = true;
+//            cout << "play narration" << endl;
+//        }
+//        
+//        if(playStage1_03){
+//            stage1_03_seehow.play();
+//            announcedTimer = ofGetElapsedTimeMillis();
+//            playStage1_03 = false;
+//        }
+//        
+//        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
+//            playStage1_04 = true;
+//            test = true;
+//        }
+//        
+//        if(playStage1_04){
+//            stage1_04_keepgathering.play();
+//            playStage1_04 = false;
+//        }
         
         drawGrid(15, 0.2);
         
@@ -2724,13 +2855,13 @@ void testApp::draw(){
         
         
         
-        
-        //draw particles
-        //        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
-        //            if(it -> dead == false){
-        //                it -> draw();
-        //            }
-        //        }
+
+//draw particles
+//        for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
+//            if(it -> dead == false){
+//                it -> draw();
+//            }
+//        }
         
         
         //----------draw Protostar----------
@@ -2836,11 +2967,15 @@ void testApp::draw(){
         
         
         
+        
         float progress = (float)numDead/(float)pList.size();
         drawProgress(progress);
         
         
+        
+        
 
+        
         
         
         
@@ -2872,6 +3007,8 @@ void testApp::draw(){
         
     } else if(narrativeState == 4){
         
+
+        
         
         
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
@@ -2879,12 +3016,12 @@ void testApp::draw(){
         drawGrid(15, 0.2);
 
         ofSetColor(sunCol1);
-        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
+        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize/2);
         
         ofEnableBlendMode(OF_BLENDMODE_ADD);
 
         ofSetColor(sunCol1);
-        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
+        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize/2);
 
         //place glow image on top of star
         ofPushMatrix();
@@ -2893,9 +3030,9 @@ void testApp::draw(){
 
         ofSetCircleResolution(50);
         ofSetColor(255, 220, 50, 255);
-        ofCircle(0, 0, 175);
-        glow.draw(0, 0, 400, 400);
-        glow.draw(0, 0, 400, 400);
+        ofCircle(0, 0, 250);
+        glow.draw(0, 0, 550, 550);
+        glow.draw(0, 0, 550, 550);
         
         ofPopMatrix();
 
@@ -2989,7 +3126,15 @@ void testApp::draw(){
         ofDisablePointSprites();
         ofDisableBlendMode();
         
-
+        //draw UI
+        
+        instructionA = "End of Play Testing";
+        instructionB = "Thank You for Playing";
+        instructCol = ofColor(255, 0, 0);
+        attractorSize = 400;
+        
+        drawUI();
+        
         
         
         
@@ -3258,7 +3403,7 @@ void testApp::keyPressed(int key){
     
     //toggle zoom animation
     if(key == 'z' || key == 'Z'){
-        transitionTo2 = !transitionTo2;
+        transitionToNext = !transitionToNext;
     }
     
     
@@ -3316,15 +3461,15 @@ void testApp::drawGrid(int num, float trans){
 void testApp::drawProgress(float progress){
     
     //draw progress bar
-    progressBarDim.set(500, 30);
-    progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 158);
+    progressBarDim.set(500, 50);
+    progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 170);
     
 
     
     ofPushStyle();
     
     //draw inside
-    ofSetColor(0, 200, 0);
+    ofSetColor(progressCol);
     ofRect(progressBarPos.x, progressBarPos.y, progressBarDim.x - progressBarDim.x * progress, progressBarDim.y);
     
     //draw border
@@ -3341,14 +3486,14 @@ void testApp::drawProgress(float progress){
     
     ofTranslate(ofGetWindowSize()/2);
     ofRotate(180);
-    ofTranslate(0, -ofGetWindowHeight()/2 + 150);
+    ofTranslate(0, -ofGetWindowHeight()/2 + 155);
     
-    ofScale(0.15, 0.15);
+    ofScale(0.2, 0.2);
     
     
     
     //draw text
-    string progressText = "Gas Left to Collect: " + ofToString(100 - floor(progress*100)) + "%";
+    progressText = "Gas Left to Collect: " + ofToString(100 - floor(progress*100)) + "%";
     
     ofSetColor(255);
     instructions.drawString(progressText, -instructions.stringWidth(progressText)/2, 0);
@@ -3489,7 +3634,7 @@ void testApp::createSunSmoke(){
     sunPList.clear();
     
     
-    for (int i = 0; i < 1000; i++){
+    for (int i = 0; i < 2500; i++){
         
         //Circle distribution code from Charlie Whitney (flocking sketch - algo - fall 2013)
         

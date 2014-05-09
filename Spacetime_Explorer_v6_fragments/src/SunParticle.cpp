@@ -19,6 +19,7 @@ SunParticle::SunParticle() {
     size = 1;
     
     ageOfDeath = 50;
+    explode = true;
     
     
 }
@@ -66,15 +67,25 @@ void SunParticle::update() {
         float z = costheta;
         
         ofVec3f randVec(x, y, z);
-        pos = randVec * ofRandom( 80.0f, 150.0f );
+        pos = randVec * ofRandom( 80.0f, 250.0f );
+        
+        
         pos.x = pos.x + ofGetWindowWidth()/2;
         pos.y = pos.y + ofGetWindowHeight()/2;
+        
         
         
         ofVec3f toCenter = pos - ofVec3f(ofGetWindowSize()/2);
         toCenter.normalize();
         
         vel = toCenter * ofRandom(0.5, 2);
+        
+        
+        if(explode){
+            pos = ofVec3f(ofGetWindowSize()/2);
+            vel = ofVec3f(ofRandom(-20, 20), ofRandom(-20, 20), ofRandom(0, 20));
+
+        }
         
         if(size < 80){
             size += 5;

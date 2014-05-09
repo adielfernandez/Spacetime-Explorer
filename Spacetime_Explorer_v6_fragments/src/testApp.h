@@ -166,11 +166,9 @@ class testApp : public ofBaseApp{
     
     //Narrative control
     int narrativeState;
-    bool transitionTo2;
-    int transitionTo2Timer;
+    bool transitionToNext;
+    int transitionToNextTimer;
     
-    bool transitionTo3;
-    int transitionTo3Timer;
     
     bool zooming;
     float zoomSquareWidth;
@@ -287,7 +285,8 @@ class testApp : public ofBaseApp{
 
     ofVec2f progressBarPos;
     ofVec2f progressBarDim;
-
+    string progressText;
+    ofColor progressCol;
     
     
     
@@ -324,6 +323,7 @@ class testApp : public ofBaseApp{
     //-----Protostar to star-----
     
     bool setupStage4;
+
     
     ofColor sunCol1;
     ofColor sunCol2;
