@@ -179,7 +179,7 @@ void Particle::draw(){
     ofPushStyle();
     
         ofSetColor(col, trans);
-        ofRect(pos, size, size);
+        ofRect(pos, 0.5, 0.5);
         //ofCircle(pos, 20);
     
 //        sharedImage -> draw(pos);
