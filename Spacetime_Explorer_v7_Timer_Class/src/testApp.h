@@ -6,6 +6,7 @@
 #include "ofxMacamPs3Eye.h"
 #include "SunParticle.h"
 #include "Fragment.h"
+#include "Timer.h"
 
 class testApp : public ofBaseApp{
 	public:
@@ -165,7 +166,7 @@ class testApp : public ofBaseApp{
     
     
     //Narrative control
-    int narrativeState;
+    float narrativeState;
     bool transitionTo2;
     int transitionTo2Timer;
     
@@ -180,6 +181,7 @@ class testApp : public ofBaseApp{
     
     //Narrative States
     //----------Idle----------
+    bool setupStageIdle;
     int idleTimer = 0;
     bool idlePlay = false;
     bool welcomePlay = false;
@@ -197,6 +199,11 @@ class testApp : public ofBaseApp{
     ofColor idleTimerCol;
     float blackOutTrans = 0;
     bool transitionToIntro;
+    
+    
+    Timer introTimer;
+    vector<Timer> tableOfContents;
+    
     
     //----------Intro----------
     bool startedIntro;
@@ -257,6 +264,14 @@ class testApp : public ofBaseApp{
     float lightArcRad;
     float lightArcAngle;
     float lightArcTrans = 255;
+    
+
+    //----------Table of Contents----------
+    bool setupStageTOC;
+    
+    ofImage starfield;
+    vector<int> numBallsInTimers;
+    
     
     //----------Stage 1----------
     //-------Cloud Fragment------

@@ -26,19 +26,21 @@ public:
     void update();
     void draw();
     
+    ofPath timerPath;
     float size;
     ofVec3f pos;
+    float time;
+    float rad;
     
     float strokeThick;
-    
     ofColor idleCol;
     ofColor col;
+    ofColor cvObjectCol;
     
-    float time;
     
     
     bool inButton;
-    
-    ofPath timerPath;
+    bool triggered;
+
     
 };

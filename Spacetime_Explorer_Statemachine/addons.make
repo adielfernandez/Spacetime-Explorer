@@ -1,0 +1,3 @@
+ofxOpenCv
+ofxMacamPs3Eye
+ofxStateMachine

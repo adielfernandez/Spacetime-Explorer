@@ -65,16 +65,19 @@ void testApp::setup(){
     topBound = -47;
     bottomBound = 1097;
 
+
+    
     
     disturbRad = 50;
     disturbMin = 50;
     disturbMax = 100;
     
-    cvObjectCol = ofColor(0, 255, 0);
+
     
     
     //Narrative control
     narrativeState = -1;
+        //-1 = idle state
         //0 = intro video
         //1 = molecular cloud
         //2 = cloud fragment
@@ -329,6 +332,10 @@ void testApp::setup(){
     earth.loadImage("earth.png");
     earth.setAnchorPercent(0.5, 0.5);
     
+    //----------Table of Contents----------
+    starfield.loadImage("starfield.jpg");
+    starfield.setAnchorPercent(0.5, 0.5);
+    
     
     //----------Stage 1:Cloud Fragment----------
     
@@ -449,7 +456,37 @@ void testApp::update(){
     
     if(narrativeState == -1){
         
-        sendSerial(100,255,0);
+        if(setupStageIdle == false){
+            
+            sendSerial(100,255,0);
+            
+            
+            cvObjectCol = ofColor(0, 255, 0);
+            
+            
+            introTimer.pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 100);
+            introTimer.rad = 75;
+            introTimer.cvObjectCol = cvObjectCol;
+            introTimer.triggered = false;
+            
+            
+            setupStageIdle = true;
+            
+    
+            
+        }
+        
+        
+        
+
+
+        
+
+        
+        
+        
+        
+        
         
         
         //Narrator
@@ -473,19 +510,6 @@ void testApp::update(){
             float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
             float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
             
-//            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
-//            
-//            ofPushStyle();
-//            ofSetColor(cvObjectCol);
-//            ofSetCircleResolution(60);
-//            ofCircle(mapBlobX, mapBlobY, 10);
-//            
-//            ofNoFill();
-//            ofSetLineWidth(5);
-//            ofEllipse(mapBlobX, mapBlobY, 50, 50);
-//            
-//            ofPopStyle();
-            
             
             //check if any balls are in the circle
             if(ofDistSquared(mapBlobX, mapBlobY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100 * 100){
@@ -495,49 +519,45 @@ void testApp::update(){
             
         }
 
-        if(numBallsinBox > 0 || ofDist(mouseX, mouseY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100){
-            inButton = true;
-        } else {
-            inButton = false;
-        }
         
         
         
         
-        if(!inButton){
-            timeInBox = 0;
-        } else if(inButton && transitionToIntro == false){
-            timeInBox += 4;
-        } 
+//        if(numBallsinBox > 0 || ofDist(mouseX, mouseY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100){
+//            inButton = true;
+//        } else {
+//            inButton = false;
+//        }
+ 
         
         
-        
-        
-        idleTimerCol = ofColor(255, 150).lerp(ofColor(cvObjectCol,150), ofMap(timeInBox, 0, 360, 0, 1));
-        
-        //timer circle
-        idleTimerPath.clear();
-        idleTimerPath.arc(ofPoint(0,0), 100, 100, 0, timeInBox, true);
-        
-        idleTimerPath.setStrokeWidth(5);
-        
-        if(inButton){
-            idleTimerPath.setStrokeColor(ofColor(255, 0));
-            idleTimerPath.setFilled(true);
-                        
-            idleTimerPath.setFillColor(idleTimerCol);
-            
-        } else {
 
-            idleTimerPath.setFilled(false);
-            idleTimerPath.setStrokeColor(ofColor(255, 0));
+        
+        
+        //UI Timer
+        float dist = ofDist(introTimer.pos.x, introTimer.pos.y, mouseX, mouseY);
+        if(numBallsinBox > 0 || dist < introTimer.rad){
+            introTimer.inButton = true;
+        } else {
+            introTimer.inButton = false;
         }
         
-        idleTimerPath.setStrokeWidth(3);
-        idleTimerPath.setCircleResolution(50);
+        
+        introTimer.update();
         
         
-        if(timeInBox > 359){
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        if(introTimer.triggered){
             transitionToIntro = true;
             
             if(welcomePlay == false){
@@ -656,8 +676,125 @@ void testApp::update(){
     
 
 
+    } else if(narrativeState == 0.5){
+        
+        if(setupStageTOC == false){
+            
+            sendSerial(100,255,0);
+            
+            
+            cvObjectCol = ofColor(0, 255, 0);
+            
+            introTimer.pos.set(ofGetWindowSize()/2);
+            introTimer.cvObjectCol = cvObjectCol;
+            introTimer.triggered = false;
+            
+            
+            setupStageTOC = true;
+            
+            
+            
+            float rad = 300;
+            float angleStart = 30;
+            float angleBetween = 48;
+            
+            tableOfContents.clear();
+            
+            for(int i = 0; i < 6; i++){
+                Timer t;
+                
+                //math to arrange 6 timers
+                //start with unit vector in x direction
+                ofVec2f p = ofVec2f(1,0);
+                
+                //increase to radius size
+                p *= rad;
+                
+                //rotate by proper angle
+                p.rotate(angleStart - angleBetween * i);
+                
+                //then shift vector to center
+                p.x += ofGetWindowWidth()/2;
+                p.y += ofGetWindowHeight()/2;
+                
+                
+                t.pos.set(p);
+                t.rad = 90;
+                t.cvObjectCol = cvObjectCol;
+                t.triggered = false;
+                
+                tableOfContents.push_back(t);
+                
+                int ballCount = 0;
+                numBallsInTimers.push_back(ballCount);
+                
+                
+            }
+            
+            
+        }
         
         
+        
+        
+        for(int i = 0; i < tableOfContents.size(); i++){
+            tableOfContents[i].update();
+
+        }
+        
+        
+        //clear out number of blobs in timers
+        for(int i = 0; i < numBallsInTimers.size(); i++){
+            numBallsInTimers[i] = 0;
+        }
+        
+        //Look for blobs and display them
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            
+            //check if any balls are in the timers
+            for(int i = 0; i < tableOfContents.size(); i++){
+                
+                if(ofDistSquared(mapBlobX, mapBlobY, tableOfContents[i].pos.x, tableOfContents[i].pos.y) < tableOfContents[i].rad * tableOfContents[i].rad){
+                    numBallsInTimers[i]++;
+                }
+                
+                
+            }
+            
+            
+            
+//            if(ofDistSquared(mapBlobX, mapBlobY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100 * 100){
+//                numBallsinBox++;
+//            }
+
+            
+            
+            
+            
+            
+        }
+        
+        
+        
+        //check if inside timers
+//        for(int i = 0; tableOfContents.size(); i++){
+//            
+////            float mousetoTimer = ofDistSquared(tableOfContents[i].pos.x, tableOfContents[i].pos.y, mouseX, mouseY);
+////            if(numBallsInTimers[i] > 0 || mousetoTimer < tableOfContents[i].rad * tableOfContents[i].rad){
+////                
+////                tableOfContents[i].inButton = true;
+////                
+////            } else {
+////                
+////                tableOfContents[i].inButton = false;
+////                
+////            }
+//        
+//        
+//        }
         
         
         
@@ -1442,17 +1579,25 @@ void testApp::update(){
             ballInfluence = false;
             announced = false;
             
-
-            
-            
             createSunSmoke();
+            
+            
+            for( vector<SunParticle>::iterator it = sunPList.begin(); it!=sunPList.end(); it++){
+                it -> explode = true;
+            }
             
             setupStage4 = true;
 
-        
         }
         
         
+        if(ofGetElapsedTimeMillis() - stageStartTime > 2000){
+            for( vector<SunParticle>::iterator it = sunPList.begin(); it!=sunPList.end(); it++){
+                it -> explode = false;
+            }
+            
+            
+        }
         
         
         
@@ -1489,6 +1634,11 @@ void testApp::update(){
     if(narrativeState != 0){
         
     }
+
+    if(narrativeState != 0.5){
+        setupStageTOC = false;
+    }
+    
     
     if(narrativeState != 1){
         
@@ -1509,12 +1659,14 @@ void testApp::update(){
     }
     
     if(narrativeState != 3){
-        
+        setupStage3 = false;
     }
     
     
     
-    
+    if(narrativeState != 4){
+        setupStage4 = false;
+    }
     
     
     
@@ -1580,31 +1732,31 @@ void testApp::draw(){
         drawGrid(15, 0.2);
         
         //draw timer stuff
-        ofPushStyle();
-        
-        ofNoFill();
-        ofSetCircleResolution(30);
-        ofSetLineWidth(8);
-        
-//        ofCircle(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150, 100);
-        
-        ofPushMatrix();
-        ofTranslate(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150);
-        ofRotate(90);
-        idleTimerPath.draw();
-        
-        if(inButton){
-            ofSetColor(idleTimerCol, 255);
-        } else {
-            ofSetColor(255, 255);
-        }
-        
-        ofCircle(0,0, 100);
-        ofRotate(6);
-        ofCircle(0,0, 100);
-        ofPopMatrix();
-        
-        ofPopStyle();
+//        ofPushStyle();
+//        
+//        ofNoFill();
+//        ofSetCircleResolution(30);
+//        ofSetLineWidth(8);
+//        
+////        ofCircle(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150, 100);
+//        
+//        ofPushMatrix();
+//        ofTranslate(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150);
+//        ofRotate(90);
+//        idleTimerPath.draw();
+//        
+//        if(inButton){
+//            ofSetColor(idleTimerCol, 255);
+//        } else {
+//            ofSetColor(255, 255);
+//        }
+//        
+//        ofCircle(0,0, 100);
+//        ofRotate(6);
+//        ofCircle(0,0, 100);
+//        ofPopMatrix();
+//        
+//        ofPopStyle();
 
         
         
@@ -1641,6 +1793,18 @@ void testApp::draw(){
         
         ofPopMatrix();
         
+        
+        
+        //draw intro UI timer
+        introTimer.draw();
+        for(int i = 0; i < tableOfContents.size(); i++){
+         
+            tableOfContents[i].draw();
+        }
+        
+        
+        
+        
         //draw CV objects
         for(int i = 0; i < contourFinder.blobs.size(); i++){
             float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
@@ -1663,6 +1827,9 @@ void testApp::draw(){
         
         
         
+        
+        
+        
         if(transitionToIntro){
             ofSetColor(0, blackOutTrans);
             ofSetRectMode(OF_RECTMODE_CENTER);
@@ -1673,6 +1840,9 @@ void testApp::draw(){
         
         
     } else if(narrativeState == 0){
+        
+        
+        //------------------------------INTRO VIDEO------------------------------
         
         if(startedIntro == false){
             stageStartTime = ofGetElapsedTimeMillis();
@@ -2078,7 +2248,7 @@ void testApp::draw(){
             
             
             if(stage2Time > 37000){
-                narrativeState = 1;
+                narrativeState = 0.5;
             }
             
             
@@ -2196,6 +2366,48 @@ void testApp::draw(){
         
         ofDrawBitmapString("stage 2 time: " + ofToString(stage2Time), 1600, 50);
         ofDrawBitmapString("intro Stage: " + ofToString(introStage), 1600, 70);
+        
+        
+    } else if(narrativeState == 0.5){
+
+        
+        //-------------------Table of Contents--------------------------
+        
+        
+        milkyWay.draw(ofGetWindowSize()/2);
+        
+        for(int i = 0; i < tableOfContents.size(); i++){
+
+            tableOfContents[i].draw();
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        instructionA = "Place a ball over the stage";
+        instructionB = "you would like to explore";
+        
+        statusA = "";
+        statusB = "";
+        instructCol = ofColor(0, 255, 0);
+        
+        drawUI();
+        
+        
+        
         
         
         
@@ -2892,9 +3104,12 @@ void testApp::draw(){
 
         ofSetCircleResolution(50);
         ofSetColor(255, 220, 50, 255);
-        ofCircle(0, 0, 175);
-        glow.draw(0, 0, 400, 400);
-        glow.draw(0, 0, 400, 400);
+        ofCircle(0, 0, 245);
+        ofCircle(0, 0, 235);
+        ofCircle(0, 0, 225);
+        
+        glow.draw(0, 0, 550, 550);
+        glow.draw(0, 0, 550, 550);
         
         ofPopMatrix();
 
@@ -2990,7 +3205,9 @@ void testApp::draw(){
         
 
         
-        
+        instructionA = "End of Play Testing";
+        instructionB = "Thank You for Playing";
+        instructCol = ofColor(255, 0, 0);
         
         
     } else if(narrativeState == 5){
@@ -3238,6 +3455,8 @@ void testApp::keyPressed(int key){
         narrativeState = 3;         //protostar reactions
     } else if(key == '6'){
         narrativeState = 4;         //star birth
+    } else if(key == 't'){
+        narrativeState = 0.5;
     }
     
     
