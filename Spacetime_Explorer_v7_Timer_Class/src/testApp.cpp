@@ -170,6 +170,11 @@ void testApp::setup(){
     explosion.setMultiPlay(false);
     explosion.setPan(bottom);
     
+    smallExplosion.loadSound("sounds/distexplosion.mp3");
+    smallExplosion.setVolume(1.0f);
+    smallExplosion.setSpeed(1.0f);
+    smallExplosion.setMultiPlay(true);
+    smallExplosion.setPan(bottom);
     
     
     //Narration
@@ -362,11 +367,11 @@ void testApp::setup(){
     
     
     
+    //----------Stage 3: Late Protostar----------
+    starburst.loadImage("starburst.png");
+    starburst.setAnchorPercent(0.5, 0.5);
     
-    
-    
-    
-    //----------Stage 4: star----------
+    //----------Stage 4: exploding star----------
     glow.loadImage("glow.png");
     glow.setAnchorPercent(0.5, 0.5);
     
@@ -1513,6 +1518,16 @@ void testApp::update(){
             statusB = "Protostar";
             
             setupStage3 = true;
+            
+            
+            starburstPos.set(ofGetWindowSize()/2);
+            starburstPos.x += ofRandom(-100,100);
+            starburstPos.y += ofRandom(-100,100);
+            
+            starburstTimer = ofGetElapsedTimeMillis();
+            burst = false;
+            nextBurst = 1000;
+            
         }
         
         
@@ -1731,13 +1746,16 @@ void testApp::update(){
             toNextStage.rad = 100;
             toNextStage.cvObjectCol = ofColor(0, 0);
             toNextStage.triggered = false;
+            
+            statusA = "Status: Main";
+            statusB = "Sequence Star";
 
         }
         
         float currentStageTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         
-        if(ofGetElapsedTimeMillis() - stageStartTime > 2500){
+        if(ofGetElapsedTimeMillis() - stageStartTime > 3000){
             for( vector<SunParticle>::iterator it = sunPList.begin(); it!=sunPList.end(); it++){
                 it -> explode = false;
             }
@@ -1753,7 +1771,7 @@ void testApp::update(){
         
         
         //offer choice of continuing to next stage or back to TOC
-        if(currentStageTime > 4000 && currentStageTime < 4500){
+        if(currentStageTime > 5000 && currentStageTime < 5500){
             transitionToChoice = true;
 
             toTOC.cvObjectCol = cvObjectCol;
@@ -3383,59 +3401,63 @@ void testApp::draw(){
         
     } else if(narrativeState == 3) {
 
+        
+        //--------------------LATE PROTOSTAR DRAW--------------------
+        
+        
         int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         
-        //play first clip: "help the fragment gather more gas"
-        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
-            playStage2_01 = true;
-            
-        }
-        
-        
-        if(playStage2_01){
-            stage2_01_useyourhands.play();
-            playStage2_01 = false;
-        }
-        
-        
-        
-        
-        //trigger second clip and create a new fragment
-        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
-            playStage1_02 = true;
-        }
-        
-        if(playStage1_02){
-            stage1_02_useyourhands.play();
-            playStage1_02 = false;
-            cvObjectCol = ofColor(0, 255, 0);
-            ballInfluence = true;
-            
-        }
-        
-        
-        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
-            playStage1_03 = true;
-            announced = true;
-            cout << "play narration" << endl;
-        }
-        
-        if(playStage1_03){
-            stage1_03_seehow.play();
-            announcedTimer = ofGetElapsedTimeMillis();
-            playStage1_03 = false;
-        }
-        
-        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
-            playStage1_04 = true;
-            test = true;
-        }
-        
-        if(playStage1_04){
-            stage1_04_keepgathering.play();
-            playStage1_04 = false;
-        }
+//        //play first clip: "help the fragment gather more gas"
+//        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
+//            playStage2_01 = true;
+//            
+//        }
+//        
+//        
+//        if(playStage2_01){
+//            stage2_01_useyourhands.play();
+//            playStage2_01 = false;
+//        }
+//        
+//        
+//        
+//        
+//        //trigger second clip and create a new fragment
+//        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
+//            playStage1_02 = true;
+//        }
+//        
+//        if(playStage1_02){
+//            stage1_02_useyourhands.play();
+//            playStage1_02 = false;
+//            cvObjectCol = ofColor(0, 255, 0);
+//            ballInfluence = true;
+//            
+//        }
+//        
+//        
+//        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
+//            playStage1_03 = true;
+//            announced = true;
+//            cout << "play narration" << endl;
+//        }
+//        
+//        if(playStage1_03){
+//            stage1_03_seehow.play();
+//            announcedTimer = ofGetElapsedTimeMillis();
+//            playStage1_03 = false;
+//        }
+//        
+//        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
+//            playStage1_04 = true;
+//            test = true;
+//        }
+//        
+//        if(playStage1_04){
+//            stage1_04_keepgathering.play();
+//            playStage1_04 = false;
+//        }
         
         drawGrid(15, 0.2);
         
@@ -3554,7 +3576,7 @@ void testApp::draw(){
         
 
         
-        
+
         
         //draw blob positions
         for(int i = 0; i < contourFinder.blobs.size(); i++){
@@ -3576,13 +3598,75 @@ void testApp::draw(){
         
 
         
-        //---------- DRAW UI ----------
+        //---------- DRAW PROGRESS BAR ----------
         float progress = (float)numDead/(float)pList.size();
         drawProgress(progress);
         
         int borderPadding = 60;
         
         
+        
+        
+        
+        
+        
+        
+        
+        //Exploding starburst
+        if(progress > 0.5 && ofGetElapsedTimeMillis() - starburstTimer > nextBurst){
+            burst = true;
+        }
+           
+        
+        if(burst){
+            starburstSize = ofMap(attractorSize, attractorBase, attractorMax, 100, 400);
+            
+            float phi = ofRandom( 0, TWO_PI );
+            float costheta = ofRandom( -1.0f, 1.0f );
+            
+            float rho = sqrt( 1.0f - costheta * costheta );
+            float x = rho * cos( phi );
+            float y = rho * sin( phi );
+            float z = costheta;
+            
+            ofVec3f randVec(x, y, z);
+            
+            starburstPos = randVec * ofRandom( attractorSize * 0.1, attractorSize * 0.7);
+            starburstTrans = 255;
+
+//            if(smallExplosion.getIsPlaying() == false){
+            
+                smallExplosion.play();
+//            }
+            starburstTimer = ofGetElapsedTimeMillis();
+            
+            burst = false;
+            float timeMap = ofMap(progress, 0.5, 1.0, 1500, 5);
+            nextBurst = ofRandom( timeMap, timeMap * 2);
+        }
+        
+        
+        if(starburstSize > 0){
+               
+            starburstSize -= 5;
+               
+               
+        }
+        
+        if(starburstTrans > 0){
+            starburstTrans -= 5;
+        }
+           
+        
+        ofPushMatrix();
+        ofTranslate(ofGetWindowSize()/2);
+        ofSetColor(255, starburstTrans);
+        starburst.draw(starburstPos, starburstSize, starburstSize);
+        
+        ofPopMatrix();
+        
+        
+        //---------- DRAW UI ----------
         ofPushMatrix();
         ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight() - borderPadding);
         ofRotate(180);
@@ -3642,7 +3726,7 @@ void testApp::draw(){
         
     } else if(narrativeState == 4){
         
-        
+        //--------------------EXPLODING STAR DRAW--------------------
         
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 
@@ -3990,10 +4074,7 @@ void testApp::draw(){
 
         
         
-        
-        instructionA = "End of Play Testing";
-        instructionB = "Thank You for Playing";
-        instructCol = ofColor(255, 0, 0);
+
         
 
         

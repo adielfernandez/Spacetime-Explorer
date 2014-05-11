@@ -353,7 +353,14 @@ class testApp : public ofBaseApp{
     //-----Protostar to star-----
     
     bool setupStage3;
-    
+    ofImage starburst;
+    int starburstTimer;
+    float starburstSize;
+    ofVec2f starburstPos;
+    float starburstTrans;
+    ofSoundPlayer smallExplosion;
+    bool burst;
+    int nextBurst;
     
     //-----------Stage 4-----------
     //-------Exploding Star--------
