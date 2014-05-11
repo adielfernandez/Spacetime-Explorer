@@ -126,6 +126,7 @@ class testApp : public ofBaseApp{
     void drawProgress(float progress);
     
     ofTrueTypeFont instructions;
+    float instructionScale;
     ofColor instructCol;
     string instructionA;
     string instructionB;
@@ -180,6 +181,14 @@ class testApp : public ofBaseApp{
     
     
     //Narrative States
+        //-1 = idle state
+        //0 = intro video
+        //0.5 = table of contents
+        //1 = molecular cloud
+        //2 = cloud fragment
+        //3 = protostar
+        //4 = star
+    
     //----------Idle----------
     bool setupStageIdle;
     int idleTimer = 0;
@@ -202,10 +211,11 @@ class testApp : public ofBaseApp{
     
     
     Timer introTimer;
-    vector<Timer> tableOfContents;
+
     
     
     //----------Intro----------
+    bool setupStageIntro;
     bool startedIntro;
     int stageStartTime;
     bool playIntro01;
@@ -269,9 +279,19 @@ class testApp : public ofBaseApp{
     //----------Table of Contents----------
     bool setupStageTOC;
     
-    ofImage starfield;
-    vector<int> numBallsInTimers;
+    ofImage starThumb;
+    ofImage protoThumb;
+    ofImage comingSoon;
+    ofImage stagesThumb;
+    ofImage spacetimeThumb;
     
+    vector<Timer> tableOfContents;
+    vector<int> numBallsInTimers;
+    vector<string> TOClabelsA;
+    vector<string> TOClabelsB;
+    
+    float nextStage;
+    bool transitionToStage;
     
     //----------Stage 1----------
     //-------Cloud Fragment------
@@ -334,12 +354,12 @@ class testApp : public ofBaseApp{
     
     bool setupStage3;
     
-
-    //----------Stage 4----------
-    //-----Protostar to star-----
+    
+    //-----------Stage 4-----------
+    //-------Exploding Star--------
     
     bool setupStage4;
-    
+    ofSoundPlayer explosion;
     ofColor sunCol1;
     ofColor sunCol2;
     ofImage glow;
@@ -347,7 +367,20 @@ class testApp : public ofBaseApp{
     vector<SunParticle> sunPList;
     void createSunSmoke();
     
+    float shakeAmplitude;
     
+    bool transitionToChoice;
+    Timer toTOC;
+    Timer toNextStage;
+    int numBallTOC;
+    int numBallNextStage;
+    
+
+    
+    //-----------Stage 5-----------
+    //------------Star-------------
+    
+    bool setupStage5;
     
     
 };

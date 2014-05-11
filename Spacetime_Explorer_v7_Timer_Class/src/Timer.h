@@ -41,6 +41,10 @@ public:
     
     bool inButton;
     bool triggered;
-
+    bool hideImage;
+  
+    float hideTrans;
+    bool disableTiming;
+    float trans;
     
 };
