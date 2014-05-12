@@ -11,7 +11,7 @@ void testApp::setup(){
     ofSetLogLevel(OF_LOG_VERBOSE);
     
     int baud = 9600;
-    serial.setup("/dev/tty.usbmodem1421", baud); 
+    serial.setup("/dev/tty.usbmodem1411", baud); 
     
     pistonPos = 0;
     pistonSpeed = 120;
@@ -59,7 +59,7 @@ void testApp::setup(){
     
     grayScale.allocate(camWidth, camHeight);
     colorImage.allocate(camWidth, camHeight);
-    threshold = 150;
+    threshold = 140;
     leftBound = 217;
     rightBound = 1721;
     topBound = -47;
@@ -95,7 +95,7 @@ void testApp::setup(){
     
     zooming = false;
     
-    
+    progressThresh = 0.9;
     
     
     
@@ -140,6 +140,7 @@ void testApp::setup(){
     statusCol = ofColor(255);
     statusA = "Status: Cloud";
     statusB = "Fragment";
+    statusRot = 3;
     
     zoomSquareWidth = 1080;
     zoomSquareThick = 10;
@@ -171,7 +172,7 @@ void testApp::setup(){
     explosion.setPan(bottom);
     
     smallExplosion.loadSound("sounds/distexplosion.mp3");
-    smallExplosion.setVolume(1.0f);
+    smallExplosion.setVolume(0.6f);
     smallExplosion.setSpeed(1.0f);
     smallExplosion.setMultiPlay(true);
     smallExplosion.setPan(bottom);
@@ -261,15 +262,15 @@ void testApp::setup(){
     stage1_02_useyourhands.setSpeed(1.0f);
     stage1_02_useyourhands.setPan(top);
     
-    stage1_03_seehow.loadSound("narration/stage1/03-seehow.mp3");
+    stage1_03_seehow.loadSound("narration/stage1/03-04.mp3");
     stage1_03_seehow.setVolume(1.0f);
     stage1_03_seehow.setSpeed(1.0f);
     stage1_03_seehow.setPan(top);
     
-    stage1_04_keepgathering.loadSound("narration/stage1/04-keepgathering.mp3");
-    stage1_04_keepgathering.setVolume(1.0f);
-    stage1_04_keepgathering.setSpeed(1.0f);
-    stage1_04_keepgathering.setPan(top);
+//    stage1_04_keepgathering.loadSound("narration/stage1/04-keepgathering.mp3");
+//    stage1_04_keepgathering.setVolume(1.0f);
+//    stage1_04_keepgathering.setSpeed(1.0f);
+//    stage1_04_keepgathering.setPan(top);
     
     stage1_05_youvecreated.loadSound("narration/stage1/05-youvecreated.mp3");
     stage1_05_youvecreated.setVolume(1.0f);
@@ -287,7 +288,7 @@ void testApp::setup(){
     stage2_02_sometimescloud.setSpeed(1.0f);
     stage2_02_sometimescloud.setPan(top);
     
-    stage2_03_startingtogetwarm.loadSound("narration/stage2/03-startingtogetwarm.mp3");
+    stage2_03_startingtogetwarm.loadSound("narration/stage2/03-startingtogetwarm-short.mp3");
     stage2_03_startingtogetwarm.setVolume(1.0f);
     stage2_03_startingtogetwarm.setSpeed(1.0f);
     stage2_03_startingtogetwarm.setPan(top);
@@ -509,7 +510,7 @@ void testApp::update(){
         
         
         //Narrator
-        if(ofGetElapsedTimeMillis() - idleTimer > 20000 && idle.getIsPlaying() == false){
+        if(ofGetElapsedTimeMillis() - idleTimer > 30000 && idle.getIsPlaying() == false){
             idlePlay = true;
         }
         
@@ -531,7 +532,7 @@ void testApp::update(){
             
             
             //check if any balls are in the circle
-            if(ofDistSquared(mapBlobX, mapBlobY, ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 150, 150) < 100 * 100){
+            if(ofDistSquared(mapBlobX, mapBlobY, introTimer.pos.x, introTimer.pos.y) < 100 * 100){
                 numBallsinBox++;
             }
             
@@ -722,7 +723,7 @@ void testApp::update(){
             nextStage = 0.5;
             transitionToStage = false;
             
-            float rad = 275;
+            float rad = 360;
             float angleStart = 60;
             float angleBetween = 50;
             
@@ -747,11 +748,11 @@ void testApp::update(){
                 
                 
                 t.pos.set(p);
-                t.rad = 80;
+                t.rad = 90;
                 t.cvObjectCol = cvObjectCol;
                 t.triggered = false;
                 t.hideImage = true;
-                t.strokeThick = 4;
+                t.strokeThick = 6;
                 
                 tableOfContents.push_back(t);
                 
@@ -919,6 +920,7 @@ void testApp::update(){
         if(setupStage1 == false){
             fieldRes = 6;
             pList.clear();
+            attractorSize = attractorBase;
             newParticleField(fieldRes);
             
             stageStartTime = ofGetElapsedTimeMillis();
@@ -927,6 +929,7 @@ void testApp::update(){
             ballInfluence = false;
             announced = false;
             
+            attractorSize = attractorBase;
             createMainFragment();
             
             setupStage1 = true;
@@ -1062,7 +1065,9 @@ void testApp::update(){
                 //count number of dead particles
                 numDead++;
                 
-                if(pList.size() - numDead < 300){
+//                if(pList.size() - numDead < particleThreshold){
+                if(progress > progressThresh){
+
                     transitionTo2 = true;
 
 
@@ -1197,7 +1202,6 @@ void testApp::update(){
         
     } else if(narrativeState == 2){
         
-        
         //--------------------PROTOSTAR UPDATE--------------------
         
         
@@ -1205,17 +1209,19 @@ void testApp::update(){
         if(setupStage2 == false){
             pList.clear();
             fieldRes = 6;
+            attractorSize = attractorBase;
             newParticleField(fieldRes);
             
             clumpPos.set(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + 200, 800);
             createClump(clumpPos.x, clumpPos.y, 100, 2000); //args: x, y, rad, num
-            locateClump = true;
+            locateClump = false;
             
             stageStartTime = ofGetElapsedTimeMillis();
             sendSerial(0, 255, 0);
             cvObjectCol = ofColor(255, 0, 0, 255);
             ballInfluence = false;
             announced = false;
+            announced2 = false;
             
             createMainFragment();
             
@@ -1226,8 +1232,8 @@ void testApp::update(){
             instructionA = "Use Balls to push gas toward the Protostar";
             instructionB = "";
             
-            statusA = "Status:";
-            statusB = "Protostar";
+            statusA = "Status: Cloud";
+            statusB = "Fragment";
             
         }
         
@@ -1315,11 +1321,10 @@ void testApp::update(){
                                 it -> blobRepel(contourFinder.blobs[i].centroid, 1.0);
                                 
                             }
-                            
                         }
-                        
                     }
                 }
+                
                 
                 //attraction to Attractor due to its own gravitation for particles within
                 //the attraction radius
@@ -1354,7 +1359,7 @@ void testApp::update(){
                 //count number of dead particles
                 numDead++;
                 
-                if(pList.size() - numDead < 300){
+                if(progress > progressThresh && !stage2_04_fragmentprotostar.getIsPlaying()){
                     transitionTo2 = true;
                     
                     
@@ -1366,9 +1371,24 @@ void testApp::update(){
         } //particle update for-loop
         
         
-
-        
-        
+        if(locateClump){
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+     
+                //new mapping with space considerations
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                //check if any blobs within clump locate circle
+                ofVec2f distBlobtoClump = ofVec2f(mapBlobX, mapBlobY) - clumpPos;
+                
+                //count as disturbed if within radius (circular boundary)
+                if(distBlobtoClump.lengthSquared() < 50 * 50 || ofDistSquared(mouseX, mouseY, clumpPos.x, clumpPos.y) < 50 * 50){
+                    locateClump = false;
+                }
+                
+            }
+            
+        }
         
         
         
@@ -1497,7 +1517,8 @@ void testApp::update(){
         //stage setup
         if(setupStage3 == false){
             pList.clear();
-            fieldRes = 7;
+            fieldRes = 6;
+            attractorSize = attractorBase;
             newParticleField(fieldRes);
             
             stageStartTime = ofGetElapsedTimeMillis();
@@ -1656,7 +1677,7 @@ void testApp::update(){
                 //count number of dead particles
                 numDead++;
                 
-                if(pList.size() - numDead < 300){
+                if(progress > progressThresh){
                     
                     narrativeState = 4;
                     //pList.clear();
@@ -1697,8 +1718,8 @@ void testApp::update(){
         //send arduino states
         pistonPos = (int)ofClamp(ofMap(attractorSize, attractorBase, attractorMax, 0, 255), 0, 255);
         
-        sendSerial(pistonPos, pistonSpeed, 0);
         
+        //serial data sent in draw loop
         
         
         
@@ -1720,7 +1741,7 @@ void testApp::update(){
             stageStartTime = ofGetElapsedTimeMillis();
             sendSerial(100, 255, 0);
             cvObjectCol = ofColor(0, 255, 0, 255);
-            ballInfluence = false;
+            ballInfluence = true;
             announced = false;
             
             createSunSmoke();
@@ -1738,12 +1759,14 @@ void testApp::update(){
             explosion.play();
             
             toTOC.pos.set(ofGetWindowWidth()/2 + 200, ofGetWindowHeight()/2);
-            toTOC.rad = 100;
+            toTOC.rad = 75;
+            toTOC.strokeThick = 4;
             toTOC.cvObjectCol = ofColor(0, 0);
             toTOC.triggered = false;
             
             toNextStage.pos.set(ofGetWindowWidth()/2 - 200, ofGetWindowHeight()/2);
-            toNextStage.rad = 100;
+            toNextStage.rad = 75;
+            toNextStage.strokeThick = 4;
             toNextStage.cvObjectCol = ofColor(0, 0);
             toNextStage.triggered = false;
             
@@ -2111,7 +2134,7 @@ void testApp::draw(){
         string idleMessage = "Hold ball here to begin";
 
         ofPushMatrix();
-        ofTranslate(ofGetWindowWidth()/2 + 250, 120);
+        ofTranslate(ofGetWindowWidth()/2 + 320, 120);
         ofScale(0.3, 0.3);
         ofRotate(180);
         
@@ -2149,6 +2172,23 @@ void testApp::draw(){
         }
         
         
+        
+        //draw title
+        
+        
+        string titleA = "Spacetime";
+        string titleB = "Explorer";
+        
+        ofPushMatrix();
+        ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2 + 330);
+        ofScale(1.5, 1.5);
+        ofRotate(180);
+        
+        ofSetColor(255);
+        instructions.drawString(titleA, -instructions.stringWidth(titleA)/2, 0);
+        instructions.drawString(titleB, -instructions.stringWidth(titleB)/2, instructions.getLineHeight() * 0.85);
+        
+        ofPopMatrix();
         
         
         
@@ -2399,7 +2439,7 @@ void testApp::draw(){
             string rollMessage = "Hold ball here for next stage";
             
             ofPushMatrix();
-            ofTranslate(ofGetWindowWidth()/2 + 230, rollTimerPos.y - 10);
+            ofTranslate(ofGetWindowWidth()/2 + 320, 120);
             ofScale(0.3, 0.3);
             ofRotate(180);
             ofSetColor(255, rollTimerTrans);
@@ -2743,7 +2783,7 @@ void testApp::draw(){
                 ofTranslate(0, -tableOfContents[i].rad * 1.35);
                 ofRotate(180);
                 
-                ofScale(0.2, 0.2);
+                ofScale(0.25, 0.25);
                 
                 //draw bounding boxes
                 //            ofSetColor(0, 255 * 0.4);
@@ -2765,7 +2805,25 @@ void testApp::draw(){
             }
             
             
-
+            //draw CV objects
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+                
+                ofPushStyle();
+                ofSetColor(cvObjectCol);
+                ofSetCircleResolution(60);
+                ofCircle(mapBlobX, mapBlobY, 10);
+                
+                ofNoFill();
+                ofSetLineWidth(5);
+                ofEllipse(mapBlobX, mapBlobY, 50, 50);
+                
+                ofPopStyle();
+                
+            }
             
             
             
@@ -2773,7 +2831,7 @@ void testApp::draw(){
             instructionB = "you would like to explore";
             instructionScale = 0.3;
 
-            instructCol = ofColor(0, 255, 0);
+            instructCol = ofColor(100, 255, 0);
             
             ofPushMatrix();
             ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight() - 50);
@@ -2837,10 +2895,10 @@ void testApp::draw(){
         }
         
         
-        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
+        if(progress > 0.3 && announced == false && !stage1_03_seehow.getIsPlaying()){
             playStage1_03 = true;
             announced = true;
-            cout << "play narration" << endl;
+
         }
         
         if(playStage1_03){
@@ -2850,25 +2908,7 @@ void testApp::draw(){
         }
         
         
-        //CHANGE THIS START TIME TO SOMETHING THAT WORKS SO IT DOESNT PLAY UNLESS THE PREVIOUS ONE HAS
-//        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
-//            playStage1_04 = true;
-//            test = true;
-//        }
-//        
-//        if(playStage1_04){
-//            stage1_04_keepgathering.play();
-//            playStage1_04 = false;
-//        }
-//
-//        if(test){
-//            ofPushStyle();
-//            
-//            ofSetColor(255, 0, 0);
-//            ofCircle(300, 300, 100);
-//            
-//            ofPopStyle();
-//        }
+
         
         
         drawGrid(15, 0.2);
@@ -3008,7 +3048,7 @@ void testApp::draw(){
         
         
         //---------- DRAW UI ----------
-        float progress = (float)numDead/(float)pList.size();
+        progress = (float)numDead/(float)pList.size();
         drawProgress(progress);
         
         int borderPadding = 60;
@@ -3050,7 +3090,7 @@ void testApp::draw(){
                 ofPushMatrix();
                 ofTranslate(ofGetWindowSize()/2);
                 
-                ofRotate(360/num * i + (ofGetElapsedTimef() * 10));
+                ofRotate(360/num * i + (ofGetElapsedTimef() * statusRot));
                 ofTranslate(0, attractorSize + attractorSize * 0.1);
                 
                 statusScale = ofMap(attractorSize, 0, 300, 0.08, 0.23);
@@ -3106,6 +3146,9 @@ void testApp::draw(){
         if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
             playStage2_01 = true;
             
+            cvObjectCol = ofColor(0, 255, 0, 255);
+            ballInfluence = true;
+            
         }
         
         
@@ -3118,40 +3161,48 @@ void testApp::draw(){
         
         
         //trigger second clip and create a new fragment
-        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
-            playStage1_02 = true;
+        if(currentTime > 7500 && currentTime < 8000 && !stage2_02_sometimescloud.getIsPlaying()){
+            playStage2_02 = true;
+            locateClump = true;
         }
         
-        if(playStage1_02){
-            stage1_02_useyourhands.play();
-            playStage1_02 = false;
-            cvObjectCol = ofColor(0, 255, 0);
-            ballInfluence = true;
+        if(playStage2_02){
+            stage2_02_sometimescloud.play();
+            playStage2_02 = false;
             
         }
         
         
-        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
-            playStage1_03 = true;
+        if(progress > 0.3 && announced == false && !stage2_03_startingtogetwarm.getIsPlaying()){
+            playStage2_03 = true;
             announced = true;
-            cout << "play narration" << endl;
         }
         
-        if(playStage1_03){
-            stage1_03_seehow.play();
-            announcedTimer = ofGetElapsedTimeMillis();
-            playStage1_03 = false;
+        if(playStage2_03){
+            stage2_03_startingtogetwarm.play();
+            playStage2_03 = false;
+            
         }
         
-        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
-            playStage1_04 = true;
-            test = true;
+
+        
+        
+        if(progress > 0.6 && announced2 == false && !stage2_04_fragmentprotostar.getIsPlaying()){
+            playStage2_04 = true;
+            announced2 = true;
+            
+            statusA = "Status:";
+            statusB = "Protostar";
         }
         
-        if(playStage1_04){
-            stage1_04_keepgathering.play();
-            playStage1_04 = false;
+        if(playStage2_04){
+            stage2_04_fragmentprotostar.play();
+            playStage2_04 = false;
+            
         }
+        
+        
+        
         
         drawGrid(15, 0.2);
         
@@ -3192,7 +3243,7 @@ void testApp::draw(){
             //first color
             ofColor c;
             c = mainFragment[i].col;
-            float r = ofClamp(ofNormalize(c.r, 0, 600) + attractorLerp, 0.0f, 1.0f);
+            float r = ofClamp(ofNormalize(c.r, 0, 600) + attractorLerp/2, 0.0f, 1.0f);
             float g = ofNormalize(c.g, 0, 600);
             float b = ofNormalize(c.b, 0, 600);
             float a =ofNormalize(c.a, 0, 255);
@@ -3274,10 +3325,7 @@ void testApp::draw(){
         
 
         
-        
-        if(ofDistSquared(mouseX, mouseY, clumpPos.x, clumpPos.y) < 75 * 75){
-            locateClump = false;
-        }
+
         
         
         if(locateClump){
@@ -3324,7 +3372,7 @@ void testApp::draw(){
 
 
         //---------- DRAW UI ----------
-        float progress = (float)numDead/(float)pList.size();
+        progress = (float)numDead/(float)pList.size();
         drawProgress(progress);
         
         int borderPadding = 60;
@@ -3366,7 +3414,7 @@ void testApp::draw(){
             ofPushMatrix();
             ofTranslate(ofGetWindowSize()/2);
             
-            ofRotate(360/num * i + (ofGetElapsedTimef() * 10));
+            ofRotate(360/num * i + (ofGetElapsedTimef() * statusRot));
             ofTranslate(0, attractorSize + attractorSize * 0.1);
             
             statusScale = ofMap(attractorSize, 0, 300, 0.08, 0.23);
@@ -3459,6 +3507,9 @@ void testApp::draw(){
 //            playStage1_04 = false;
 //        }
         
+        
+        cvObjectCol = ofColor(0, 255, 0);
+        ballInfluence = true;
         drawGrid(15, 0.2);
         
         
@@ -3599,7 +3650,7 @@ void testApp::draw(){
 
         
         //---------- DRAW PROGRESS BAR ----------
-        float progress = (float)numDead/(float)pList.size();
+        progress = (float)numDead/(float)pList.size();
         drawProgress(progress);
         
         int borderPadding = 60;
@@ -3613,13 +3664,21 @@ void testApp::draw(){
         
         
         //Exploding starburst
-        if(progress > 0.5 && ofGetElapsedTimeMillis() - starburstTimer > nextBurst){
+        if(progress > 0.2 && ofGetElapsedTimeMillis() - starburstTimer > nextBurst){
             burst = true;
         }
-           
+        
+        
+        //send data depending on the state of the star bursts
+        if(burst){
+            sendSerial(pistonPos, pistonSpeed, 1);
+        } else {
+            sendSerial(pistonPos, pistonSpeed, 0);
+        }
+        
         
         if(burst){
-            starburstSize = ofMap(attractorSize, attractorBase, attractorMax, 100, 400);
+            starburstSize = ofMap(attractorSize, attractorBase, attractorMax, 100, 800);
             
             float phi = ofRandom( 0, TWO_PI );
             float costheta = ofRandom( -1.0f, 1.0f );
@@ -3641,7 +3700,7 @@ void testApp::draw(){
             starburstTimer = ofGetElapsedTimeMillis();
             
             burst = false;
-            float timeMap = ofMap(progress, 0.5, 1.0, 1500, 5);
+            float timeMap = ofMap(progress, 0.2, 1.0, 2500, 5);
             nextBurst = ofRandom( timeMap, timeMap * 2);
         }
         
@@ -3703,7 +3762,7 @@ void testApp::draw(){
             ofPushMatrix();
             ofTranslate(ofGetWindowSize()/2);
             
-            ofRotate(360/num * i + (ofGetElapsedTimef() * 10));
+            ofRotate(360/num * i + (ofGetElapsedTimef() * statusRot));
             ofTranslate(0, attractorSize + attractorSize * 0.1);
             
             statusScale = ofMap(attractorSize, 0, 300, 0.08, 0.23);
@@ -4207,7 +4266,7 @@ void testApp::drawUI(){
         
         for(int i = 0; i < num; i++){
             ofPushMatrix();
-            ofRotate(360/num * i + (ofGetElapsedTimef() * 10));
+            ofRotate(360/num * i + (ofGetElapsedTimef() * statusRot));
             ofTranslate(0, attractorSize + attractorSize * 0.1);
             
             statusScale = ofMap(attractorSize, 0, 300, 0.08, 0.23);
@@ -4456,13 +4515,40 @@ void testApp::drawProgress(float progress){
     
     
     
-    //draw text
+    //draw in bar text
     string progressText = "Gas Left to Collect: " + ofToString(100 - floor(progress*100)) + "%";
     
     ofSetColor(255);
     instructions.drawString(progressText, -instructions.stringWidth(progressText)/2, 0);
     ofPopMatrix();
-
+    
+    
+    //draw text "to next stage"
+    ofPushMatrix();
+    
+    ofTranslate(ofGetWindowSize()/2);
+    ofRotate(180);
+    ofTranslate(progressBarDim.x * 0.4, ofGetWindowHeight()/2 - progressBarPos.y + progressBarDim.y);
+    
+    
+    ofScale(0.12, 0.12);
+    string next = "To Next Stage";
+    ofSetColor(255);
+    instructions.drawString(next, -instructions.stringWidth(next)/2, 0);
+    ofPopMatrix();
+    
+    ofSetLineWidth(4);
+    ofSetColor(255);
+    ofLine(progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y, progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y + progressBarDim.y);
+    
+    float triLength = 30;
+    float triWidth = 20;
+    float shiftVert = 15;
+    ofSetColor(255, 0, 0);
+    ofTriangle(progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y + shiftVert,
+               progressBarPos.x + (1 - progressThresh) * progressBarDim.x - triWidth/2, progressBarPos.y - triLength + shiftVert,
+               progressBarPos.x + (1 - progressThresh) * progressBarDim.x + triWidth/2, progressBarPos.y - triLength + shiftVert);
+    
     
 }
 

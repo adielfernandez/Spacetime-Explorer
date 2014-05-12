@@ -124,6 +124,7 @@ class testApp : public ofBaseApp{
     void drawBlackBars();
     void drawGrid(int num, float trans);
     void drawProgress(float progress);
+    void drawMarkers();
     
     ofTrueTypeFont instructions;
     float instructionScale;
@@ -137,8 +138,10 @@ class testApp : public ofBaseApp{
     string statusA;
     string statusB;
     float statusScale;
-
+    float statusRot;
+    
     ofImage handWithBall;
+    
     
     //Sound Effects
     ofSoundPlayer zoom;
@@ -316,14 +319,15 @@ class testApp : public ofBaseApp{
     
     bool ballInfluence;
     bool announced;
+    bool announced2;
     int announcedTimer;
     bool test;
     
 
     ofVec2f progressBarPos;
     ofVec2f progressBarDim;
-
-    
+    float progress;
+    float progressThresh;
     
     
     //----------Stage 2----------

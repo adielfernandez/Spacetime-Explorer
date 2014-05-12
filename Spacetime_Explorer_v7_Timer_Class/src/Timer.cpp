@@ -20,7 +20,7 @@ Timer::Timer(){
     triggered = false;
     inButton =  false;
     hideImage = false;
-    hideTrans = 200;
+    hideTrans = 120;
     
     trans = 0;
     
@@ -132,7 +132,7 @@ void Timer::draw(){
         
 
 
-        if(hideTrans < 200){
+        if(hideTrans < 120){
             hideTrans += 8;
         }
         
