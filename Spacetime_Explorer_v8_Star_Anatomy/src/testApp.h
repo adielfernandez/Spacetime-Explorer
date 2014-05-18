@@ -283,11 +283,11 @@ class testApp : public ofBaseApp{
     //----------Table of Contents----------
     bool setupStageTOC;
     
-    ofImage starThumb;
+    ofImage spacetimeThumb;
     ofImage protoThumb;
+    ofImage starThumb;
     ofImage comingSoon;
     ofImage stagesThumb;
-    ofImage spacetimeThumb;
     
     vector<Timer> tableOfContents;
     vector<int> numBallsInTimers;
@@ -358,18 +358,28 @@ class testApp : public ofBaseApp{
     //----------Stage 3----------
     //-----Protostar to star-----
     
+    ofSoundPlayer stage3_01_helptheprotostar;
+    ofSoundPlayer stage3_023_heatandpressure;
+    ofSoundPlayer smallExplosion;
+
+    bool playStage3_01;
+    bool playStage3_023;
+    
     bool setupStage3;
     ofImage starburst;
     int starburstTimer;
     float starburstSize;
     ofVec2f starburstPos;
     float starburstTrans;
-    ofSoundPlayer smallExplosion;
     bool burst;
     int nextBurst;
     
     //-----------Stage 4-----------
     //-------Exploding Star--------
+    
+    bool playStage4_01;
+    ofSoundPlayer stage4_01_wevereachedcritical;
+
     
     bool setupStage4;
     ofSoundPlayer explosion;
@@ -388,6 +398,8 @@ class testApp : public ofBaseApp{
     int numBallTOC;
     int numBallNextStage;
     
+    Timer doneWithStar;
+    bool useDWStimer;
 
     
     //-----------Stage 5-----------
@@ -405,6 +417,12 @@ class testApp : public ofBaseApp{
     ofColor gravityArrow;
     int coreTimer;
     int coreCounter;
+    int starUseTime;
+    bool timeFlag;
+    
+    //-----------Stage 6-----------
+    //-------Fusion Process--------
+
     
 };
 

@@ -41,7 +41,7 @@ void testApp::setup(){
 
     ps3eye.listDevices();
 
-    ps3eye.setDesiredFrameRate(60);
+    ps3eye.setDesiredFrameRate(60);  
     ps3eye.setVerbose(true);
     ps3eye.initGrabber(camWidth,camHeight, true);
     
@@ -303,7 +303,28 @@ void testApp::setup(){
     stage2_05_littlemoremass.setSpeed(1.0f);
     stage2_05_littlemoremass.setPan(top);
     
+    //stage 3
+    stage3_01_helptheprotostar.loadSound("narration/stage3/01-helptheprotostar.mp3");
+    stage3_01_helptheprotostar.setVolume(1.0f);
+    stage3_01_helptheprotostar.setSpeed(1.0f);
+    stage3_01_helptheprotostar.setPan(top);
+
+    stage3_023_heatandpressure.loadSound("narration/stage3/023-heatandpressure.mp3");
+    stage3_023_heatandpressure.setVolume(1.0f);
+    stage3_023_heatandpressure.setSpeed(1.0f);
+    stage3_023_heatandpressure.setPan(top);
     
+    
+    //stage 4
+    stage4_01_wevereachedcritical.loadSound("narration/stage3/04-wevereachedcritical(short).mp3");
+    stage4_01_wevereachedcritical.setVolume(1.0f);
+    stage4_01_wevereachedcritical.setSpeed(1.0f);
+    stage4_01_wevereachedcritical.setPan(top);
+    
+//    .loadSound("narration/stage2/.mp3");
+//    .setVolume(1.0f);
+//    .setSpeed(1.0f);
+//    .setPan(top);
     
     //Narrative States
     //----------Idle----------
@@ -996,6 +1017,8 @@ void testApp::update(){
             createMainFragment();
             
             setupStage1 = true;
+            transitionTo2 = false;
+            transitionTo2Timer = 0;
             
             pTrans = 0;
             
@@ -1008,6 +1031,9 @@ void testApp::update(){
             progressText = "Gas Left to Collect: ";
             progressBarDim.set(500, 30);
             progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 110);
+            
+            progress = 0;
+            
         }
         
         if(pTrans < 0.2){
@@ -1133,12 +1159,7 @@ void testApp::update(){
                 numDead++;
                 
 //                if(pList.size() - numDead < particleThreshold){
-                if(progress > progressThresh){
 
-                    transitionTo2 = true;
-
-
-                }
                 
                 
             } //if(particles are alive) statement 
@@ -1146,7 +1167,12 @@ void testApp::update(){
         } //particle for-loop
         
         
-        
+        if(progress > progressThresh){
+            
+            transitionTo2 = true;
+            
+            
+        }
         
         
         
@@ -1293,6 +1319,8 @@ void testApp::update(){
             createMainFragment();
             
             setupStage2 = true;
+            transitionTo3 == false;
+            transitionTo3Timer = 0;
             
             pTrans = 0;
             
@@ -1306,7 +1334,11 @@ void testApp::update(){
             progressBarDim.set(500, 30);
             progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 110);
             
+            progress = 0;
+            
         }
+        
+        progress = (float)numDead/(float)pList.size();
         
         if(pTrans < 0.2){
             pTrans += 0.003;
@@ -1430,11 +1462,8 @@ void testApp::update(){
                 //count number of dead particles
                 numDead++;
                 
-                if(progress > progressThresh && !stage2_04_fragmentprotostar.getIsPlaying()){
-                    transitionTo2 = true;
-                    
-                    
-                }
+
+
                 
                 
             } //if(particles are alive) statement
@@ -1461,7 +1490,8 @@ void testApp::update(){
             
         }
         
-        
+
+
         
         
         if(transitionTo2 == false){
@@ -1540,7 +1570,7 @@ void testApp::update(){
             
             
             //if we're ready reset key variables and increment narrativeState
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 9000){
+            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 9000 && !stage2_05_littlemoremass.getIsPlaying()){
                 
                 narrativeState = 3;
                 
@@ -1624,9 +1654,11 @@ void testApp::update(){
             progressBarDim.set(500, 30);
             progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 110);
             
+            progress = 0;
+            playStage3_023 = false;
         }
         
-        
+        progress = (float)numDead/(float)pList.size();
         
         
         if(pTrans < 0.2){
@@ -1752,12 +1784,7 @@ void testApp::update(){
                 //count number of dead particles
                 numDead++;
                 
-                if(progress > progressThresh){
-                    
-                    narrativeState = 4;
-                    //pList.clear();
-                    
-                }
+
                 
                 
             } //if(particles are alive) statement
@@ -1765,8 +1792,7 @@ void testApp::update(){
         } //particle update for-loop
         
         
-        
-        
+
         
         
         
@@ -1819,12 +1845,14 @@ void testApp::update(){
             ballInfluence = true;
             announced = false;
             
-            createSunSmoke(2000);
+            createSunSmoke(2500);
             
             
             for( vector<SunParticle>::iterator it = sunPList.begin(); it!=sunPList.end(); it++){
                 it -> explode = true;
                 it -> disturbed = false;
+                it -> ageOfDeath = 50;
+                it -> lifeSpan = ofRandom(it -> ageOfDeath);
             }
             
             transitionToChoice = false;
@@ -1833,6 +1861,14 @@ void testApp::update(){
             setupStage4 = true;
             shakeAmplitude = 10;
             explosion.play();
+            
+            doneWithStar.pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 100);
+            doneWithStar.rad = 75;
+            doneWithStar.cvObjectCol = cvObjectCol;
+            doneWithStar.triggered = false;
+            doneWithStar.trans = 0;
+            useDWStimer = false;
+            
             
             toTOC.pos.set(ofGetWindowWidth()/2 + 200, ofGetWindowHeight()/2);
             toTOC.rad = 75;
@@ -1849,10 +1885,10 @@ void testApp::update(){
             statusA = "Status: Main";
             statusB = "Sequence Star";
             
-            instructionA = "You've Created";
-            instructionB = "Nuclear Fusion";
             
             sendSerial(150, 80, 0);
+            
+            progress = 0;
 
 
         }
@@ -1875,7 +1911,58 @@ void testApp::update(){
         
         for( vector<SunParticle>::iterator it = sunPList.begin(); it!=sunPList.end(); it++){
             
-            it -> update(mouseDirection);
+            if(it -> dead == false){
+                
+                
+                it -> update(mouseDirection);
+                
+                //if particle is within mouse radius, count it as disturbed
+                ofVec2f distMouse = it -> pos - mousePos;
+                
+                if(distMouse.lengthSquared() < mouseRad * mouseRad){
+
+                    //repulsion from mouse
+                    it -> mouseRepel(mousePos, mouseRad, 2.5);
+                    
+                }
+                
+                if(ballInfluence){
+                    //if there are blobs and particle is within radius of blobs, count it as disturbed
+                    if(contourFinder.blobs.size() > 0){
+                        
+                        for(int i = 0; i < contourFinder.blobs.size(); i++){
+                            //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                            
+                            //new mapping with space considerations
+                            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                            
+                            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+                            
+                            
+                            //subtract position of centroid from position of particle
+                            ofVec2f distBlob = (it -> pos) - ofVec2f(mapBlobX, mapBlobY);
+                            
+                            //count as disturbed if within radius (circular boundary)
+                            if(distBlob.lengthSquared() < disturbRad * disturbRad * 4){
+
+                                
+                                //give the direction of the current blob
+                                it -> blobDir = blobDirection[i];
+                                
+                                //then repel away from current blob
+                                it -> blobRepel(contourFinder.blobs[i].centroid, 4.5);
+                                
+                            }
+                            
+                            
+                            
+                            
+                            
+                        }
+                        
+                    }
+                }
             
             
             if(ofGetElapsedTimeMillis() - stageStartTime > 3000){
@@ -1907,7 +1994,7 @@ void testApp::update(){
             pSizes.push_back(ofVec3f(s));
             
         }
-        
+        }
         
         
         
@@ -1917,26 +2004,95 @@ void testApp::update(){
         particleVBO.setNormalData(&pSizes[0], total, GL_STATIC_DRAW);
         particleVBO.setColorData(&pColors[0], total, GL_STATIC_DRAW);
 
+
+        
+        
+        
+        
+        
+        
+        //allow users to play with star before continuing
+        if(currentStageTime > 5000 && currentStageTime < 5500 && !stage4_01_wevereachedcritical.getIsPlaying()){
+            
+            playStage4_01 = true;
+            
+            //            transitionToChoice = true;
+        }
+
+        if(playStage4_01){
+            stage4_01_wevereachedcritical.play();
+            playStage4_01 = false;
+            useDWStimer = true;
+        }
+        
+        
+        if(useDWStimer){
+            
+            
+            numBallsinBox = 0;
+            
+            //Look for blobs and display them
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                
+                //check if any balls are in the circle
+                if(ofDistSquared(mapBlobX, mapBlobY, introTimer.pos.x, introTimer.pos.y) < 100 * 100){
+                    numBallsinBox++;
+                }
+                
+                
+            }
+            
+            
+            if(doneWithStar.trans < 254){
+                doneWithStar.trans += 2;
+            }
+            
+            
+            //UI Timer
+            float dist = ofDist(doneWithStar.pos.x, doneWithStar.pos.y, mouseX, mouseY);
+            if(numBallsinBox > 0 || dist < introTimer.rad){
+                doneWithStar.inButton = true;
+            } else {
+                doneWithStar.inButton = false;
+            }
+                        
+            doneWithStar.update();
+            
+            if(doneWithStar.triggered){
+                transitionToChoice = true;
+                useDWStimer = false;
+            }
+
+            
+        }
+        
+
+        
+        
         
         
         
         
         //offer choice of continuing to next stage or back to TOC
-        if(currentStageTime > 5000 && currentStageTime < 5500){
-            transitionToChoice = true;
-
+        if(transitionToChoice){
+            
             toTOC.cvObjectCol = cvObjectCol;
             toNextStage.cvObjectCol = cvObjectCol;
             
-            toTOC.trans = 0;
-            toNextStage.trans = 0;
+//            toTOC.trans = 0;
+//            toNextStage.trans = 0;
             
+            if(toTOC.trans < 254){
+                toTOC.trans += 2;
+            }
             
-        }
-        
-        
-        
-        if(transitionToChoice){
+            if(toNextStage.trans < 254){
+                toNextStage.trans += 2;
+            }
+            
             
             if(blackOutTrans < 180){
                 blackOutTrans += 2;
@@ -2088,24 +2244,51 @@ void testApp::update(){
             progressBarDim.set(500, 30);
             progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 140);
             
+            progress = 0;
             
-//            starStageTimer.pos.set(ofGetWindowWidth()/2 + 200, ofGetWindowHeight()/2);
-//            starStageTimer.rad = 75;
-//            starStageTimer.strokeThick = 4;
-//            starStageTimer.cvObjectCol = ofColor(0, 0);
-//            starStageTimer.triggered = false;
+            
+            doneWithStar.pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 100);
+            doneWithStar.rad = 75;
+            doneWithStar.cvObjectCol = cvObjectCol;
+            doneWithStar.triggered = false;
+            doneWithStar.trans = 0;
+            useDWStimer = false;
+            
+            
+            toTOC.pos.set(ofGetWindowWidth()/2 + 200, ofGetWindowHeight()/2);
+            toTOC.rad = 75;
+            toTOC.strokeThick = 4;
+            toTOC.cvObjectCol = ofColor(0, 0);
+            toTOC.triggered = false;
+            
+            toNextStage.pos.set(ofGetWindowWidth()/2 - 200, ofGetWindowHeight()/2);
+            toNextStage.rad = 75;
+            toNextStage.strokeThick = 4;
+            toNextStage.cvObjectCol = ofColor(255, 0, 0, 0);
+            toNextStage.triggered = false;
+            toNextStage.disableTiming = true;
             
             
             
             starSize = 245;
             goalStarSize = 245;
             
-            fusionArrow = ofColor(255, 150, 0);
+//            fusionArrow = ofColor(231, 204, 71);
+//            gravityArrow = ofColor(179, 93, 233);
+            fusionArrow = ofColor(255, 120, 0);
             gravityArrow = ofColor(0, 150, 255);
-            arrowTrans = 0;
+            
             
             showEquilibrium = false;
             coreTimer = 0;
+            
+            
+            arrowTrans = 0;
+            transitionToChoice = false;
+            transitionToStage = false;
+            blackOutTrans = 0;
+            starUseTime = 0;
+            timeFlag = false;
             
         }
         
@@ -2233,7 +2416,7 @@ void testApp::update(){
         
         
         
-        starSize = ofLerp(starSize, goalStarSize, 0.07);
+        starSize = ofLerp(starSize, goalStarSize, 0.04);
         
         
         if(progress > progressThresh){
@@ -2244,17 +2427,183 @@ void testApp::update(){
 
         if(showEquilibrium){
             
-            
+            if(timeFlag == false){
+                starUseTime = ofGetElapsedTimeMillis();
+                timeFlag = true;
+            }
             goalStarSize = 350;
             
             if(arrowTrans < 255){
                 arrowTrans += 1;
             }
             
+            if(ofGetElapsedTimeMillis() - starUseTime > 10000){
+                useDWStimer = true;
+            }
+            
+            
+        }
+        
+        
+        
+        
+        
+        if(useDWStimer){
+            
+            
+            numBallsinBox = 0;
+            
+            //Look for blobs and display them
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                
+                //check if any balls are in the circle
+                if(ofDistSquared(mapBlobX, mapBlobY, doneWithStar.pos.x, doneWithStar.pos.y) < 100 * 100){
+                    numBallsinBox++;
+                }
+                
+                
+            }
+            
+            
+            if(doneWithStar.trans < 254){
+                doneWithStar.trans += 2;
+            }
+            
+            
+            //UI Timer
+            float dist = ofDist(doneWithStar.pos.x, doneWithStar.pos.y, mouseX, mouseY);
+            if(numBallsinBox > 0 || dist < doneWithStar.rad){
+                doneWithStar.inButton = true;
+            } else {
+                doneWithStar.inButton = false;
+            }
+            
+            doneWithStar.update();
+            
+            if(doneWithStar.triggered){
+                transitionToChoice = true;
+                useDWStimer = false;
+            }
+            
+            
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        //offer choice of continuing to next stage or back to TOC
+        if(transitionToChoice){
+            
+            toTOC.cvObjectCol = cvObjectCol;
+            toNextStage.cvObjectCol = ofColor(255, 0, 0);
+            
+            //            toTOC.trans = 0;
+            //            toNextStage.trans = 0;
+            
+            if(toTOC.trans < 254){
+                toTOC.trans += 2;
+            }
+            
+            if(toNextStage.trans < 254){
+                toNextStage.trans += 2;
+            }
+            
+            
+            if(blackOutTrans < 180){
+                blackOutTrans += 2;
+            }
+            
+            
+            
+            
+            
+            
+            numBallTOC = 0;
+            numBallNextStage = 0;
+            
+            //Look for blobs and display them
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                
+                //check if any balls are in the circle
+                if(ofDistSquared(mapBlobX, mapBlobY, toNextStage.pos.x, toNextStage.pos.y) < toNextStage.rad* toNextStage.rad){
+                    numBallNextStage++;
+                }
+                if(ofDistSquared(mapBlobX, mapBlobY, toTOC.pos.x, toTOC.pos.y) < toTOC.rad* toTOC.rad){
+                    numBallTOC++;
+                }
+                
+            }
+            
+            
+            
+            
+            
+            //Check UI Timers
+            float distToNextStage = ofDistSquared(toNextStage.pos.x, toNextStage.pos.y, mouseX, mouseY);
+            if(numBallNextStage > 0 || distToNextStage < toNextStage.rad * toNextStage.rad){
+                toNextStage.inButton = true;
+            } else {
+                toNextStage.inButton = false;
+            }
+            
+            float distToTOC = ofDistSquared(toTOC.pos.x, toTOC.pos.y, mouseX, mouseY);
+            if(numBallTOC > 0 || distToTOC < toTOC.rad * toTOC.rad){
+                toTOC.inButton = true;
+            } else {
+                toTOC.inButton = false;
+            }
+            
+            toNextStage.update();
+            toTOC.update();
+            
+            
+            
+            
+            if(toNextStage.triggered){
+                transitionToStage = true;
+                nextStage = 5;
+                
+            }
+            
+            if(toTOC.triggered){
+                transitionToStage = true;
+                nextStage = 0.5;
+            }
+            
+            
+            
+            
+            
+            
+            if(transitionToStage){
+                
+                blackOutTrans += 2;
+                
+                if(blackOutTrans > 255){
+                    narrativeState = nextStage;
+                    
+                    
+                    
+                }
+                
+            }
+            
             
             
             
         }
+        
+
         
         
         
@@ -3505,7 +3854,7 @@ void testApp::draw(){
         }
         
         
-        if(progress > 0.3 && announced == false && !stage2_03_startingtogetwarm.getIsPlaying()){
+        if(currentTime > 2000 && progress > 0.3 && announced == false && !stage2_03_startingtogetwarm.getIsPlaying()){
             playStage2_03 = true;
             announced = true;
         }
@@ -3519,7 +3868,7 @@ void testApp::draw(){
 
         
         
-        if(progress > 0.6 && announced2 == false && !stage2_04_fragmentprotostar.getIsPlaying()){
+        if(currentTime > 2000 && progress > 0.6 && announced2 == false && !stage2_04_fragmentprotostar.getIsPlaying()){
             playStage2_04 = true;
             announced2 = true;
             
@@ -3533,7 +3882,10 @@ void testApp::draw(){
             
         }
         
-        
+        if(progress > progressThresh && !stage2_04_fragmentprotostar.getIsPlaying()){
+            transitionTo2 = true;
+            
+        }
         
         
         drawGrid(15, 0.2);
@@ -3704,7 +4056,7 @@ void testApp::draw(){
 
 
         //---------- DRAW UI ----------
-        progress = (float)numDead/(float)pList.size();
+
         drawProgress(progress);
         
         int borderPadding = 60;
@@ -3715,14 +4067,6 @@ void testApp::draw(){
         ofRotate(180);
         
         ofScale(instructionScale, instructionScale);
-        
-        //draw bounding boxes
-        //                ofSetColor(0, 255 * 0.4);
-        //                ofRectangle A = instructions.getStringBoundingBox(instructionA, -instructions.stringWidth(instructionA)/2, 0);
-        //                ofRect(A.x, A.y, A.width, A.height);
-        //
-        //                ofRectangle B = instructions.getStringBoundingBox(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight());
-        //                ofRect(B.x, B.y, B.width, B.height);
         
         //draw text
         ofSetColor(255);
@@ -3788,56 +4132,39 @@ void testApp::draw(){
         int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         
-//        //play first clip: "help the fragment gather more gas"
-//        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
-//            playStage2_01 = true;
-//            
-//        }
-//        
-//        
-//        if(playStage2_01){
-//            stage2_01_useyourhands.play();
-//            playStage2_01 = false;
-//        }
-//        
-//        
-//        
-//        
-//        //trigger second clip and create a new fragment
-//        if(currentTime > 11500 && currentTime < 12000 && !stage1_02_useyourhands.getIsPlaying()){
-//            playStage1_02 = true;
-//        }
-//        
-//        if(playStage1_02){
-//            stage1_02_useyourhands.play();
-//            playStage1_02 = false;
-//            cvObjectCol = ofColor(0, 255, 0);
-//            ballInfluence = true;
-//            
-//        }
-//        
-//        
-//        if(numDead > 5000 && announced == false && !stage1_03_seehow.getIsPlaying()){
-//            playStage1_03 = true;
-//            announced = true;
-//            cout << "play narration" << endl;
-//        }
-//        
-//        if(playStage1_03){
-//            stage1_03_seehow.play();
-//            announcedTimer = ofGetElapsedTimeMillis();
-//            playStage1_03 = false;
-//        }
-//        
-//        if(ofGetElapsedTimeMillis() - announcedTimer > 9000 && ofGetElapsedTimeMillis() - announcedTimer < 9500){
-//            playStage1_04 = true;
-//            test = true;
-//        }
-//        
-//        if(playStage1_04){
-//            stage1_04_keepgathering.play();
-//            playStage1_04 = false;
-//        }
+        //play first clip: "help the fragment gather more gas"
+        if(currentTime > 2000 && currentTime < 2500 && !stage3_01_helptheprotostar.getIsPlaying()){
+            playStage3_01 = true;
+            
+        }
+        
+        
+        if(playStage3_01){
+            stage3_01_helptheprotostar.play();
+            playStage3_01 = false;
+        }
+        
+        
+        
+        if(currentTime > 2000 && progress > 0.3 && announced == false && !stage3_023_heatandpressure.getIsPlaying()){
+            playStage3_023 = true;
+            announced = true;
+        }
+        
+        if(playStage3_023){
+            stage3_023_heatandpressure.play();
+            playStage3_023 = false;
+        }
+        
+        
+        
+        
+        if(currentTime > 2000 && progress > progressThresh){
+            
+            narrativeState = 4;
+            //pList.clear();
+            
+        }
         
         
         cvObjectCol = ofColor(0, 255, 0);
@@ -3982,7 +4309,7 @@ void testApp::draw(){
 
         
         //---------- DRAW PROGRESS BAR ----------
-        progress = (float)numDead/(float)pList.size();
+
         drawProgress(progress);
         
         int borderPadding = 60;
@@ -4211,8 +4538,7 @@ void testApp::draw(){
 
     ofPopMatrix();
         
-        
-        
+
 
         
 
@@ -4235,6 +4561,8 @@ void testApp::draw(){
             string labelTOCB = "Stage Select";
 
             
+
+            
             //----------draw TOC text----------
             ofPushMatrix();
             ofTranslate(toTOC.pos);
@@ -4243,14 +4571,7 @@ void testApp::draw(){
             
             ofScale(0.2, 0.2);
             
-            //draw bounding boxes
-//            ofSetColor(0, 255 * 0.4);
-//            ofRectangle A = instructions.getStringBoundingBox(labelTOCA, -instructions.stringWidth(labelTOCA)/2, 0);
-//            ofRect(A.x, A.y, A.width, A.height);
-//            
-//            ofRectangle B = instructions.getStringBoundingBox(labelTOCB, -instructions.stringWidth(labelTOCB)/2, instructions.getLineHeight());
-//            ofRect(B.x, B.y, B.width, B.height);
-            
+
             //draw text
             ofSetColor(255);
             instructions.drawString(labelTOCA, -instructions.stringWidth(labelTOCA)/2, 0);
@@ -4269,14 +4590,6 @@ void testApp::draw(){
             
             ofScale(0.2, 0.2);
             
-            //draw bounding boxes
-//            ofSetColor(0, 255 * 0.4);
-//            ofRectangle A = instructions.getStringBoundingBox(labelTOCA, -instructions.stringWidth(labelTOCA)/2, 0);
-//            ofRect(A.x, A.y, A.width, A.height);
-//
-//            ofRectangle B = instructions.getStringBoundingBox(labelTOCB, -instructions.stringWidth(labelTOCB)/2, instructions.getLineHeight());
-//            ofRect(B.x, B.y, B.width, B.height);
-            
             //draw text
             ofSetColor(255);
             instructions.drawString(labelNextStageA, -instructions.stringWidth(labelNextStageA)/2, 0);
@@ -4286,6 +4599,53 @@ void testApp::draw(){
         }
         
         //---------- DRAW UI ----------
+
+        
+        if(useDWStimer){
+            
+            instructionA = "Use the Balls to Push Around the";
+            instructionB = "Nuclear Fire";
+            doneWithStar.draw();
+            
+            
+            //draw text
+            string idleMessage = "Hold ball here to move on";
+            
+            ofPushMatrix();
+            ofTranslate(ofGetWindowWidth()/2 + 320, 120);
+            ofScale(0.3, 0.3);
+            ofRotate(180);
+            ofSetColor(255, doneWithStar.trans);
+            instructions.drawString(idleMessage, 0, 0);
+            
+            ofPopMatrix();
+            
+            //draw blob positions
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+                
+                ofPushStyle();
+                
+                ofSetColor(cvObjectCol);
+                ofCircle(mapBlobX, mapBlobY, 10);
+                ofNoFill();
+                ofCircle(mapBlobX, mapBlobY, disturbRad);
+                
+                ofPopStyle();
+            }
+            
+        } else {
+            
+            instructionA = "You've Created";
+            instructionB = "Nuclear Fusion";
+            
+        }
+        
+        
         int borderPadding = 60;
         
         ofPushMatrix();
@@ -4294,16 +4654,6 @@ void testApp::draw(){
         
         ofScale(instructionScale, instructionScale);
         
-        //draw bounding boxes
-        //                ofSetColor(0, 255 * 0.4);
-        //                ofRectangle A = instructions.getStringBoundingBox(instructionA, -instructions.stringWidth(instructionA)/2, 0);
-        //                ofRect(A.x, A.y, A.width, A.height);
-        //
-        //                ofRectangle B = instructions.getStringBoundingBox(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight());
-        //                ofRect(B.x, B.y, B.width, B.height);
-        
-        //draw text
-        
         
         ofSetColor(255);
         instructions.drawString(instructionA, -instructions.stringWidth(instructionA)/2, 0);
@@ -4311,7 +4661,13 @@ void testApp::draw(){
         ofScale(2, 2);
         ofSetColor(255, 0, 0);
         instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight());
+        
+        
+        
+        
         ofPopMatrix();
+        
+        
         
         
         //STATUS
@@ -4332,7 +4688,7 @@ void testApp::draw(){
             ofRotate(360/num * i + (ofGetElapsedTimef() * statusRot));
             ofTranslate(0, starSize + starSize * 0.15);
             
-            statusScale = ofMap(attractorSize, 0, 300, 0.08, 0.23);
+            statusScale = ofMap(starSize, 0, 300, 0.08, 0.23);
             
             ofScale(statusScale, statusScale);
             
@@ -4451,11 +4807,11 @@ void testApp::draw(){
             
             int numArrows = 6;
             
-            float amplitude = 20;
+            float amplitude = 40;
             float sine = sin(ofGetElapsedTimef() * 1.5);
             float arrowMotion = amplitude * sine;
 
-            float innerArrowRad = starSize * 0.5;
+            float innerArrowRad = starSize * 0.52;
             float outerArrowRad = starSize * 0.7;
             float arrowScaleW = 0.5;
             float arrowScaleH = 0.3;
@@ -4477,10 +4833,8 @@ void testApp::draw(){
                     ofSetColor(255, 0, 0, arrowTrans/255 * 10);
                 }
                 
-                
                 float rad = 5 + i * coreRad/numCoreCircles;
                 ofCircle(ofGetWindowSize()/2, rad);
-                
                 
             }
             
@@ -4499,7 +4853,10 @@ void testApp::draw(){
                 ofPushMatrix();
                 ofTranslate(ofGetWindowSize()/2);
                 ofRotate(i * 360/numArrows);
-                ofTranslate(innerArrowRad + arrowMotion, 0);
+                
+                ofTranslate(innerArrowRad + ofClamp(arrowMotion, 0, amplitude), 0);
+                
+                
                 
                 ofSetColor(fusionArrow, arrowTrans);
                 arrow.draw(0,0, arrow.width * arrowScaleW, arrow.height * arrowScaleH);
@@ -4508,11 +4865,12 @@ void testApp::draw(){
             
             //Fusion text
             ofPushMatrix();
-            ofTranslate(ofGetWindowWidth()/2 + starSize * 1.1, ofGetWindowHeight()/2);
+            ofTranslate(ofGetWindowWidth()/2 + starSize * 1.0, ofGetWindowHeight()/2 + 75);
             ofRotate(180);
             
-            float fuseScale = 0.4 - sine/8;
+            float fuseScale = 0.4 + ofClamp(sine/6, 0, 1);
             ofScale(fuseScale, fuseScale);
+            
             
             ofSetColor(fusionArrow, arrowTrans);
             instructions.drawString("Fusion", -instructions.stringWidth("Fusion")/2, 0);
@@ -4526,7 +4884,14 @@ void testApp::draw(){
                 ofPushMatrix();
                 ofTranslate(ofGetWindowSize()/2);
                 ofRotate(180/numArrows + i * 360/numArrows);
-                ofTranslate(outerArrowRad - arrowMotion, 0);
+                
+//                if(arrowMotion < 0){
+//                    ofTranslate(outerArrowRad + arrowMotion, 0);
+//                } else {
+//                    ofTranslate(outerArrowRad, 0);
+//                }
+                ofTranslate(outerArrowRad + ofClamp(arrowMotion, -amplitude, 0), 0);
+                
                 ofRotate(180);
                 ofSetColor(gravityArrow, arrowTrans);
                 arrow.draw(0,0, arrow.width * arrowScaleW, arrow.height * arrowScaleH);
@@ -4535,16 +4900,105 @@ void testApp::draw(){
             
             //gravity text
             ofPushMatrix();
-            ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2 - starSize * 1.2);
+            ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2 - starSize * 1.1);
             ofRotate(180);
             
-            float gravScale = 0.6 + sine/8;
+            
+            float gravScale = 0.6 - ofClamp(sine/6, -1, 0);
             ofScale(gravScale, gravScale);
 
+            
             ofSetColor(gravityArrow, arrowTrans);
             instructions.drawString("Gravity", -instructions.stringWidth("Gravity")/2, 0);
 //            instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight() * 0.7);
             ofPopMatrix();
+            
+            
+            
+            
+            if(transitionToChoice){
+                
+                ofSetColor(0, blackOutTrans);
+                ofSetRectMode(OF_RECTMODE_CENTER);
+                ofRect(ofGetWindowSize()/2, ofGetWindowHeight(), ofGetWindowHeight());
+                ofSetRectMode(OF_RECTMODE_CORNER);
+                
+                ofSetColor(255, blackOutTrans);
+                comingSoon.draw(toNextStage.pos, toNextStage.rad*2, toNextStage.rad*2);
+                stagesThumb.draw(toTOC.pos, toTOC.rad*2, toTOC.rad*2);
+                
+                toNextStage.draw();
+                toTOC.draw();
+                
+
+                
+                string labelTOCA = "Back to";
+                string labelTOCB = "Stage Select";
+                
+                
+                
+                
+                //----------draw TOC text----------
+                ofPushMatrix();
+                ofTranslate(toTOC.pos);
+                ofTranslate(0, -toTOC.rad * 1.5);
+                ofRotate(180);
+                
+                ofScale(0.2, 0.2);
+                
+                
+                //draw text
+                ofSetColor(255);
+                instructions.drawString(labelTOCA, -instructions.stringWidth(labelTOCA)/2, 0);
+                instructions.drawString(labelTOCB, -instructions.stringWidth(labelTOCB)/2, instructions.getLineHeight());
+                ofPopMatrix();
+                
+                
+                string labelNextStageA = "Continue to";
+                string labelNextStageB = "Giants & Supergiants";
+                
+                //----------draw Next Stage text----------
+                ofPushMatrix();
+                ofTranslate(toNextStage.pos);
+                ofTranslate(0, -toTOC.rad * 1.5);
+                ofRotate(180);
+                
+                ofScale(0.2, 0.2);
+                
+                //draw text
+                ofSetColor(255);
+                instructions.drawString(labelNextStageA, -instructions.stringWidth(labelNextStageA)/2, 0);
+                instructions.drawString(labelNextStageB, -instructions.stringWidth(labelNextStageB)/2, instructions.getLineHeight());
+                ofPopMatrix();
+                
+            }
+            
+            if(useDWStimer){
+                
+
+                doneWithStar.draw();
+                
+                
+                //draw text
+                string idleMessage = "Hold ball here to move on";
+                
+                ofPushMatrix();
+                ofTranslate(ofGetWindowWidth()/2 + 320, 100);
+                ofScale(0.3, 0.3);
+                ofRotate(180);
+                ofSetColor(255, doneWithStar.trans);
+                instructions.drawString(idleMessage, 0, 0);
+                
+                ofPopMatrix();
+                
+                
+                instructionA = "All Stars are in Hydrostatic Equilibrium:";
+                instructionB = "A Balance Between Fusion and Gravity";
+                
+            }
+            
+            
+            
             
         }
         
@@ -4583,7 +5037,9 @@ void testApp::draw(){
         //---------- DRAW UI ----------
         int borderPadding = 40;
         
-        drawProgress(progress);
+        if(useDWStimer == false){
+            drawProgress(progress);
+        }
         
         
         ofPushMatrix();
@@ -4591,18 +5047,7 @@ void testApp::draw(){
         ofRotate(180);
         
         ofScale(instructionScale, instructionScale);
-        
-        //draw bounding boxes
-        //                ofSetColor(0, 255 * 0.4);
-        //                ofRectangle A = instructions.getStringBoundingBox(instructionA, -instructions.stringWidth(instructionA)/2, 0);
-        //                ofRect(A.x, A.y, A.width, A.height);
-        //
-        //                ofRectangle B = instructions.getStringBoundingBox(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight());
-        //                ofRect(B.x, B.y, B.width, B.height);
-        
-        //draw text
-        
-        
+
 
         
         ofSetColor(255);
@@ -4612,37 +5057,37 @@ void testApp::draw(){
         
         
         //STATUS
-        
-        int num;
-        if(attractorSize < 100){
-            num = 2;
-        } else if(attractorSize < 200){
-            num = 3;
-        } else {
-            num = 4;
-        }
-        
-        for(int i = 0; i < num; i++){
-            ofPushMatrix();
-            ofTranslate(ofGetWindowSize()/2);
-            
-            ofRotate(360/num * i + (ofGetElapsedTimef() * statusRot));
-            ofTranslate(0, attractorSize + attractorSize * 0.1);
-            
-            statusScale = ofMap(attractorSize, 0, 300, 0.08, 0.23);
-            
-            ofScale(statusScale, statusScale);
-            
-            //draw text
-            ofSetColor(255);
-            status.drawString(statusA, -status.stringWidth(statusA)/2, 0);
-            status.drawString(statusB, -status.stringWidth(statusB)/2, status.getLineHeight());
-            
-            ofPopMatrix();
-        }
+//        
+//        int num;
+//        if(attractorSize < 100){
+//            num = 2;
+//        } else if(attractorSize < 200){
+//            num = 3;
+//        } else {
+//            num = 4;
+//        }
+//        
+//        for(int i = 0; i < num; i++){
+//            ofPushMatrix();
+//            ofTranslate(ofGetWindowSize()/2);
+//            
+//            ofRotate(360/num * i + (ofGetElapsedTimef() * statusRot));
+//            ofTranslate(0, starSize + starSize * 0.1);
+//            
+//            statusScale = ofMap(starSize, 0, 300, 0.08, 0.23);
+//            
+//            ofScale(statusScale, statusScale);
+//            
+//            //draw text
+//            ofSetColor(255);
+//            status.drawString(statusA, -status.stringWidth(statusA)/2, 0);
+//            status.drawString(statusB, -status.stringWidth(statusB)/2, status.getLineHeight());
+//            
+//            ofPopMatrix();
+//        }
 
         
-        ofPopMatrix();
+
         
         
     } //NARRATIVE STATE 
@@ -4930,11 +5375,7 @@ void testApp::keyPressed(int key){
         }
     }
     
-    
-    //toggle zoom animation
-    if(key == 'z' || key == 'Z'){
-        transitionTo2 = !transitionTo2;
-    }
+
     
     
     //toggle camera draw
