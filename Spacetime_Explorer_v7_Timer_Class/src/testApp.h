@@ -390,7 +390,7 @@ class testApp : public ofBaseApp{
     
     //-----------Stage 5-----------
     //------------Star-------------
-    
+    ofFbo starBuffer;
     bool setupStage5;
     
     

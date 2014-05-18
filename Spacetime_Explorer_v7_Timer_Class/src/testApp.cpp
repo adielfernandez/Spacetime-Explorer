@@ -59,7 +59,7 @@ void testApp::setup(){
     
     grayScale.allocate(camWidth, camHeight);
     colorImage.allocate(camWidth, camHeight);
-    threshold = 140;
+    threshold = 130;
     leftBound = 217;
     rightBound = 1721;
     topBound = -47;
@@ -376,8 +376,9 @@ void testApp::setup(){
     glow.loadImage("glow.png");
     glow.setAnchorPercent(0.5, 0.5);
     
+    //----------Stage 5: star anatomy----------
+    starBuffer.allocate(ofGetWindowWidth(), ofGetWindowHeight());
     
-  
     
     //Load glowy image for star placeholder
 //    glow.loadImage("glow.png");
@@ -1222,7 +1223,7 @@ void testApp::update(){
             ballInfluence = false;
             announced = false;
             announced2 = false;
-            
+            progress = 0;
             createMainFragment();
             
             setupStage2 = true;
@@ -2181,7 +2182,7 @@ void testApp::draw(){
         
         ofPushMatrix();
         ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2 + 330);
-        ofScale(1.5, 1.5);
+        ofScale(1.25, 1.25);
         ofRotate(180);
         
         ofSetColor(255);
@@ -2214,7 +2215,9 @@ void testApp::draw(){
         
 
         ofSetColor(255, milkyWayTrans);
+        
         milkyWay.draw(ofGetWindowSize()/2);
+        
         
         //fade in milky way
         if(currentTime < 1500 && milkyWayTrans < 255){
@@ -3791,18 +3794,16 @@ void testApp::draw(){
 
 
         
-        ofPushMatrix();{
+        ofPushMatrix();
             ofTranslate(ofRandom(-shakeAmplitude, shakeAmplitude), ofRandom(-shakeAmplitude, shakeAmplitude));
         
         drawGrid(15, 0.2);
 
         ofSetColor(sunCol1);
-//        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
         
         ofEnableBlendMode(OF_BLENDMODE_ADD);
 
         ofSetColor(sunCol1);
-//        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
 
         //place glow image on top of star
         ofPushMatrix();
@@ -3917,7 +3918,7 @@ void testApp::draw(){
         ofEnableAlphaBlending();
         
 
-    }ofPopMatrix();
+    ofPopMatrix();
         
         
         
@@ -4003,12 +4004,17 @@ void testApp::draw(){
         
     } else if(narrativeState == 5){
         
+        //------------------------------STAR DISSECTION------------------------------
         
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
         
                     
-            drawGrid(15, 0.2);
-            
+        drawGrid(15, 0.2);
+        
+
+        
+
+        
             ofSetColor(sunCol1);
             //        ofCircle(ofGetWindowWidth()/2, ofGetWindowHeight()/2, attractorSize);
             
@@ -4032,21 +4038,12 @@ void testApp::draw(){
             glow.draw(0, 0, 550, 550);
             
             ofPopMatrix();
+        
+
+        
             
             
-            
-            
-            
-            
-            
-            //        //update sun particles
-            //        for( vector<SunParticle>::iterator it = sunPList.begin(); it != sunPList.end(); it++){
-            //            it -> update();
-            //            it -> draw();
-            //
-            //        }
-            
-            
+
             
             
             //clear vectors for VBO of old data
