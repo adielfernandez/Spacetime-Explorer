@@ -257,7 +257,7 @@ void testApp::setup(){
     stage1_01_wearenow.setSpeed(1.0f);
     stage1_01_wearenow.setPan(top);
 
-    stage1_02_useyourhands.loadSound("narration/stage1/02-useyourhands.mp3");
+    stage1_02_useyourhands.loadSound("narration/stage1/02-useaball.mp3");
     stage1_02_useyourhands.setVolume(1.0f);
     stage1_02_useyourhands.setSpeed(1.0f);
     stage1_02_useyourhands.setPan(top);
@@ -316,15 +316,40 @@ void testApp::setup(){
     
     
     //stage 4
-    stage4_01_wevereachedcritical.loadSound("narration/stage3/04-wevereachedcritical(short).mp3");
+    stage4_01_wevereachedcritical.loadSound("narration/stage4/04-allclips.mp3");
     stage4_01_wevereachedcritical.setVolume(1.0f);
     stage4_01_wevereachedcritical.setSpeed(1.0f);
     stage4_01_wevereachedcritical.setPan(top);
     
+    
+    //stage 5
+    stage5_01_thestarhasbecome.loadSound("narration/stage5/01-02-thestarhasbecomelargeenough.mp3");
+    stage5_01_thestarhasbecome.setVolume(1.0f);
+    stage5_01_thestarhasbecome.setSpeed(1.0f);
+    stage5_01_thestarhasbecome.setPan(top);
+
+    
+    stage5_02_waveaball.loadSound("narration/stage5/02-waveaballoversurface.mp3");
+    stage5_02_waveaball.setVolume(1.0f);
+    stage5_02_waveaball.setSpeed(1.0f);
+    stage5_02_waveaball.setPan(top);
+    
+    stage5_03_hydrogenatomsarejoined.loadSound("narration/stage5/03-04-hydrogenatomsbalance.mp3");
+    stage5_03_hydrogenatomsarejoined.setVolume(1.0f);
+    stage5_03_hydrogenatomsarejoined.setSpeed(1.0f);
+    stage5_03_hydrogenatomsarejoined.setPan(top);
+    
+    
+//    stage5_04_starsconstantbalance.loadSound("narration/stage5/04-starsareinconstantbalance.mp3");
+//    stage5_04_starsconstantbalance.setVolume(1.0f);
+//    stage5_04_starsconstantbalance.setSpeed(1.0f);
+//    stage5_04_starsconstantbalance.setPan(top);
+
 //    .loadSound("narration/stage2/.mp3");
 //    .setVolume(1.0f);
 //    .setSpeed(1.0f);
 //    .setPan(top);
+    
     
     //Narrative States
     //----------Idle----------
@@ -412,7 +437,7 @@ void testApp::setup(){
     //Load glowy image for star placeholder
 //    glow.loadImage("glow.png");
     
-    debugVisuals = true;
+    debugVisuals = false;
     
     sendSerial(0, 255, 0);
     
@@ -548,7 +573,7 @@ void testApp::update(){
         
         
         //Narrator
-        if(ofGetElapsedTimeMillis() - idleTimer > 30000 && idle.getIsPlaying() == false){
+        if(ofGetElapsedTimeMillis() - idleTimer > 60000 && idle.getIsPlaying() == false){
             idlePlay = true;
         }
         
@@ -664,13 +689,18 @@ void testApp::update(){
             shuttleTrans = 0;
             shuttleDimTrans = 0;
             bowlingballTrans = 0;
+            gridRot = 0;
             gridTrans = 0;
             warpedIsGravityTrans = 0;
             warpedRot = 0;
+            warpedSize = 0;
             warpedGravPos.set(0, ofGetWindowHeight()/2 - 200);
             earthSwitchScale = 0;
             arrowStartX = ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + 1080;
             shuttlePos.set(ofGetWindowWidth()/2, ofGetWindowHeight()/2 + 50);
+            
+            lightArcAngle = 0;
+            lightArcTrans = 255;
         
         }
         
@@ -857,7 +887,7 @@ void testApp::update(){
         
         
         //Narrator
-        if(ofGetElapsedTimeMillis() - idleTimer > 30000 && idle.getIsPlaying() == false){
+        if(ofGetElapsedTimeMillis() - idleTimer > 60000 && idle.getIsPlaying() == false){
             idlePlay = true;
         }
         
@@ -1033,6 +1063,8 @@ void testApp::update(){
             progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 110);
             
             progress = 0;
+            
+            handTrans = 0;
             
         }
         
@@ -1215,7 +1247,7 @@ void testApp::update(){
             //Lets zoom out to see if we can find more to collect"
             
             //if we're not already playing it
-            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+            if(stage1_05_youvecreated.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000 && !stage1_03_seehow.getIsPlaying() && !stage1_02_useyourhands.getIsPlaying()){
                 stage1_05_youvecreated.play();
             }
             
@@ -1310,7 +1342,7 @@ void testApp::update(){
             locateClump = false;
             
             stageStartTime = ofGetElapsedTimeMillis();
-            sendSerial(0, 255, 0);
+            sendSerial(80, 255, 0);
             cvObjectCol = ofColor(255, 0, 0, 255);
             ballInfluence = false;
             announced = false;
@@ -1319,6 +1351,7 @@ void testApp::update(){
             createMainFragment();
             
             setupStage2 = true;
+            
             transitionTo3 == false;
             transitionTo3Timer = 0;
             
@@ -1335,6 +1368,7 @@ void testApp::update(){
             progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 110);
             
             progress = 0;
+            handTrans = 0;
             
         }
         
@@ -1494,7 +1528,7 @@ void testApp::update(){
 
         
         
-        if(transitionTo2 == false){
+        if(transitionTo3 == false){
             
             
             //change attractor size depending on how many particles have been swallowed
@@ -1502,7 +1536,7 @@ void testApp::update(){
             attractorLerp = (float)numDead/(float)pList.size();
             
             //update the timer so its current when the transition actually starts
-            transitionTo2Timer = ofGetElapsedTimeMillis();
+            transitionTo3Timer = ofGetElapsedTimeMillis();
             
             pistonSpeed = 120;
             
@@ -1516,7 +1550,7 @@ void testApp::update(){
         
         //--------------------zoom animation--------------------
         
-        if(transitionTo2){
+        if(transitionTo3){
             
             //set piston speed to move up quickly
             pistonSpeed = 255;
@@ -1526,12 +1560,12 @@ void testApp::update(){
             //Lets zoom out to see if we can find more to collect"
             
             //if we're not already playing it
-            if(stage2_05_littlemoremass.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo2Timer < 1000){
+            if(stage2_05_littlemoremass.getIsPlaying() == false && ofGetElapsedTimeMillis() - transitionTo3Timer < 1000){
                 stage2_05_littlemoremass.play();
             }
             
             //if we're animating...
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 5500){
+            if(ofGetElapsedTimeMillis() - transitionTo3Timer > 5500){
                 zooming = true;
                 
                 if(zoom.getIsPlaying() == false){
@@ -1570,7 +1604,7 @@ void testApp::update(){
             
             
             //if we're ready reset key variables and increment narrativeState
-            if(ofGetElapsedTimeMillis() - transitionTo2Timer > 9000 && !stage2_05_littlemoremass.getIsPlaying()){
+            if(ofGetElapsedTimeMillis() - transitionTo3Timer > 9000 && !stage2_05_littlemoremass.getIsPlaying()){
                 
                 narrativeState = 3;
                 
@@ -1656,6 +1690,8 @@ void testApp::update(){
             
             progress = 0;
             playStage3_023 = false;
+            
+            handTrans = 0;
         }
         
         progress = (float)numDead/(float)pList.size();
@@ -1840,7 +1876,7 @@ void testApp::update(){
 
             
             stageStartTime = ofGetElapsedTimeMillis();
-            sendSerial(100, 255, 0);
+            sendSerial(100, 200, 0);
             cvObjectCol = ofColor(0, 255, 0, 255);
             ballInfluence = true;
             announced = false;
@@ -1875,12 +1911,14 @@ void testApp::update(){
             toTOC.strokeThick = 4;
             toTOC.cvObjectCol = ofColor(0, 0);
             toTOC.triggered = false;
+            toTOC.disableTiming = false;
             
             toNextStage.pos.set(ofGetWindowWidth()/2 - 200, ofGetWindowHeight()/2);
             toNextStage.rad = 75;
             toNextStage.strokeThick = 4;
             toNextStage.cvObjectCol = ofColor(0, 0);
             toNextStage.triggered = false;
+            toNextStage.disableTiming = false;
             
             statusA = "Status: Main";
             statusB = "Sequence Star";
@@ -2241,8 +2279,8 @@ void testApp::update(){
             instructCol = ofColor(255);
             
             progressText = "Surface Left to Clear: ";
-            progressBarDim.set(500, 30);
-            progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 140);
+//            progressBarDim.set(500, 30);
+//            progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 300);
             
             progress = 0;
             
@@ -2288,7 +2326,7 @@ void testApp::update(){
             transitionToStage = false;
             blackOutTrans = 0;
             starUseTime = 0;
-            timeFlag = false;
+            starEquilibriumSetup = false;
             
         }
         
@@ -2427,9 +2465,12 @@ void testApp::update(){
 
         if(showEquilibrium){
             
-            if(timeFlag == false){
+            if(starEquilibriumSetup == false){
                 starUseTime = ofGetElapsedTimeMillis();
-                timeFlag = true;
+                if(!stage5_03_hydrogenatomsarejoined.getIsPlaying()){
+                    stage5_03_hydrogenatomsarejoined.play();
+                }
+                starEquilibriumSetup = true;
             }
             goalStarSize = 350;
             
@@ -2988,10 +3029,10 @@ void testApp::draw(){
             gridTrans -= 2;
         }
         
-        gridCam.begin();
+        //gridCam.begin();
         
-        int gridUnit = 200;
-        int gridLength = 1200;
+        int gridUnit = 300;
+        int gridLength = 3000;
         
         
         for(int z = 0; z < gridLength; z += gridUnit){
@@ -3000,10 +3041,10 @@ void testApp::draw(){
                     float u = gridUnit/2;
                     
                     ofPushMatrix();
-                    
+                    ofTranslate(ofGetWindowSize()/2);
                     if(currentTime > 25000){
                         ofRotate(gridRot, 1, 0.5, 0);
-                        gridRot += 0.001;
+                        gridRot += 0.0001;
                     }
                     ofTranslate(-gridLength/2, -gridLength/2, -gridLength/2);
                     ofSetLineWidth(2);
@@ -3028,7 +3069,7 @@ void testApp::draw(){
             }
         }
         
-        gridCam.end();
+        //gridCam.end();
         
         if(currentTime > 34000 && flatGridTrans < 150){
             //drawGrid(15, flatGridTrans);
@@ -3576,7 +3617,7 @@ void testApp::draw(){
         }
         
         
-        if(progress > 0.3 && announced == false && !stage1_03_seehow.getIsPlaying()){
+        if(progress > 0.3 && announced == false && !stage1_03_seehow.getIsPlaying() && !stage1_02_useyourhands.getIsPlaying()){
             playStage1_03 = true;
             announced = true;
 
@@ -3802,7 +3843,43 @@ void testApp::draw(){
                 ofPopMatrix();
             }
             
+        
+        
+        
+        
+        if(currentTime > 11000){
             
+            ofPushMatrix();
+            
+            ofTranslate(ofGetWindowSize()/2);
+            
+            
+            float amplitude = 20;
+            float angle = amplitude * sin(ofGetElapsedTimef() * 2);
+            
+            ofRotate(angle);
+            ofTranslate(300, 0);
+            
+            if(handTrans < 255 && currentTime < 17000){
+                handTrans += 2;
+            }
+            
+            if(currentTime > 17000 && handTrans > 0){
+                handTrans -= 4;
+            }
+
+            ofSetColor(255, handTrans);
+            handWithBall.draw(0, 0, handWithBall.width, handWithBall.height);
+            
+            ofPopMatrix();
+            
+            
+        }
+        
+        
+        
+        
+        
 
         
         
@@ -3824,27 +3901,28 @@ void testApp::draw(){
         
         
         //play first clip: "help the fragment gather more gas"
-        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
-            playStage2_01 = true;
-            
-            cvObjectCol = ofColor(0, 255, 0, 255);
-            ballInfluence = true;
-            
-        }
-        
-        
-        if(playStage2_01){
-            stage2_01_useyourhands.play();
-            playStage2_01 = false;
-        }
+//        if(currentTime > 2000 && currentTime < 2500 && !stage2_01_useyourhands.getIsPlaying()){
+//            playStage2_01 = true;
+//            
+
+//            
+//        }
+//        
+//        
+//        if(playStage2_01){
+//            stage2_01_useyourhands.play();
+//            playStage2_01 = false;
+//        }
         
         
         
         
         //trigger second clip and create a new fragment
-        if(currentTime > 7500 && currentTime < 8000 && !stage2_02_sometimescloud.getIsPlaying()){
+        if(currentTime > 2000 && currentTime < 2500 && !stage2_02_sometimescloud.getIsPlaying()){
             playStage2_02 = true;
             locateClump = true;
+            cvObjectCol = ofColor(0, 255, 0, 255);
+            ballInfluence = true;
         }
         
         if(playStage2_02){
@@ -3854,7 +3932,7 @@ void testApp::draw(){
         }
         
         
-        if(currentTime > 2000 && progress > 0.3 && announced == false && !stage2_03_startingtogetwarm.getIsPlaying()){
+        if(currentTime > 2000 && progress > 0.3 && announced == false && !stage2_03_startingtogetwarm.getIsPlaying() && !stage2_02_sometimescloud.getIsPlaying()){
             playStage2_03 = true;
             announced = true;
         }
@@ -3868,7 +3946,7 @@ void testApp::draw(){
 
         
         
-        if(currentTime > 2000 && progress > 0.6 && announced2 == false && !stage2_04_fragmentprotostar.getIsPlaying()){
+        if(currentTime > 2000 && progress > 0.6 && announced2 == false && !stage2_04_fragmentprotostar.getIsPlaying() && !stage2_03_startingtogetwarm.getIsPlaying() && !stage2_02_sometimescloud.getIsPlaying()){
             playStage2_04 = true;
             announced2 = true;
             
@@ -3882,8 +3960,8 @@ void testApp::draw(){
             
         }
         
-        if(progress > progressThresh && !stage2_04_fragmentprotostar.getIsPlaying()){
-            transitionTo2 = true;
+        if(currentTime > 2000 && progress > progressThresh && !stage2_04_fragmentprotostar.getIsPlaying()){
+            transitionTo3 = true;
             
         }
         
@@ -4106,6 +4184,37 @@ void testApp::draw(){
         }
         
         
+        if(currentTime > 4000){
+            
+            ofPushMatrix();
+            
+            ofTranslate(ofGetWindowSize()/2);
+            
+            
+            float amplitude = 20;
+            float angle = amplitude * sin(ofGetElapsedTimef() * 2);
+            
+            ofRotate(angle);
+            ofTranslate(300, 0);
+            
+            if(handTrans < 255 && currentTime < 11000){
+                handTrans += 2;
+            }
+            
+            if(currentTime > 11000 && handTrans > 0){
+                handTrans -= 4;
+            }
+            
+            ofSetColor(255, handTrans);
+            handWithBall.draw(0, 0, handWithBall.width, handWithBall.height);
+            
+            ofPopMatrix();
+            
+            
+        }
+        
+        
+        
         //ZOOM STUFF
         if(zooming){
             ofPushMatrix();
@@ -4124,7 +4233,7 @@ void testApp::draw(){
         
         
     } else if(narrativeState == 3 && setupStage3 == true) {
-
+        
         
         //--------------------LATE PROTOSTAR DRAW--------------------
         
@@ -4316,8 +4425,35 @@ void testApp::draw(){
         
         
         
-        
-        
+        //draw waving hand
+        if(currentTime > 3000){
+            
+            ofPushMatrix();
+            
+            ofTranslate(ofGetWindowSize()/2);
+            
+            
+            float amplitude = 20;
+            float angle = amplitude * sin(ofGetElapsedTimef() * 2);
+            
+            ofRotate(angle);
+            ofTranslate(300, 0);
+            
+            if(handTrans < 255 && currentTime < 9000){
+                handTrans += 2;
+            }
+            
+            if(currentTime > 9000 && handTrans > 0){
+                handTrans -= 4;
+            }
+            
+            ofSetColor(255, handTrans);
+            handWithBall.draw(0, 0, handWithBall.width, handWithBall.height);
+            
+            ofPopMatrix();
+            
+            
+        }
         
         
         
@@ -4708,9 +4844,32 @@ void testApp::draw(){
         //------------------------------STAR ANATOMY DRAW------------------------------
 
         
+        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
+        
+        //play first clip: "help the fragment gather more gas"
+        if(currentTime > 1000 && currentTime < 1500 && !stage5_01_thestarhasbecome.getIsPlaying()){
+            playStage5_01 = true;
+            
+        }
+        
+        
+        if(playStage5_01){
+            stage5_01_thestarhasbecome.play();
+            playStage5_01 = false;
+        }
 
 
+//        if(currentTime > 7000 && currentTime < 7500 && !stage5_02_waveaball.getIsPlaying()){
+//            playStage5_02 = true;
+//            
+//        }
+//        
+//        
+//        if(playStage5_01){
+//            stage5_02_waveaball.play();
+//            playStage5_02 = false;
+//        }
         
         
         
@@ -4802,7 +4961,10 @@ void testApp::draw(){
         
         if(showEquilibrium){
             
-        
+            
+            
+            instructionA = "All Stars are in Hydrostatic Equilibrium:";
+            instructionB = "A Balance Between Fusion and Gravity";
             
             
             int numArrows = 6;
@@ -4814,16 +4976,12 @@ void testApp::draw(){
             float innerArrowRad = starSize * 0.52;
             float outerArrowRad = starSize * 0.7;
             float arrowScaleW = 0.5;
-            float arrowScaleH = 0.3;
+            float arrowScaleH = 0.4;
             int coreRad = 100;
             int numCoreCircles = 50;
 
             
             //Fusion
-            
-            
-            
-            
             //core
             for(int i = numCoreCircles; i > 0; i--){
                 
@@ -4914,6 +5072,36 @@ void testApp::draw(){
             ofPopMatrix();
             
             
+            //draw waving hand
+            if(currentTime > 3000){
+                
+                ofPushMatrix();
+                
+                ofTranslate(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, ofGetWindowHeight()/2);
+                
+                
+                float amplitude = 30;
+                float angle = amplitude * sin(ofGetElapsedTimef() * 4);
+                
+                ofRotate(angle);
+                ofTranslate(ofGetWindowHeight()/2, 0);
+                
+                if(handTrans < 255 && currentTime < 9000){
+                    handTrans += 2;
+                }
+                
+                if(currentTime > 9000 && handTrans > 0){
+                    handTrans -= 4;
+                }
+                
+                ofSetColor(255, handTrans);
+                handWithBall.draw(0, 0, handWithBall.width, handWithBall.height);
+                
+                ofPopMatrix();
+                
+                
+            }
+            
             
             
             if(transitionToChoice){
@@ -4992,8 +5180,7 @@ void testApp::draw(){
                 ofPopMatrix();
                 
                 
-                instructionA = "All Stars are in Hydrostatic Equilibrium:";
-                instructionB = "A Balance Between Fusion and Gravity";
+
                 
             }
             
@@ -5037,7 +5224,7 @@ void testApp::draw(){
         //---------- DRAW UI ----------
         int borderPadding = 40;
         
-        if(useDWStimer == false){
+        if(showEquilibrium == false){
             drawProgress(progress);
         }
         
@@ -5052,7 +5239,14 @@ void testApp::draw(){
         
         ofSetColor(255);
         instructions.drawString(instructionA, -instructions.stringWidth(instructionA)/2, 0);
-        instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight() * 0.7);
+        if(showEquilibrium){
+            ofSetColor(255, 0, 0);
+            ofScale(1.2, 1.2);
+        }
+        
+        instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight() * 0.85);
+        
+        
         ofPopMatrix();
         
         
@@ -5433,7 +5627,7 @@ void testApp::drawProgress(float progress){
     
     //draw progress bar
     progressBarDim.set(500, 30);
-    progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 110);
+    progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - 120);
     
 
     

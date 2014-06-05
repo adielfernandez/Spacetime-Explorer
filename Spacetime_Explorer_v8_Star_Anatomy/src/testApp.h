@@ -278,6 +278,7 @@ class testApp : public ofBaseApp{
     float lightArcRad;
     float lightArcAngle;
     float lightArcTrans = 255;
+
     
 
     //----------Table of Contents----------
@@ -324,6 +325,7 @@ class testApp : public ofBaseApp{
     int announcedTimer;
     bool test;
     
+    int handTrans;
 
     ofVec2f progressBarPos;
     ofVec2f progressBarDim;
@@ -405,6 +407,16 @@ class testApp : public ofBaseApp{
     //-----------Stage 5-----------
     //--------Star Anatomy---------
 
+    ofSoundPlayer stage5_01_thestarhasbecome;
+    ofSoundPlayer stage5_02_waveaball;
+    ofSoundPlayer stage5_03_hydrogenatomsarejoined;
+    //ofSoundPlayer stage5_04_starsconstantbalance;
+    
+    
+    bool playStage5_01;
+    bool playStage5_02;
+    bool playStage5_03;
+    
     bool setupStage5;
     Timer starStageTimer;
     float starSize;
@@ -418,7 +430,7 @@ class testApp : public ofBaseApp{
     int coreTimer;
     int coreCounter;
     int starUseTime;
-    bool timeFlag;
+    bool starEquilibriumSetup;
     
     //-----------Stage 6-----------
     //-------Fusion Process--------
