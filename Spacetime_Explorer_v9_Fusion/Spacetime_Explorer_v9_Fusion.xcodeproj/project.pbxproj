@@ -31,7 +31,6 @@
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		BE7F222AFD9FA8DBE437A166 /* Histogram.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FA78573E3DEDCF46DB814B /* Histogram.m */; };
 		D7B292341942375B005F6BF7 /* Fragment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B2922A1942375B005F6BF7 /* Fragment.cpp */; };
-		D7B292351942375B005F6BF7 /* Limbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B2922C1942375B005F6BF7 /* Limbo.cpp */; };
 		D7B292361942375B005F6BF7 /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B2922E1942375B005F6BF7 /* Particle.cpp */; };
 		D7B292371942375B005F6BF7 /* SunParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B292301942375B005F6BF7 /* SunParticle.cpp */; };
 		D7B292381942375B005F6BF7 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B292321942375B005F6BF7 /* Timer.cpp */; };
@@ -210,8 +209,6 @@
 		D7807F04CC89FAF3870D0368 /* ofxMacamPs3Eye.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxMacamPs3Eye.h; path = ../../addons/ofxMacamPs3Eye/src/ofxMacamPs3Eye.h; sourceTree = SOURCE_ROOT; };
 		D7B2922A1942375B005F6BF7 /* Fragment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fragment.cpp; sourceTree = "<group>"; };
 		D7B2922B1942375B005F6BF7 /* Fragment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Fragment.h; sourceTree = "<group>"; };
-		D7B2922C1942375B005F6BF7 /* Limbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Limbo.cpp; sourceTree = "<group>"; };
-		D7B2922D1942375B005F6BF7 /* Limbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Limbo.h; sourceTree = "<group>"; };
 		D7B2922E1942375B005F6BF7 /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particle.cpp; sourceTree = "<group>"; };
 		D7B2922F1942375B005F6BF7 /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
 		D7B292301942375B005F6BF7 /* SunParticle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SunParticle.cpp; sourceTree = "<group>"; };
@@ -643,8 +640,6 @@
 			children = (
 				D7B2922A1942375B005F6BF7 /* Fragment.cpp */,
 				D7B2922B1942375B005F6BF7 /* Fragment.h */,
-				D7B2922C1942375B005F6BF7 /* Limbo.cpp */,
-				D7B2922D1942375B005F6BF7 /* Limbo.h */,
 				D7B2922E1942375B005F6BF7 /* Particle.cpp */,
 				D7B2922F1942375B005F6BF7 /* Particle.h */,
 				D7B292301942375B005F6BF7 /* SunParticle.cpp */,
@@ -825,7 +820,6 @@
 				18209A6C34FB2C54A22C05DB /* ofxMacamPs3Eye.mm in Sources */,
 				B93E64DCEA33DBD4ADF05547 /* PS3EyeWindowAppDelegate.m in Sources */,
 				D7B292341942375B005F6BF7 /* Fragment.cpp in Sources */,
-				D7B292351942375B005F6BF7 /* Limbo.cpp in Sources */,
 				D7B292361942375B005F6BF7 /* Particle.cpp in Sources */,
 				D7B292371942375B005F6BF7 /* SunParticle.cpp in Sources */,
 				D7B292381942375B005F6BF7 /* Timer.cpp in Sources */,

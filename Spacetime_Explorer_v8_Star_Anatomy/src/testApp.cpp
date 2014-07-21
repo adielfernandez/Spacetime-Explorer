@@ -854,7 +854,7 @@ void testApp::update(){
             TOClabelsA[1] = "2. Birth of";
             TOClabelsB[1] = "a Star";
             TOClabelsA[2] = "3. Main Sequence";
-            TOClabelsB[2] = "Star";
+            TOClabelsB[2] = "Star Anatomy";
             TOClabelsA[3] = "4. Giants &";
             TOClabelsB[3] = "Supergiants";
             TOClabelsA[4] = "5. White";
@@ -901,7 +901,7 @@ void testApp::update(){
         
         
     
-    
+        //update timers
         for(int i = 0; i < tableOfContents.size(); i++){
             tableOfContents[i].update();
 
@@ -2457,12 +2457,14 @@ void testApp::update(){
         starSize = ofLerp(starSize, goalStarSize, 0.04);
         
         
+        //if enough of the star is cleared away trip boolean
         if(progress > progressThresh){
 
             showEquilibrium = true;
         }
 
-
+        
+        //show hydrostatic equilibrium diagram?
         if(showEquilibrium){
             
             if(starEquilibriumSetup == false){
@@ -2478,6 +2480,7 @@ void testApp::update(){
                 arrowTrans += 1;
             }
             
+            //if enough time has passed (i.e. narrator is done) show "move to next stage" timer
             if(ofGetElapsedTimeMillis() - starUseTime > 10000){
                 useDWStimer = true;
             }
@@ -2488,7 +2491,7 @@ void testApp::update(){
         
         
         
-        
+        //If we're using the "move to next stage" timer...
         if(useDWStimer){
             
             
@@ -2508,14 +2511,15 @@ void testApp::update(){
                 
             }
             
-            
+            //fade the timer in
             if(doneWithStar.trans < 254){
                 doneWithStar.trans += 2;
             }
             
             
-            //UI Timer
+            //Look for balls and cursor
             float dist = ofDist(doneWithStar.pos.x, doneWithStar.pos.y, mouseX, mouseY);
+            
             if(numBallsinBox > 0 || dist < doneWithStar.rad){
                 doneWithStar.inButton = true;
             } else {
@@ -2524,6 +2528,7 @@ void testApp::update(){
             
             doneWithStar.update();
             
+            //if it's been triggered, turn off this timer and fade in the TOC/next stage choice
             if(doneWithStar.triggered){
                 transitionToChoice = true;
                 useDWStimer = false;
