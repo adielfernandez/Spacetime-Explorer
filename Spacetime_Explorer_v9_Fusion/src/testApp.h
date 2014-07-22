@@ -435,6 +435,17 @@ class testApp : public ofBaseApp{
     //-----------Stage 6-----------
     //-------Fusion Process--------
 
+    bool setupStage6;
+    
+    ofImage hydrogen;
+    ofImage deuterium;
+    ofImage helium3;
+    ofImage helium4;
+    ofImage neutron;
+    ofImage neutrino;
+    ofImage positron;
+    ofImage deuteriumSlot;
+    
     
 };
 

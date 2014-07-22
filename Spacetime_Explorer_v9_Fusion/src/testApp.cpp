@@ -31,7 +31,7 @@ void testApp::setup(){
         shader.load("shaders/shader");
     #endif
     
-    colorscheme.loadImage("m16.jpg");
+    colorscheme.loadImage("images/m16.jpg");
 
     
     //camera stuff
@@ -126,7 +126,7 @@ void testApp::setup(){
 
     
     //UI Stuff
-    instructions.loadFont("prototype.ttf", 100, true, true);
+    instructions.loadFont("fonts/prototype.ttf", 100, true, true);
     instructions.setLetterSpacing(1.0);
     instructionA = "Use the balls to push the";
     instructionB = "gas and dust to the center";
@@ -134,8 +134,8 @@ void testApp::setup(){
     instructCol = ofColor(255);
 
     
-    status.loadFont("avenir.ttc", 100, true, true);
-    statusBigger.loadFont("avenir.ttc", 15, true, true);
+    status.loadFont("fonts/avenir.ttc", 100, true, true);
+    statusBigger.loadFont("fonts/avenir.ttc", 15, true, true);
     status.setLetterSpacing(0.95);
     statusCol = ofColor(255);
     statusA = "Status: Cloud";
@@ -353,8 +353,8 @@ void testApp::setup(){
     
     //Narrative States
     //----------Idle----------
-    background.loadImage("idleBackground.jpg");
-    handWithBall.loadImage("palmwithballgreen.png");
+    background.loadImage("images/idleBackground.jpg");
+    handWithBall.loadImage("images/palmwithballgreen.png");
     handWithBall.rotate90(2);
     handWithBall.setAnchorPercent(0.5, 0.5);
     
@@ -362,51 +362,51 @@ void testApp::setup(){
     
     
     //----------Intro----------
-    milkyWay.loadImage("milkyway.jpg");
+    milkyWay.loadImage("images/milkyway.jpg");
     milkyWay.setAnchorPercent(0.5, 0.5);
     milkyWayTrans = 0;
-    shuttle.loadImage("shuttle.png");
+    shuttle.loadImage("images/shuttle.png");
     shuttle.setAnchorPercent(0.5, 0.5);
     shuttle.rotate90(2);
-    shuttleDimensions.loadImage("shuttleDimensions.png");
+    shuttleDimensions.loadImage("images/shuttleDimensions.png");
     shuttleDimensions.setAnchorPercent(0.5, 0.5);
     shuttleDimensions.rotate90(2);
     shuttleTrans = 0;
     shuttleDimTrans = 0;
-    timeArrow.loadImage("timearrow.png");
+    timeArrow.loadImage("images/timearrow.png");
     timeArrow.setAnchorPercent(0, 0.5);
     timeArrow.rotate90(2);
 
     gridCam.setDistance(1000);
-    bowlingball.loadImage("bowlingball.png");
+    bowlingball.loadImage("images/bowlingball.png");
     bowlingball.setAnchorPercent(0.5, 0.5);
     bowlingballTrans = 0;
-    warpedIsGravity.loadImage("warpedisgravity.png");
+    warpedIsGravity.loadImage("images/warpedisgravity.png");
     warpedIsGravity.setAnchorPercent(0.5, 0.5);
     warpedIsGravity.rotate90(2);
-    earth.loadImage("earth.png");
+    earth.loadImage("images/earth.png");
     earth.setAnchorPercent(0.5, 0.5);
     earth.rotate90(2);
     
-    handThrowingBall.loadImage("handthrowingball.png");
+    handThrowingBall.loadImage("images/handthrowingball.png");
     handThrowingBall.rotate90(0);
     handThrowingBall.setAnchorPercent(0.5, 0.5);
     
     //----------Table of Contents----------
 
-    starThumb.loadImage("starThumb.png");
+    starThumb.loadImage("images/starThumb.png");
     starThumb.setAnchorPercent(0.5, 0.5);
-    protoThumb.loadImage("protoThumb.png");
+    protoThumb.loadImage("images/protoThumb.png");
     protoThumb.setAnchorPercent(0.5, 0.5);
 
-    comingSoon.loadImage("comingsoon2.png");
+    comingSoon.loadImage("images/comingsoon2.png");
     comingSoon.setAnchorPercent(0.5, 0.5);
     comingSoon.rotate90(2);
     
-    stagesThumb.loadImage("stagesthumb.png");
+    stagesThumb.loadImage("images/stagesthumb.png");
     stagesThumb.setAnchorPercent(0.5, 0.5);
 
-    spacetimeThumb.loadImage("spacetimethumb.png");
+    spacetimeThumb.loadImage("images/spacetimethumb.png");
     spacetimeThumb.setAnchorPercent(0.5, 0.5);
     
     
@@ -414,7 +414,7 @@ void testApp::setup(){
     
     
     //----------Stage 2: Protostar----------
-    protoGlow.loadImage("protoGlow.png");
+    protoGlow.loadImage("images/protoGlow.png");
     protoGlow.setAnchorPercent(0.5, 0.5);
 
     
@@ -422,20 +422,52 @@ void testApp::setup(){
     
     
     //----------Stage 3: Late Protostar----------
-    starburst.loadImage("starburst.png");
+    starburst.loadImage("images/starburst.png");
     starburst.setAnchorPercent(0.5, 0.5);
     
     //----------Stage 4: exploding star----------
-    glow.loadImage("glow.png");
+    glow.loadImage("images/glow.png");
     glow.setAnchorPercent(0.5, 0.5);
     
     //----------Stage 5: star anatomy----------
-    arrow.loadImage("arrow.png");
+    arrow.loadImage("images/arrow.png");
     arrow.setAnchorPercent(0.5, 0.5);
     
     
-    //Load glowy image for star placeholder
-//    glow.loadImage("glow.png");
+    //----------Stage 6: Fusion----------
+    hydrogen.loadImage("images/fusion/hydrogen.png");
+    hydrogen.setAnchorPercent(0.5,0.5);
+    hydrogen.rotate90(2);
+    
+    deuterium.loadImage("images/fusion/deuterium.png");
+    deuterium.setAnchorPercent(0.5,0.5);
+    deuterium.rotate90(2);
+    
+    helium3.loadImage("images/fusion/helium3.png");
+    helium3.setAnchorPercent(0.5,0.5);
+    helium3.rotate90(2);
+    
+    helium4.loadImage("images/fusion/helium4.png");
+    helium4.setAnchorPercent(0.5,0.5);
+    helium4.rotate90(2);
+    
+    neutron.loadImage("images/fusion/neutron.png");
+    neutron.setAnchorPercent(0.5,0.5);
+    neutron.rotate90(2);
+    
+    neutrino.loadImage("images/fusion/neutrino.png");
+    neutrino.setAnchorPercent(0.5,0.5);
+    neutrino.rotate90(2);
+    
+    positron.loadImage("images/fusion/positron.png");
+    positron.setAnchorPercent(0.5,0.5);
+    positron.rotate90(2);
+    
+    deuteriumSlot.loadImage("images/fusion/deuteriumSlot.png");
+    deuteriumSlot.setAnchorPercent(0.5,0.5);
+    deuteriumSlot.rotate90(2);
+
+    
     
     debugVisuals = false;
     
