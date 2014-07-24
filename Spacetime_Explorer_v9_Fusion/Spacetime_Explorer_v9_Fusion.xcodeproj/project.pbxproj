@@ -34,6 +34,7 @@
 		D7B292361942375B005F6BF7 /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B2922E1942375B005F6BF7 /* Particle.cpp */; };
 		D7B292371942375B005F6BF7 /* SunParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B292301942375B005F6BF7 /* SunParticle.cpp */; };
 		D7B292381942375B005F6BF7 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B292321942375B005F6BF7 /* Timer.cpp */; };
+		D7F3FBD2197F11F1009EA44C /* SubAtomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7F3FBD0197F11F1009EA44C /* SubAtomic.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
 		E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */; };
@@ -215,6 +216,8 @@
 		D7B292311942375B005F6BF7 /* SunParticle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SunParticle.h; sourceTree = "<group>"; };
 		D7B292321942375B005F6BF7 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		D7B292331942375B005F6BF7 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		D7F3FBD0197F11F1009EA44C /* SubAtomic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SubAtomic.cpp; sourceTree = "<group>"; };
+		D7F3FBD1197F11F1009EA44C /* SubAtomic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SubAtomic.h; sourceTree = "<group>"; };
 		D84500FB6969501365F37B6C /* lsh_table.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = lsh_table.h; path = ../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/lsh_table.h; sourceTree = SOURCE_ROOT; };
 		D923CECC93BE9FF42D8F8094 /* general.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = general.h; path = ../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/general.h; sourceTree = SOURCE_ROOT; };
 		DB8434B6A95834C52E38B376 /* kmeans_index.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = kmeans_index.h; path = ../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/kmeans_index.h; sourceTree = SOURCE_ROOT; };
@@ -649,6 +652,8 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
+				D7F3FBD0197F11F1009EA44C /* SubAtomic.cpp */,
+				D7F3FBD1197F11F1009EA44C /* SubAtomic.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -823,6 +828,7 @@
 				D7B292361942375B005F6BF7 /* Particle.cpp in Sources */,
 				D7B292371942375B005F6BF7 /* SunParticle.cpp in Sources */,
 				D7B292381942375B005F6BF7 /* Timer.cpp in Sources */,
+				D7F3FBD2197F11F1009EA44C /* SubAtomic.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

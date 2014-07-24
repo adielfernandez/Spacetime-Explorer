@@ -18,9 +18,9 @@ void testApp::setup(){
     
     // load the texure
 	ofDisableArbTex();
-	ofLoadImage(pTex, "dot.png");
-	ofLoadImage(sunCrescent, "crescent.png");
-	ofLoadImage(sunSmoke, "particleTest2.png");
+	ofLoadImage(pTex, "images/dot.png");
+	ofLoadImage(sunCrescent, "images/crescent.png");
+	ofLoadImage(sunSmoke, "images/particleTest2.png");
     
     ofEnableArbTex();
     
@@ -59,7 +59,7 @@ void testApp::setup(){
     
     grayScale.allocate(camWidth, camHeight);
     colorImage.allocate(camWidth, camHeight);
-    threshold = 130;
+    threshold = 115;
     leftBound = 217;
     rightBound = 1721;
     topBound = -47;
@@ -76,7 +76,7 @@ void testApp::setup(){
     
     
     //Narrative control
-    narrativeState = -1;
+    narrativeState = 6;
         //-1 = idle state
         //0 = intro video
         //0.5 = table of contents
@@ -177,6 +177,11 @@ void testApp::setup(){
     smallExplosion.setMultiPlay(true);
     smallExplosion.setPan(bottom);
     
+    fusionPop.loadSound("sounds/gun.mp3");
+    fusionPop.setVolume(0.5f);
+    fusionPop.setSpeed(1.0f);
+    fusionPop.setMultiPlay(true);
+    fusionPop.setPan(bottom);
     
     //Narration
         //Idle
@@ -437,37 +442,42 @@ void testApp::setup(){
     //----------Stage 6: Fusion----------
     hydrogen.loadImage("images/fusion/hydrogen.png");
     hydrogen.setAnchorPercent(0.5,0.5);
-    hydrogen.rotate90(2);
+//    hydrogen.rotate90(2);
     
     deuterium.loadImage("images/fusion/deuterium.png");
     deuterium.setAnchorPercent(0.5,0.5);
-    deuterium.rotate90(2);
+//    deuterium.rotate90(2);
     
     helium3.loadImage("images/fusion/helium3.png");
     helium3.setAnchorPercent(0.5,0.5);
-    helium3.rotate90(2);
+//    helium3.rotate90(2);
     
     helium4.loadImage("images/fusion/helium4.png");
     helium4.setAnchorPercent(0.5,0.5);
-    helium4.rotate90(2);
+//    helium4.rotate90(2);
     
     neutron.loadImage("images/fusion/neutron.png");
     neutron.setAnchorPercent(0.5,0.5);
-    neutron.rotate90(2);
+//    neutron.rotate90(2);
     
     neutrino.loadImage("images/fusion/neutrino.png");
     neutrino.setAnchorPercent(0.5,0.5);
-    neutrino.rotate90(2);
+//    neutrino.rotate90(2);
     
     positron.loadImage("images/fusion/positron.png");
     positron.setAnchorPercent(0.5,0.5);
-    positron.rotate90(2);
+//    positron.rotate90(2);
     
     deuteriumSlot.loadImage("images/fusion/deuteriumSlot.png");
     deuteriumSlot.setAnchorPercent(0.5,0.5);
-    deuteriumSlot.rotate90(2);
+//    deuteriumSlot.rotate90(2);
 
+    key1.loadImage("images/fusion/key1vert.png");
     
+    hydroBank.loadImage("images/fusion/hydroBankFull.png");
+    hydroBank.setAnchorPercent(0.5, 0.5);
+    hydroBank.rotate90(2);
+
     
     debugVisuals = false;
     
@@ -530,7 +540,7 @@ void testApp::update(){
         // update the cv images
         grayScale.flagImageChanged();
         
-        contourFinder.findContours(grayScale, 3, (camWidth * camHeight)/3, 20, false);
+        contourFinder.findContours(grayScale, 1, (camWidth * camHeight)/3, 20, false);
         
     }
 
@@ -733,6 +743,8 @@ void testApp::update(){
             
             lightArcAngle = 0;
             lightArcTrans = 255;
+            
+            instructionScale = 0.3;
         
         }
         
@@ -895,6 +907,8 @@ void testApp::update(){
             TOClabelsB[5] = "Stars";
             TOClabelsA[6] = "7. Black";
             TOClabelsB[6] = "Holes";
+            
+            instructionScale = 0.3;
             
             //disable "coming soon" buttons
             for(int i = 3; i < tableOfContents.size(); i++){
@@ -1086,6 +1100,7 @@ void testApp::update(){
             
             instructionA = "Use Balls to push gas toward the center";
             instructionB = "";
+            instructionScale = 0.3;
             
             statusA = "Status: Cloud";
             statusB = "Fragment";
@@ -1391,6 +1406,7 @@ void testApp::update(){
             
             instructionA = "Use Balls to push gas toward the Protostar";
             instructionB = "";
+            instructionScale = 0.3;
             
             statusA = "Status: Cloud";
             statusB = "Fragment";
@@ -1701,6 +1717,7 @@ void testApp::update(){
             
             instructionA = "Use Balls to push gas toward the Protostar";
             instructionB = "";
+            instructionScale = 0.3;
             
             statusA = "Status: Late";
             statusB = "Protostar";
@@ -1954,6 +1971,7 @@ void testApp::update(){
             
             statusA = "Status: Main";
             statusB = "Sequence Star";
+            instructionScale = 0.3;
             
             
             sendSerial(150, 80, 0);
@@ -2309,6 +2327,7 @@ void testApp::update(){
             instructionA = "Wave the balls over the star to clear";
             instructionB = "away the surface and see inside";
             instructCol = ofColor(255);
+            instructionScale = 0.3;
             
             progressText = "Surface Left to Clear: ";
 //            progressBarDim.set(500, 30);
@@ -2412,6 +2431,8 @@ void testApp::update(){
 
                             //count as disturbed if within radius (circular boundary)
                             if(distBlob.lengthSquared() < disturbRad * disturbRad){
+                                
+                                //and if blob is travelling fast enough
                                 if(blobDirection[i].length() > 20){
                                     it -> dead = true;
                                 }
@@ -2560,10 +2581,20 @@ void testApp::update(){
             
             doneWithStar.update();
             
-            //if it's been triggered, turn off this timer and fade in the TOC/next stage choice
+            //if it's been triggered, turn off this timer and fade to black before moving to next stage
             if(doneWithStar.triggered){
-                transitionToChoice = true;
+//                transitionToChoice = true;
                 useDWStimer = false;
+                
+                blackOutTrans += 2;
+                
+                if(blackOutTrans > 255){
+                    narrativeState = 6;
+                    
+                    
+                    
+                }
+                
             }
             
             
@@ -2571,40 +2602,228 @@ void testApp::update(){
         
         
         
+
+        
+
+    } else if(narrativeState == 6){
+        
+        //--------------------FUSION STAGE 1 UPDATE--------------------
         
         
-        
-        
-        
-        //offer choice of continuing to next stage or back to TOC
-        if(transitionToChoice){
+        //stage setup
+        if(setupStage6 == false){
+            noColZoneRad = 120;
             
-            toTOC.cvObjectCol = cvObjectCol;
-            toNextStage.cvObjectCol = ofColor(255, 0, 0);
+            stageStartTime = ofGetElapsedTimeMillis();
+            sendSerial(100, 255, 0);
             
-            //            toTOC.trans = 0;
-            //            toNextStage.trans = 0;
+            setupStage6 = true;
             
-            if(toTOC.trans < 254){
-                toTOC.trans += 2;
+            ballInfluence = true;
+            cvObjectCol = ofColor(0, 255, 0, 255);
+            
+            statusA = "";
+            statusB = "";
+            
+            instructionA = "Make balls collide to";
+            instructionB = "fuse hydrogen and make";
+            instructionC = "deuterium atoms:";
+            instructCol = ofColor(255);
+            instructionScale = 0.31;
+            
+
+            continueFusion.pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 100);
+            continueFusion.rad = 75;
+            continueFusion.cvObjectCol = cvObjectCol;
+            continueFusion.triggered = false;
+            continueFusion.trans = 0;
+            useContinueTimer = false;
+            
+            particleScale = 0.75f;
+            
+            blobCollision = false;
+            collisionTimer = 0;
+            
+            numDeuterium = 0;
+            deut1Pos = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140, ofGetWindowHeight() - 220);
+            deut2Pos = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140 - deuteriumSlot.width * particleScale, ofGetWindowHeight() - 220);
+            
+            fusorList.clear();
+            
+            numDeuterium = 0;
+            
+        }
+
+        
+        
+        //----------look for high speed collisions between blobs----------
+        int collisionDistance = 50;
+        int collisionSpeed = 8;
+        
+        //if we have blobs
+        if(contourFinder.blobs.size() > 0 && ofGetElapsedTimeMillis() - stageStartTime > 3000){
+            
+            //loop through the blobs
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                
+                //new mapping with space considerations
+                float mapBlobX1 = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY1 = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                
+                //then look at all the other blobs
+                for(int j = i + 1; j < contourFinder.blobs.size(); j++){
+                    
+                    //then map them with space considerations
+                    float mapBlobX2 = ofMap(contourFinder.blobs[j].centroid.x, 0, camWidth, leftBound, rightBound);
+                    float mapBlobY2 = ofMap(contourFinder.blobs[j].centroid.y, 0, camHeight, topBound, bottomBound);
+                    
+                    //check if they are close
+                    float distanceSq = ofDistSquared(mapBlobX1, mapBlobY1, mapBlobX2, mapBlobY2);
+                    float speed1Sq = blobDirection[i].lengthSquared();
+                    float speed2Sq = blobDirection[j].lengthSquared();
+                    ofVec3f colPos = ofVec3f(mapBlobX1, mapBlobY1).middle(ofVec3f(mapBlobX2, mapBlobY2));
+                    
+                    //only make collisions if we're within the table top
+                    if(colPos.x > ofGetWindowWidth()/2 - ofGetWindowHeight()/2 && colPos.x < ofGetWindowWidth()/2 + ofGetWindowHeight()/2 && colPos.y > 0 && colPos.y < ofGetWindowHeight()){
+                    
+                        //look at distance between blobs for debug
+    //                    colDist = ofDist(mapBlobX1, mapBlobY1, mapBlobX2, mapBlobY2);
+                        
+                        float distToCenter = ofDistSquared(ofGetWindowWidth()/2, ofGetWindowHeight()/2, colPos.x, colPos.y);
+                        
+                        if(blobCollision == false && distToCenter > noColZoneRad * noColZoneRad){
+                            if(distanceSq < collisionDistance * collisionDistance){
+
+                                if(speed1Sq > collisionSpeed * collisionSpeed || speed2Sq > collisionSpeed * collisionSpeed){
+                                    blobCollision = true;
+                                    collisionTimer = ofGetElapsedTimeMillis();
+                                    collisionPos = ofVec3f(mapBlobX1, mapBlobY1).middle(ofVec3f(mapBlobX2, mapBlobY2));
+                                    
+                                    //set starburst size and transparency
+                                    collisionBurstSize = 600;
+                                    collisionBurstTrans = 255;
+                                    
+                                    
+                                    //Particle type:
+                                    //0 = gamma ray
+                                    //1 = hydrogen (proton)
+                                    //2 = deuterium
+                                    //3 = helium 3
+                                    //4 = helium 4
+                                    //5 = neutrino
+                                    //6 = positron
+
+                                    
+                                    //For every collision in this stage, create a:
+                                    //deuterium
+                                    SubAtomic d;
+                                    d.setup(collisionPos, &deuterium);
+                                    d.type = 2; //so the particle knows its own type
+                                    d.scale = particleScale;
+                                    
+                                    //if assign the right slot
+                                    if(numDeuterium == 0){
+                                        d.deutSlot = 1;
+                                        numDeuterium = 1;
+                                    } else if (numDeuterium == 1){
+                                        d.deutSlot = 2;
+                                        numDeuterium = 2;
+                                    }
+                                    
+                                    fusorList.push_back(d);
+                                    
+                                    //Neutrino
+                                    SubAtomic n;
+                                    n.setup(collisionPos, &neutrino);
+                                    n.type = 5; //so the particle knows its own type
+                                    n.scale = particleScale;
+                                    fusorList.push_back(n);
+                                    
+                                    //positron
+                                    SubAtomic p;
+                                    p.setup(collisionPos, &positron);
+                                    p.type = 6; //so the particle knows its own type
+                                    p.scale = particleScale;
+                                    fusorList.push_back(p);
+                                    
+                                    fusionPop.play();
+                                    
+                                }
+                                
+                                
+                            }
+                        }
+                    }
+                    
+                }
+                
+                
+                
             }
             
-            if(toNextStage.trans < 254){
-                toNextStage.trans += 2;
+        }
+
+        
+        
+        
+        //collision time out
+        if(ofGetElapsedTimeMillis() - collisionTimer > 500){
+            blobCollision = false;
+        }
+        
+        
+        
+        
+        
+        
+        //update subatomic particles
+        for( vector<SubAtomic>::iterator it = fusorList.begin(); it!=fusorList.end();){
+            
+            
+            it -> update();
+            
+            //if there are less than 2 deuterium atoms made and the particle we're
+            //checking is a deuterium then add global attraction
+            if(it -> type == 2){
+                if(it -> deutSlot == 1){
+
+                    it -> globalAttract(deut1Pos, 0.9);
+
+                } else if (it -> deutSlot == 2){
+                    
+                    it -> globalAttract(deut2Pos, 0.9);
+                    
+                } 
+                
+            }
+            
+            //check if they have faded away and remove them from the vector
+            if(it -> trans < 2){
+                fusorList.erase(it);
+            } else {
+                it++;
             }
             
             
-            if(blackOutTrans < 180){
-                blackOutTrans += 2;
-            }
+            
+        }
+        
+        
+        
+        if(numDeuterium > 1){
+            useContinueTimer = true;
+        }
+        
+        
+        
+        
+        //If we're using the "move to next stage" timer...
+        if(useContinueTimer){
             
             
-            
-            
-            
-            
-            numBallTOC = 0;
-            numBallNextStage = 0;
+            numBallsinBox = 0;
             
             //Look for blobs and display them
             for(int i = 0; i < contourFinder.blobs.size(); i++){
@@ -2613,75 +2832,55 @@ void testApp::update(){
                 
                 
                 //check if any balls are in the circle
-                if(ofDistSquared(mapBlobX, mapBlobY, toNextStage.pos.x, toNextStage.pos.y) < toNextStage.rad* toNextStage.rad){
-                    numBallNextStage++;
-                }
-                if(ofDistSquared(mapBlobX, mapBlobY, toTOC.pos.x, toTOC.pos.y) < toTOC.rad* toTOC.rad){
-                    numBallTOC++;
+                if(ofDistSquared(mapBlobX, mapBlobY, continueFusion.pos.x, continueFusion.pos.y) < 100 * 100){
+                    numBallsinBox++;
                 }
                 
-            }
-            
-            
-            
-            
-            
-            //Check UI Timers
-            float distToNextStage = ofDistSquared(toNextStage.pos.x, toNextStage.pos.y, mouseX, mouseY);
-            if(numBallNextStage > 0 || distToNextStage < toNextStage.rad * toNextStage.rad){
-                toNextStage.inButton = true;
-            } else {
-                toNextStage.inButton = false;
-            }
-            
-            float distToTOC = ofDistSquared(toTOC.pos.x, toTOC.pos.y, mouseX, mouseY);
-            if(numBallTOC > 0 || distToTOC < toTOC.rad * toTOC.rad){
-                toTOC.inButton = true;
-            } else {
-                toTOC.inButton = false;
-            }
-            
-            toNextStage.update();
-            toTOC.update();
-            
-            
-            
-            
-            if(toNextStage.triggered){
-                transitionToStage = true;
-                nextStage = 5;
                 
             }
             
-            if(toTOC.triggered){
-                transitionToStage = true;
-                nextStage = 0.5;
+            //fade the timer in
+            if(continueFusion.trans < 254){
+                continueFusion.trans += 0.5;
             }
             
             
+            //Look for balls and cursor
+            float dist = ofDist(continueFusion.pos.x, continueFusion.pos.y, mouseX, mouseY);
             
+            if(numBallsinBox > 0 || dist < continueFusion.rad){
+                continueFusion.inButton = true;
+            } else {
+                continueFusion.inButton = false;
+            }
             
+            continueFusion.update();
             
-            
-            if(transitionToStage){
+            //if it's been triggered, turn off this timer and fade to black before moving to next stage
+            if(continueFusion.triggered){
+                //                transitionToChoice = true;
+                useContinueTimer = false;
                 
-                blackOutTrans += 2;
+                blackOutTrans += 4;
                 
                 if(blackOutTrans > 255){
-                    narrativeState = nextStage;
+                    narrativeState = 7;
                     
                     
                     
                 }
                 
             }
-            
-            
             
             
         }
-        
 
+        
+        
+        
+        
+        
+        
         
         
         
@@ -4786,7 +4985,7 @@ void testApp::draw(){
             
             ofPushMatrix();
             ofTranslate(ofGetWindowWidth()/2 + 320, 120);
-            ofScale(0.3, 0.3);
+            ofScale(instructionScale, instructionScale);
             ofRotate(180);
             ofSetColor(255, doneWithStar.trans);
             instructions.drawString(idleMessage, 0, 0);
@@ -4996,6 +5195,39 @@ void testApp::draw(){
         ofEnableAlphaBlending();
         
         
+        //draw waving hand
+//        if(progress < 0.3){
+        
+            ofPushMatrix();
+            
+            ofTranslate(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 - 300, ofGetWindowHeight()/2);
+            
+            
+            float amplitude = 30;
+            float angle = amplitude * sin(ofGetElapsedTimef() * 2.5);
+            
+            ofRotate(angle);
+            ofTranslate(ofGetWindowHeight()/4 + 250, 0);
+            
+            if(handTrans < 255 && currentTime > 2000 && currentTime < 10000){
+                handTrans += 2;
+            }
+            
+            if((currentTime > 10000 && handTrans > 0) || progress > 0.3){
+                handTrans -= 4;
+            }
+        
+            ofSetColor(255, handTrans);
+            handWithBall.draw(0, 0, handWithBall.width, handWithBall.height);
+            ofPopMatrix();
+            
+            
+//        }
+
+        
+        
+        
+        
         if(showEquilibrium){
             
             
@@ -5109,94 +5341,16 @@ void testApp::draw(){
             ofPopMatrix();
             
             
-            //draw waving hand
-            if(currentTime > 3000){
-                
-                ofPushMatrix();
-                
-                ofTranslate(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, ofGetWindowHeight()/2);
-                
-                
-                float amplitude = 30;
-                float angle = amplitude * sin(ofGetElapsedTimef() * 4);
-                
-                ofRotate(angle);
-                ofTranslate(ofGetWindowHeight()/2, 0);
-                
-                if(handTrans < 255 && currentTime < 9000){
-                    handTrans += 2;
-                }
-                
-                if(currentTime > 9000 && handTrans > 0){
-                    handTrans -= 4;
-                }
-                
-                ofSetColor(255, handTrans);
-                handWithBall.draw(0, 0, handWithBall.width, handWithBall.height);
-                
-                ofPopMatrix();
-                
-                
-            }
+                        
             
-            
-            
-            if(transitionToChoice){
-                
+            if(doneWithStar.triggered){
                 ofSetColor(0, blackOutTrans);
                 ofSetRectMode(OF_RECTMODE_CENTER);
                 ofRect(ofGetWindowSize()/2, ofGetWindowHeight(), ofGetWindowHeight());
                 ofSetRectMode(OF_RECTMODE_CORNER);
-                
-                ofSetColor(255, blackOutTrans);
-                comingSoon.draw(toNextStage.pos, toNextStage.rad*2, toNextStage.rad*2);
-                stagesThumb.draw(toTOC.pos, toTOC.rad*2, toTOC.rad*2);
-                
-                toNextStage.draw();
-                toTOC.draw();
-                
-
-                
-                string labelTOCA = "Back to";
-                string labelTOCB = "Stage Select";
-                
-                
-                
-                
-                //----------draw TOC text----------
-                ofPushMatrix();
-                ofTranslate(toTOC.pos);
-                ofTranslate(0, -toTOC.rad * 1.5);
-                ofRotate(180);
-                
-                ofScale(0.2, 0.2);
-                
-                
-                //draw text
-                ofSetColor(255);
-                instructions.drawString(labelTOCA, -instructions.stringWidth(labelTOCA)/2, 0);
-                instructions.drawString(labelTOCB, -instructions.stringWidth(labelTOCB)/2, instructions.getLineHeight());
-                ofPopMatrix();
-                
-                
-                string labelNextStageA = "Continue to";
-                string labelNextStageB = "Giants & Supergiants";
-                
-                //----------draw Next Stage text----------
-                ofPushMatrix();
-                ofTranslate(toNextStage.pos);
-                ofTranslate(0, -toTOC.rad * 1.5);
-                ofRotate(180);
-                
-                ofScale(0.2, 0.2);
-                
-                //draw text
-                ofSetColor(255);
-                instructions.drawString(labelNextStageA, -instructions.stringWidth(labelNextStageA)/2, 0);
-                instructions.drawString(labelNextStageB, -instructions.stringWidth(labelNextStageB)/2, instructions.getLineHeight());
-                ofPopMatrix();
-                
             }
+            
+
             
             if(useDWStimer){
                 
@@ -5317,6 +5471,253 @@ void testApp::draw(){
 //            ofPopMatrix();
 //        }
 
+        
+
+        
+        
+        
+        
+    } else if(narrativeState == 6 && setupStage6 == true){
+        
+        //------------------------------FUSION STAGE 1 DRAW------------------------------
+        
+        //try perlin background
+//        float smoothing = ofMap(mouseX, 0, ofGetWindowWidth(), 0.0005, 0.003);
+//        float speed = ofMap(mouseY, 0, ofGetWindowHeight(), 0.0001, 0.001);
+        float smoothing = 0.0018;
+        float speed = 0.00032;
+        ofColor col1 = ofColor(0);
+//        ofColor col2 = ofColor(200, 175, 0);
+        ofColor col2 = ofColor(100);
+        int perlinPixel = 10;
+
+        
+        ofPushStyle();
+        
+        
+        for( int y=0; y< ofGetWindowHeight(); y += perlinPixel){
+            for( int x=ofGetWindowWidth()/2 - ofGetWindowHeight()/2; x< ofGetWindowWidth()/2 + ofGetWindowHeight()/2; x += perlinPixel){
+                
+                float noiseVal = ofNoise(x * smoothing, y * smoothing, ofGetElapsedTimeMillis() * speed);
+                
+                
+                //            int col = floor(noiseVal * 255.0);
+                ofColor col = col1.getLerped(col2, noiseVal);
+                
+                
+                
+                ofSetColor( col );
+                ofRect(x, y, perlinPixel, perlinPixel);
+            }
+        }
+
+
+        ofSetColor(255, 0, 0);
+        ofDrawBitmapString("noise scale: " + ofToString(smoothing), 20, 300);
+        ofDrawBitmapString("noise speed: " + ofToString(speed), 20, 320);
+        ofPopStyle();
+        
+        
+        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        
+        if(debugVisuals){
+            //draw camera stuff
+            
+            if(drawCam){
+                ps3eye.draw(leftBound, topBound, rightBound - leftBound, bottomBound - topBound);
+                contourFinder.draw(leftBound, topBound, rightBound - leftBound, bottomBound - topBound);
+            }
+        }
+        
+        //draw hydrogen bank outline
+        ofSetColor(255);
+        hydroBank.draw(ofGetWindowSize()/2, hydroBank.width * 0.4, hydroBank.height * 0.4);
+        
+        
+        
+        
+
+        
+        
+        //draw deuterium silhouettes first so particles are drawn above them
+        //draw first one
+        ofPushMatrix();
+        ofTranslate(deut1Pos);
+        ofRotate(180);
+        deuteriumSlot.draw(0, 0, deuteriumSlot.width * particleScale, deuteriumSlot.height * particleScale);
+        ofPopMatrix();
+        
+        //draw second one
+        ofPushMatrix();
+        ofTranslate(deut2Pos);
+        ofRotate(180);
+        deuteriumSlot.draw(0, 0, deuteriumSlot.width * particleScale, deuteriumSlot.height * particleScale);
+        ofPopMatrix();
+        
+        
+        
+        
+        
+        
+        
+        
+        //draw blob positions
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+            
+            ofPushStyle();
+            
+            float distToCenter = ofDist(mapBlobX, mapBlobY, ofGetWindowWidth()/2, ofGetWindowHeight()/2);
+            
+
+            ofSetColor(255);
+            ofPushMatrix();
+            
+            ofTranslate(mapBlobX, mapBlobY);
+            ofRotate(180);
+            ofNoFill();
+            ofCircle(0, 0, 15);
+            ofDrawBitmapString(ofToString(i), -50, 0);
+            
+            if(blobCollision == false){
+//                hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
+            }
+            
+            ofPopMatrix();
+            
+            ofPopStyle();
+        }
+        
+        
+        
+        
+        //---------- DRAW UI ----------
+        int borderPadding = 40;
+
+        
+        
+        ofPushMatrix();{
+            
+            ofTranslate(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - borderPadding, ofGetWindowHeight() - borderPadding - 20);
+            ofRotate(180);
+            
+            
+            //push matrix again so instructionScale does not influence particle key
+            ofPushMatrix();{
+                
+                ofScale(instructionScale, instructionScale);
+                
+                ofSetColor(255);
+                //to draw titles centered:
+        //        instructions.drawString(instructionA, -instructions.stringWidth(instructionA)/2, 0);
+        //        instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight() * 0.85);
+                //to draw aligned left
+                instructions.drawString(instructionA, 0, 0);
+                instructions.drawString(instructionB, 0, instructions.getLineHeight() * 0.85);
+                instructions.drawString(instructionC, 0, instructions.getLineHeight() * 0.85 * 2);
+                
+                
+            }ofPopMatrix();
+            
+
+            
+            //----------DRAW PARTICLE KEY----------
+            //First stage: proton, neutron, deuterium, positron, neutrino
+            
+            float keyScale = 0.35;
+            
+            int leftMargin = ofGetWindowHeight() - key1.width * keyScale - 75;
+            
+            ofSetColor(255);
+            key1.draw(leftMargin, 0, key1.width * keyScale, key1.height * keyScale);
+        
+        }ofPopMatrix();
+
+        //draw hydrogen bank outline
+        ofSetColor(255);
+        hydroBank.draw(ofGetWindowSize()/2, hydroBank.width * 0.4, hydroBank.height * 0.4);
+        
+        
+        
+        //draw something based on collision
+        
+//        if(blobCollision){
+//        
+//            ofSetColor(255, 255, 0);
+//            ofCircle(collisionPos, 100);
+//            
+//        
+//        }
+        
+        
+        //draw starburst where collision happens and decrease transparency and size
+        if(blobCollision){
+
+            ofPushStyle();
+            ofSetColor(255, collisionBurstTrans);
+            starburst.draw(collisionPos, collisionBurstSize, collisionBurstSize);
+            ofPopStyle();
+            
+            if(collisionBurstTrans > 0) collisionBurstTrans -= 8;
+            if(collisionBurstSize > 0) collisionBurstSize -= 2;
+        }
+        
+        
+        //draw subatomic particles
+        for( vector<SubAtomic>::iterator it = fusorList.begin(); it!=fusorList.end(); it++){
+            it -> draw();
+        }
+        
+        
+        
+        
+        if(continueFusion.triggered){
+            ofSetColor(0, blackOutTrans);
+            ofSetRectMode(OF_RECTMODE_CENTER);
+            ofRect(ofGetWindowSize()/2, ofGetWindowHeight(), ofGetWindowHeight());
+            ofSetRectMode(OF_RECTMODE_CORNER);
+        }
+        
+        
+        
+        if(useContinueTimer){
+            
+            
+            continueFusion.draw();
+            
+            
+            //draw text
+            string idleMessage = "Hold ball here to move on";
+            
+            ofPushMatrix();
+            ofTranslate(ofGetWindowWidth()/2 + 320, 100);
+            ofScale(0.3, 0.3);
+            ofRotate(180);
+            ofSetColor(255, continueFusion.trans);
+            instructions.drawString(idleMessage, 0, 0);
+            
+            ofPopMatrix();
+            
+            
+            
+            
+        }
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
 
         
@@ -5505,18 +5906,28 @@ void testApp::debugVis(){
     ofDrawBitmapString("mainFragment size: " + ofToString(mainFragment.size()), 20, 150);
     ofDrawBitmapString("Narrative State: " + ofToString(narrativeState), 20, 165);
     ofDrawBitmapString("next stage: " + ofToString(nextStage), 20, 180);
+    ofDrawBitmapString("Threshold: " + ofToString(threshold), 20, 195);
+    
+    ofDrawBitmapString("Number of fusors: " + ofToString(fusorList.size()), 20, 220);
+    
 
     if(blobDirection.size() > 0){
-        ofDrawBitmapString("blob 0 speed: " + ofToString(blobDirection[0].length()), 20, 180);
+        ofSetColor(255, 255, 0);
+        ofDrawBitmapString("blob 0 speed: " + ofToString(blobDirection[0].length()), 450, 250);
+        if(blobDirection.size() > 1){
+            ofDrawBitmapString("blob 1 speed: " + ofToString(blobDirection[1].length()), 450, 265);
+            ofDrawBitmapString("collision dist: " + ofToString(colDist), 450, 280);
+        }
+        
     }
     ofPopStyle();
     
-    //draw camera stuff
-    //contourFinder.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
-    
-    if(drawCam){
-        ps3eye.draw(0, 500, 260, 195);
-    }
+//    //draw camera stuff
+//    
+//    if(drawCam){
+//        ps3eye.draw(leftBound, topBound, rightBound - leftBound, bottomBound - topBound);
+//        contourFinder.draw(leftBound, topBound, rightBound - leftBound, bottomBound - topBound);
+//    }
     
 
     
@@ -5547,6 +5958,70 @@ void testApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
 
+    
+    if(narrativeState == 6){
+        blobCollision = true;
+        collisionTimer = ofGetElapsedTimeMillis();
+        collisionPos = ofVec3f(x, y);
+        
+        //set starburst size and transparency
+        collisionBurstSize = 600;
+        collisionBurstTrans = 255;
+        
+        
+        //Particle type:
+        //0 = gamma ray
+        //1 = hydrogen (proton)
+        //2 = deuterium
+        //3 = helium 3
+        //4 = helium 4
+        //5 = neutrino
+        //6 = positron
+        
+        
+        //For every collision in this stage, create a:
+        //deuterium
+        SubAtomic d;
+        d.setup(collisionPos, &deuterium);
+        d.type = 2; //so the particle knows its own type
+        d.scale = particleScale;
+        
+        //if assign the right slot
+        if(numDeuterium == 0){
+            d.deutSlot = 1;
+            numDeuterium = 1;
+        } else if (numDeuterium == 1){
+            d.deutSlot = 2;
+            numDeuterium = 2;
+        }
+        
+        fusorList.push_back(d);
+        
+        //Neutrino
+        SubAtomic n;
+        n.setup(collisionPos, &neutrino);
+        n.type = 5; //so the particle knows its own type
+        n.scale = particleScale;
+        fusorList.push_back(n);
+        
+        //positron
+        SubAtomic p;
+        p.setup(collisionPos, &positron);
+        p.type = 6; //so the particle knows its own type
+        p.scale = particleScale;
+        fusorList.push_back(p);
+        
+        fusionPop.play();
+        
+    
+    }
+
+
+
+
+
+
+
 }
 
 //--------------------------------------------------------------
@@ -5565,7 +6040,7 @@ void testApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void testApp::dragEvent(ofDragInfo dragInfo){ 
+void testApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
@@ -5587,7 +6062,9 @@ void testApp::keyPressed(int key){
     } else if(key == '6'){
         narrativeState = 4;         //star birth
     } else if(key == '7'){
-        narrativeState = 5;
+        narrativeState = 5;         //star anatomy
+    } else if(key == '8'){
+        narrativeState = 6;         //fusion
     } else if(key == 't'){
         narrativeState = 0.5;
     }
@@ -5606,8 +6083,13 @@ void testApp::keyPressed(int key){
         }
     }
     
-
     
+
+    if(key == 'n'){
+        threshold--;
+    } else if(key == 'm'){
+        threshold++;
+    }
     
     //toggle camera draw
     if(key == 'c' || key == 'C'){

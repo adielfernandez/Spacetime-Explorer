@@ -7,6 +7,7 @@
 #include "SunParticle.h"
 #include "Fragment.h"
 #include "Timer.h"
+#include "SubAtomic.h"
 
 class testApp : public ofBaseApp{
 	public:
@@ -132,6 +133,7 @@ class testApp : public ofBaseApp{
     ofColor instructCol;
     string instructionA;
     string instructionB;
+    string instructionC;
     
     ofTrueTypeFont status;
     ofTrueTypeFont statusBigger;
@@ -445,9 +447,31 @@ class testApp : public ofBaseApp{
     ofImage neutrino;
     ofImage positron;
     ofImage deuteriumSlot;
+    ofImage key1;
+    ofImage hydroBank;
+    
+    ofSoundPlayer fusionPop;
+    
+    Timer continueFusion;
+    bool useContinueTimer;
+    
+    bool blobCollision;
+    int collisionTimer;
+    float colDist;
+    ofVec3f collisionPos;
+    int noColZoneRad;
+    float particleScale;
+    float collisionBurstTrans;
+    float collisionBurstSize;
+    int numDeuterium;
+    ofVec3f deut1Pos;
+    ofVec3f deut2Pos;
+    
+    vector<SubAtomic> fusorList;
     
     
 };
+
 
 
 
