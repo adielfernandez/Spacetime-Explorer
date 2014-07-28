@@ -28,6 +28,7 @@ public:
     void globalAttract(ofVec3f _pos, float _strength);
     
     ofVec3f pos, vel, acc;
+    ofVec3f collisionPos;
     float damping;
     float size;
     float trans;
@@ -39,6 +40,5 @@ public:
     
     int deutSlot;
     
-
     
 };

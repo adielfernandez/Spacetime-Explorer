@@ -52,6 +52,7 @@ void SubAtomic::setup(ofVec3f _pos, ofImage *image){
     sharedImage = image;
     
     pos = _pos;
+    collisionPos = _pos;
     
 }
 
@@ -93,12 +94,8 @@ void SubAtomic::update(){
     
     age++;
     
-    //fade transparency if we're not in the deuterium slot
-    if(deutSlot == 0){
-        
-        trans = ofMap(age, 0, 200, 255, 0, true);
-
-    }
+    //fade transparency with time
+    trans = ofMap(age, 0, 350, 255, 0, true);
 
     //bounce off walls
     if(pos.x < ofGetWindowHeight()/2){
@@ -123,14 +120,35 @@ void SubAtomic::update(){
 
 void SubAtomic::draw(){
     
+    ofPushStyle();
+    
+    ofSetColor(255, trans);
+    
+    //draw connecting lines 
+    ofSetLineWidth(1);
+    ofLine(pos, collisionPos);
+
+    //draw particle
     ofPushMatrix();
     ofTranslate(pos);
+    
     ofRotate(180);
-    ofSetColor(255, trans);
+    
+    //always draw first two deuteriums full transparency
+    if(deutSlot != 0){
+        ofSetColor(255);
+    }
+    
     sharedImage -> draw(0, 0, sharedImage -> width * scale, sharedImage -> height * scale);
     
     ofPopMatrix();
-    
+
+    ofPopStyle();
+
+
+
+
+
 }
 
 

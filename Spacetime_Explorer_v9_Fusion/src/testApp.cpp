@@ -76,7 +76,7 @@ void testApp::setup(){
     
     
     //Narrative control
-    narrativeState = 6;
+    narrativeState = -1;
         //-1 = idle state
         //0 = intro video
         //0.5 = table of contents
@@ -472,7 +472,7 @@ void testApp::setup(){
     deuteriumSlot.setAnchorPercent(0.5,0.5);
 //    deuteriumSlot.rotate90(2);
 
-    key1.loadImage("images/fusion/key1vert.png");
+    key1.loadImage("images/fusion/key1Title.png");
     
     hydroBank.loadImage("images/fusion/hydroBankFull.png");
     hydroBank.setAnchorPercent(0.5, 0.5);
@@ -2800,7 +2800,7 @@ void testApp::update(){
             }
             
             //check if they have faded away and remove them from the vector
-            if(it -> trans < 2){
+            if(it -> trans < 2 && it -> deutSlot == 0){
                 fusorList.erase(it);
             } else {
                 it++;
@@ -2813,7 +2813,7 @@ void testApp::update(){
         
         
         if(numDeuterium > 1){
-            useContinueTimer = true;
+            //useContinueTimer = true;
         }
         
         
@@ -2954,8 +2954,10 @@ void testApp::update(){
         setupStage5 = false;
     }
     
-    
-    
+    //fusion
+    if(narrativeState != 6){
+        setupStage5 = false;
+    }
     
     
     
@@ -5584,7 +5586,7 @@ void testApp::draw(){
             ofDrawBitmapString(ofToString(i), -50, 0);
             
             if(blobCollision == false){
-//                hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
+                hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
             }
             
             ofPopMatrix();
@@ -5633,7 +5635,7 @@ void testApp::draw(){
             int leftMargin = ofGetWindowHeight() - key1.width * keyScale - 75;
             
             ofSetColor(255);
-            key1.draw(leftMargin, 0, key1.width * keyScale, key1.height * keyScale);
+            key1.draw(leftMargin, -50, key1.width * keyScale, key1.height * keyScale);
         
         }ofPopMatrix();
 
@@ -6078,9 +6080,19 @@ void testApp::keyPressed(int key){
     
     //disturb all particles on keypress
     if(key == ' '){
+        
+        
+        
         for( vector<Particle>::iterator it = pList.begin(); it!=pList.end(); it++){
             it -> disturbed = true;
         }
+        
+        if(narrativeState == 6){
+            fusorList.clear();
+            numDeuterium = 0;
+        }
+        
+        
     }
     
     
@@ -6098,6 +6110,26 @@ void testApp::keyPressed(int key){
     
     
 
+    
+    if(key == 'w'){
+        topBound ++;
+    } else if(key == 'z'){
+        bottomBound++;
+    } else if(key == 'a'){
+        leftBound++;
+    } else if(key == 's'){
+        rightBound++;
+    }
+    
+    if(key == 'W'){
+        topBound--;
+    } else if(key == 'Z'){
+        bottomBound--;
+    } else if(key == 'A'){
+        leftBound--;         
+    } else if(key == 'S'){
+        rightBound--;
+    }
     
     
     //piston to top
