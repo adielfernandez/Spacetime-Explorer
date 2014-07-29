@@ -76,7 +76,7 @@ void testApp::setup(){
     
     
     //Narrative control
-    narrativeState = -1;
+    narrativeState = 6;
         //-1 = idle state
         //0 = intro video
         //0.5 = table of contents
@@ -439,38 +439,56 @@ void testApp::setup(){
     arrow.setAnchorPercent(0.5, 0.5);
     
     
-    //----------Stage 6: Fusion----------
+    //----------Stage 6: Fusion intro----------
+    fusionFull.loadImage("images/fusion/fusionFull.png");
+    fusionFull.setAnchorPercent(0.5,0.5);
+    fusionFull.rotate90(2);
+
+    fusionStage1.loadImage("images/fusion/fusion1.png");
+    fusionStage1.setAnchorPercent(0.5,0.5);
+    fusionStage1.rotate90(2);
+    
+    fusionStage2.loadImage("images/fusion/fusion2.png");
+    fusionStage2.setAnchorPercent(0.5,0.5);
+    fusionStage2.rotate90(2);
+    
+    fusionStage3.loadImage("images/fusion/fusion3.png");
+    fusionStage3.setAnchorPercent(0.5,0.5);
+    fusionStage3.rotate90(2);
+    
+    
+    //----------Stage 7: Fusion 1----------
     hydrogen.loadImage("images/fusion/hydrogen.png");
     hydrogen.setAnchorPercent(0.5,0.5);
-//    hydrogen.rotate90(2);
+    hydrogen.rotate90(2);
     
     deuterium.loadImage("images/fusion/deuterium.png");
     deuterium.setAnchorPercent(0.5,0.5);
-//    deuterium.rotate90(2);
+    deuterium.rotate90(2);
     
     helium3.loadImage("images/fusion/helium3.png");
     helium3.setAnchorPercent(0.5,0.5);
-//    helium3.rotate90(2);
+    helium3.rotate90(2);
     
     helium4.loadImage("images/fusion/helium4.png");
     helium4.setAnchorPercent(0.5,0.5);
-//    helium4.rotate90(2);
+    helium4.rotate90(2);
     
     neutron.loadImage("images/fusion/neutron.png");
     neutron.setAnchorPercent(0.5,0.5);
-//    neutron.rotate90(2);
+    neutron.rotate90(2);
     
     neutrino.loadImage("images/fusion/neutrino.png");
     neutrino.setAnchorPercent(0.5,0.5);
-//    neutrino.rotate90(2);
+    neutrino.rotate90(2);
     
     positron.loadImage("images/fusion/positron.png");
     positron.setAnchorPercent(0.5,0.5);
-//    positron.rotate90(2);
+    positron.rotate90(2);
     
     deuteriumSlot.loadImage("images/fusion/deuteriumSlot.png");
     deuteriumSlot.setAnchorPercent(0.5,0.5);
-//    deuteriumSlot.rotate90(2);
+    deuteriumSlot.rotate90(2);
 
     key1.loadImage("images/fusion/key1Title.png");
     
@@ -478,6 +496,20 @@ void testApp::setup(){
     hydroBank.setAnchorPercent(0.5, 0.5);
     hydroBank.rotate90(2);
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     debugVisuals = false;
     
@@ -2602,22 +2634,76 @@ void testApp::update(){
         
         
         
+        //--------------------FUSION INTRO UPDATE--------------------
+    } else if(narrativeState == 6){
+
+        //stage setup
+        if(setupStage6 == false){
+            
+            setupStage6 = true;
+            stageStartTime = ofGetElapsedTimeMillis();
+            
+            sendSerial(0, 255, 0);
+            
+            //reactants
+            prot1pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
+            prot2pos.set(ofGetWindowWidth()/2 - ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
+
+            //center of reaction
+            collision.set(ofGetWindowSize()/2);
+            
+            //products
+            trinoPos.set(ofGetWindowWidth()/2 - ofGetWindowHeight() * 0.3, ofGetWindowHeight()* 0.25);
+            posiPos.set(ofGetWindowWidth()/2 + ofGetWindowHeight() * 0.3, ofGetWindowHeight()* 0.25);
+            deutPos.set(ofGetWindowWidth()/2, ofGetWindowHeight() * 0.1);
+            
+            instructionA = "Fusion";
+            instructionB = "Process";
+            
+            titleTrans = 255;
+            protTrans = 0;
+            explosionTrans = 0;
+            productTrans = 0;
+            
+            fullDiagTrans = 0;
+            stage1DiagTrans = 0;
+            
+            highlighterHeight = 430;
+            highlighterX = ofGetWindowWidth()/2 - ofGetWindowHeight()/2 - ofGetWindowHeight();
+            highlighterY = 20;
+            highlighterTrans = 50;
+            
+            blackOutTrans = 0;
+            
+            fusorList.clear();
+            
+        }
 
         
+        
+        //animation mostly done in draw()
+        
+        
+        
+        
+        
+        
+        
+        
 
-    } else if(narrativeState == 6){
+    } else if(narrativeState == 7){
         
         //--------------------FUSION STAGE 1 UPDATE--------------------
         
         
         //stage setup
-        if(setupStage6 == false){
+        if(setupStage7 == false){
             noColZoneRad = 120;
             
             stageStartTime = ofGetElapsedTimeMillis();
             sendSerial(100, 255, 0);
             
-            setupStage6 = true;
+            setupStage7 = true;
             
             ballInfluence = true;
             cvObjectCol = ofColor(0, 255, 0, 255);
@@ -2954,13 +3040,16 @@ void testApp::update(){
         setupStage5 = false;
     }
     
-    //fusion
+    //fusion intro
     if(narrativeState != 6){
-        setupStage5 = false;
+        setupStage6 = false;
     }
     
     
-    
+    //fusion stage 1
+    if(narrativeState != 7){
+        setupStage7 = false;
+    }
     
     
     
@@ -3145,7 +3234,7 @@ void testApp::draw(){
         
 
             
-        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
 
         
 
@@ -3826,7 +3915,7 @@ void testApp::draw(){
 
         
         
-        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
 
         
         //play audio clips
@@ -4135,7 +4224,7 @@ void testApp::draw(){
 
         
         
-        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         
         //play first clip: "help the fragment gather more gas"
@@ -4476,7 +4565,7 @@ void testApp::draw(){
         //--------------------LATE PROTOSTAR DRAW--------------------
         
         
-        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         
         //play first clip: "help the fragment gather more gas"
@@ -5082,7 +5171,7 @@ void testApp::draw(){
         //------------------------------STAR ANATOMY DRAW------------------------------
 
         
-        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         
         //play first clip: "help the fragment gather more gas"
@@ -5474,14 +5563,189 @@ void testApp::draw(){
 //        }
 
         
-
         
         
         
         
     } else if(narrativeState == 6 && setupStage6 == true){
         
+        //------------------------------FUSION INTRO 1 DRAW------------------------------
+        
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        
+        int reactionStartTime = 2700;
+        int collisionTime = 3000;
+        int reactionEndTime = 3500;
+        
+        
+        //draw and fade in protons
+        if(currentTime < 1000 && protTrans < 255){
+        
+            protTrans++;
+            
+        } else if(currentTime > collisionTime){
+            protTrans = 0;
+            productTrans = 255;
+        }
+        
+        
+        
+        //use clamped map() to control lerped position of reaction stuff
+        float lerpProtons = ofMap(currentTime, reactionStartTime, collisionTime, 0.0f, 1.0f, true);
+        float lerpProducts = ofMap(currentTime, collisionTime, reactionEndTime, 0.0f, 1.0f, true);
+
+        
+        //reactants
+        ofSetColor(255, protTrans);
+        hydrogen.draw(prot1pos.getInterpolated(collision, lerpProtons));
+        hydrogen.draw(prot2pos.getInterpolated(collision, lerpProtons));
+        
+        //products
+        ofSetColor(255, productTrans);
+        neutrino.draw(collision.getInterpolated(trinoPos, lerpProducts));
+        positron.draw(collision.getInterpolated(posiPos, lerpProducts));
+        deuterium.draw(collision.getInterpolated(deutPos, lerpProducts));
+        
+        //explosion
+        if(currentTime > collisionTime && currentTime < collisionTime + 50){
+            collisionBurstSize = 1000;
+            collisionBurstTrans = 255;
+            fusionPop.play();
+        }
+        
+        ofPushStyle();
+        ofSetColor(255, collisionBurstTrans);
+        starburst.draw(collision, collisionBurstSize, collisionBurstSize);
+        starburst.draw(collision, collisionBurstSize, collisionBurstSize);
+        ofPopStyle();
+        
+        if(collisionBurstTrans > 0) collisionBurstTrans -= 8;
+        if(collisionBurstSize > 0) collisionBurstSize -= 2;
+        
+        
+        
+
+        
+        //draw and fade in title
+        int borderPadding = 60;
+        
+        if(currentTime < 1000){
+            titleTrans = ofMap(currentTime, 0, 1000, 0, 255, true);
+        }
+        
+//        if(currentTime > 7000){
+//            instructionA = "Proton-Proton";
+//            instructionB = "Chain";
+//        }
+        ofPushMatrix();
+        ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight() - borderPadding);
+        ofRotate(180);
+        
+        ofScale(0.4, 0.4);
+        
+        
+        ofSetColor(255, titleTrans);
+        instructions.drawString(instructionA, -instructions.stringWidth(instructionA)/2, 0);
+        instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight());
+        
+        ofPopMatrix();
+
+        
+        
+        
+        
+        
+        
+        //fade in full diagram and fade out title and reaction products
+        
+        fullDiagTrans = ofMap(currentTime, 5000, 5500, 0, 255, true);
+        
+        blackOutTrans = ofMap(currentTime, 7500, 8500, 0, 215, true);
+        
+//        highlighterTrans = ofMap(currentTime, 9000, 10000, 0, 50, true);
+        
+        stage1DiagTrans = ofMap(currentTime, 9000, 10500, 0, 255, true);
+        
+        //xeno effect in highlighter and text
+        if(currentTime > 9000){
+            highlighterX = ofLerp(highlighterX, ofGetWindowWidth()/2 - ofGetWindowHeight()/2, 0.03);
+        }
+        
+        
+        
+        
+        
+        //full diagram
+        ofSetColor(255, fullDiagTrans);
+        fusionFull.draw(ofGetWindowSize()/2);
+        
+        //blackout mask
+        ofSetColor(0, blackOutTrans);
+        ofRect(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, 0, ofGetWindowHeight(), ofGetWindowHeight());
+        
+        //highlighter
+        ofSetColor(255, highlighterTrans);
+        ofRect(highlighterX, ofGetWindowHeight() - highlighterY - highlighterHeight, ofGetWindowHeight(), highlighterHeight);
+        
+        //stage 1 diagram
+        ofSetColor(255, stage1DiagTrans);
+        fusionStage1.draw(ofGetWindowSize()/2);
+        
+        
+        //draw text "Stage 1: proton + proton = deuterium
+        string stage1TitleA = "Stage 1 :";
+        string stage1TitleB = "Proton + Proton";
+        string stage1TitleC = "=";
+        string stage1TitleD = "Deuterium + Energy";
+        
+        ofPushMatrix();
+        ofTranslate(highlighterX + 300, ofGetWindowHeight() - 200);
+        ofRotate(180);
+        
+        ofScale(0.5, 0.5);
+        
+        
+        ofSetColor(255, 0, 0);
+        instructions.drawString(stage1TitleA, -instructions.stringWidth(stage1TitleA)/2, 0);
+//        instructions.drawString(stage1TitleB, 0, instructions.getLineHeight());
+        
+        ofPopMatrix();
+        
+        ofPushMatrix();
+        ofTranslate(highlighterX + 300, ofGetWindowHeight() - 200 - 50);
+        ofRotate(180);
+        
+        ofScale(0.3, 0.3);
+        
+        
+        ofSetColor(255);
+//        instructions.drawString(stage1TitleA, 0, 0);
+        instructions.drawString(stage1TitleB, -instructions.stringWidth(stage1TitleB)/2, 0);
+        instructions.drawString(stage1TitleC, -instructions.stringWidth(stage1TitleC)/2, instructions.getLineHeight());
+        instructions.drawString(stage1TitleD, -instructions.stringWidth(stage1TitleD)/2, instructions.getLineHeight() * 2);
+        
+        ofPopMatrix();
+        
+        
+        
+        if(currentTime > 20000){
+            narrativeState = 7;
+        }
+        
+        
+        
+        
+        
+        
+        
+    } else if(narrativeState == 7 && setupStage7 == true){
+        
         //------------------------------FUSION STAGE 1 DRAW------------------------------
+
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        
+        
+        
         
         //try perlin background
 //        float smoothing = ofMap(mouseX, 0, ofGetWindowWidth(), 0.0005, 0.003);
@@ -5520,7 +5784,6 @@ void testApp::draw(){
         ofPopStyle();
         
         
-        int currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         if(debugVisuals){
             //draw camera stuff
@@ -5894,6 +6157,7 @@ void testApp::debugVis(){
     ofRect(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, 0, ofGetWindowHeight(), ofGetWindowHeight());
     
     ofSetColor(255, 0, 0);
+    ofDrawBitmapString("Current Time: " + ofToString(currentTime), 20, 15);
     ofDrawBitmapString("Framerate: " + ofToString(ofGetFrameRate()), 20, 30);
     ofDrawBitmapString("Number of Particles: " + ofToString(pList.size()), 20, 45);
     ofDrawBitmapString("Disturbed not dead: " + ofToString(numDisturbed), 20, 60);
@@ -5961,7 +6225,7 @@ void testApp::mouseDragged(int x, int y, int button){
 void testApp::mousePressed(int x, int y, int button){
 
     
-    if(narrativeState == 6){
+    if(narrativeState == 7){
         blobCollision = true;
         collisionTimer = ofGetElapsedTimeMillis();
         collisionPos = ofVec3f(x, y);
@@ -6087,7 +6351,7 @@ void testApp::keyPressed(int key){
             it -> disturbed = true;
         }
         
-        if(narrativeState == 6){
+        if(narrativeState == 7){
             fusorList.clear();
             numDeuterium = 0;
         }

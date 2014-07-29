@@ -281,7 +281,8 @@ class testApp : public ofBaseApp{
     float lightArcAngle;
     float lightArcTrans = 255;
 
-    
+    //timing
+    int currentTime;
 
     //----------Table of Contents----------
     bool setupStageTOC;
@@ -433,11 +434,36 @@ class testApp : public ofBaseApp{
     int coreCounter;
     int starUseTime;
     bool starEquilibriumSetup;
-    
+
     //-----------Stage 6-----------
+    //-------Fusion Intro--------
+    
+    bool setupStage6;
+    
+    ofImage fusionFull;
+    ofImage fusionStage1;
+    ofImage fusionStage2;
+    ofImage fusionStage3;
+    
+    ofVec3f prot1pos, prot2pos;
+    ofVec3f deutPos, trinoPos, posiPos;
+    ofVec3f collision;
+    
+    float protTrans, productTrans, explosionTrans;
+    float titleTrans;
+
+    float fullDiagTrans;
+    float stage1DiagTrans;
+
+    float highlighterX;
+    float highlighterY;
+    float highlighterHeight;
+    float highlighterTrans;
+    
+    //-----------Stage 7-----------
     //-------Fusion Process--------
 
-    bool setupStage6;
+    bool setupStage7;
     
     ofImage hydrogen;
     ofImage deuterium;
