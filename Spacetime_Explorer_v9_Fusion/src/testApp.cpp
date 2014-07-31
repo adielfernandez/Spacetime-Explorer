@@ -76,7 +76,7 @@ void testApp::setup(){
     
     
     //Narrative control
-    narrativeState = 6;
+    narrativeState = 9;
         //-1 = idle state
         //0 = intro video
         //0.5 = table of contents
@@ -177,11 +177,24 @@ void testApp::setup(){
     smallExplosion.setMultiPlay(true);
     smallExplosion.setPan(bottom);
     
-    fusionPop.loadSound("sounds/gun.mp3");
-    fusionPop.setVolume(0.5f);
-    fusionPop.setSpeed(1.0f);
-    fusionPop.setMultiPlay(true);
-    fusionPop.setPan(bottom);
+    fusionPop1.loadSound("sounds/fusionPop1.mp3");
+    fusionPop1.setVolume(0.5f);
+    fusionPop1.setSpeed(1.0f);
+    fusionPop1.setMultiPlay(true);
+    fusionPop1.setPan(bottom);
+
+    fusionPop2.loadSound("sounds/fusionPop2.mp3");
+    fusionPop2.setVolume(0.5f);
+    fusionPop2.setSpeed(1.0f);
+    fusionPop2.setMultiPlay(true);
+    fusionPop2.setPan(bottom);
+    
+    fusionPop3.loadSound("sounds/fusionPop3.mp3");
+    fusionPop3.setVolume(0.5f);
+    fusionPop3.setSpeed(1.0f);
+    fusionPop3.setMultiPlay(true);
+    fusionPop3.setPan(bottom);
+    
     
     //Narration
         //Idle
@@ -466,9 +479,17 @@ void testApp::setup(){
     deuterium.setAnchorPercent(0.5,0.5);
     deuterium.rotate90(2);
     
+    deuteriumOutline.loadImage("images/fusion/deuteriumOutlineThin.png");
+    deuteriumOutline.setAnchorPercent(0.5,0.5);
+    deuteriumOutline.rotate90(2);
+    
     helium3.loadImage("images/fusion/helium3.png");
     helium3.setAnchorPercent(0.5,0.5);
     helium3.rotate90(2);
+
+    helium3Slot.loadImage("images/fusion/helium3Slot.png");
+    helium3Slot.setAnchorPercent(0.5,0.5);
+    helium3Slot.rotate90(2);
     
     helium4.loadImage("images/fusion/helium4.png");
     helium4.setAnchorPercent(0.5,0.5);
@@ -495,13 +516,16 @@ void testApp::setup(){
     hydroBank.loadImage("images/fusion/hydroBankFull.png");
     hydroBank.setAnchorPercent(0.5, 0.5);
     hydroBank.rotate90(2);
-
     
+    gammaRay.loadImage("images/fusion/gammaRay.png");
+    gammaRay.setAnchorPercent(0.5, 0.5);
+    gammaRay.rotate90(2);
     
+    gammaLabel.loadImage("images/fusion/gammaLabel.png");
+    gammaLabel.setAnchorPercent(0.5, 0.5);
+    gammaLabel.rotate90(2);
     
-    
-    
-    
+    key2.loadImage("images/fusion/key2.png");
     
     
     
@@ -2646,8 +2670,8 @@ void testApp::update(){
             sendSerial(0, 255, 0);
             
             //reactants
-            prot1pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
-            prot2pos.set(ofGetWindowWidth()/2 - ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
+            reactant1pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
+            reactant2pos.set(ofGetWindowWidth()/2 - ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
 
             //center of reaction
             collision.set(ofGetWindowSize()/2);
@@ -2661,7 +2685,7 @@ void testApp::update(){
             instructionB = "Process";
             
             titleTrans = 255;
-            protTrans = 0;
+            reactantTrans = 0;
             explosionTrans = 0;
             productTrans = 0;
             
@@ -2681,7 +2705,7 @@ void testApp::update(){
 
         
         
-        //animation mostly done in draw()
+        //animation done in draw()
         
         
         
@@ -2711,9 +2735,11 @@ void testApp::update(){
             statusA = "";
             statusB = "";
             
-            instructionA = "Make balls collide to";
-            instructionB = "fuse hydrogen and make";
-            instructionC = "deuterium atoms:";
+            instructionA = "Goal:";
+            instructionB = "Make balls collide to";
+            instructionC = "fuse hydrogen and make";
+            instructionD = "two deuterium atoms";
+            
             instructCol = ofColor(255);
             instructionScale = 0.31;
             
@@ -2730,13 +2756,14 @@ void testApp::update(){
             blobCollision = false;
             collisionTimer = 0;
             
-            numDeuterium = 0;
-            deut1Pos = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140, ofGetWindowHeight() - 220);
-            deut2Pos = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140 - deuteriumSlot.width * particleScale, ofGetWindowHeight() - 220);
+            numBankSlot = 0;
+            bankSlot1 = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140, ofGetWindowHeight() - 260);
+            bankSlot2 = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140 - deuteriumSlot.width * particleScale, ofGetWindowHeight() - 260);
             
             fusorList.clear();
             
-            numDeuterium = 0;
+            numBankSlot = 0;
+            endStageTimer = 0;
             
         }
 
@@ -2802,39 +2829,60 @@ void testApp::update(){
                                     //6 = positron
 
                                     
+                                    //pick a random degree value then assign velocity angles
+                                    //for the particles
+                                    float rand = ofRandom(360);
+                                    
+                                    
+                                    
                                     //For every collision in this stage, create a:
                                     //deuterium
                                     SubAtomic d;
-                                    d.setup(collisionPos, &deuterium);
+                                    d.setup(collisionPos, rand, &deuterium);
                                     d.type = 2; //so the particle knows its own type
                                     d.scale = particleScale;
+                                    d.floating = false;
+//                                    d.velAngle = rand;
                                     
-                                    //if assign the right slot
-                                    if(numDeuterium == 0){
-                                        d.deutSlot = 1;
-                                        numDeuterium = 1;
-                                    } else if (numDeuterium == 1){
-                                        d.deutSlot = 2;
-                                        numDeuterium = 2;
+                                    //assign the right slot
+                                    if(numBankSlot == 0){
+                                        d.bankSlot = 1;
+                                        numBankSlot = 1;
+                                    } else if (numBankSlot == 1){
+                                        d.bankSlot = 2;
+                                        numBankSlot = 2;
+                                        endStageTimer = ofGetElapsedTimeMillis();
                                     }
                                     
                                     fusorList.push_back(d);
                                     
                                     //Neutrino
                                     SubAtomic n;
-                                    n.setup(collisionPos, &neutrino);
+                                    n.setup(collisionPos, rand + 120, &neutrino);
                                     n.type = 5; //so the particle knows its own type
                                     n.scale = particleScale;
+                                    n.floating = false;
+//                                    n.velAngle = rand + 120;
                                     fusorList.push_back(n);
                                     
                                     //positron
                                     SubAtomic p;
-                                    p.setup(collisionPos, &positron);
+                                    p.setup(collisionPos, rand + 240, &positron);
                                     p.type = 6; //so the particle knows its own type
                                     p.scale = particleScale;
+                                    p.floating = false;
+//                                    p.velAngle = rand + 240;
                                     fusorList.push_back(p);
                                     
-                                    fusionPop.play();
+                                    int randSound = round(ofRandom(2));
+                                    
+                                    if(randSound == 0){
+                                        fusionPop1.play();
+                                    } else if(randSound == 1){
+                                        fusionPop2.play();
+                                    } else {
+                                        fusionPop3.play();
+                                    }
                                     
                                 }
                                 
@@ -2873,20 +2921,20 @@ void testApp::update(){
             //if there are less than 2 deuterium atoms made and the particle we're
             //checking is a deuterium then add global attraction
             if(it -> type == 2){
-                if(it -> deutSlot == 1){
+                if(it -> bankSlot == 1){
 
-                    it -> globalAttract(deut1Pos, 0.9);
+                    it -> globalAttract(bankSlot1, 0.9);
 
-                } else if (it -> deutSlot == 2){
+                } else if (it -> bankSlot == 2){
                     
-                    it -> globalAttract(deut2Pos, 0.9);
+                    it -> globalAttract(bankSlot2, 0.9);
                     
                 } 
                 
             }
             
             //check if they have faded away and remove them from the vector
-            if(it -> trans < 2 && it -> deutSlot == 0){
+            if(it -> trans < 2 && it -> bankSlot == 0){
                 fusorList.erase(it);
             } else {
                 it++;
@@ -2898,8 +2946,8 @@ void testApp::update(){
         
         
         
-        if(numDeuterium > 1){
-            //useContinueTimer = true;
+        if(numBankSlot > 1 && ofGetElapsedTimeMillis() - endStageTimer > 10000){
+            useContinueTimer = true;
         }
         
         
@@ -2950,7 +2998,7 @@ void testApp::update(){
                 blackOutTrans += 4;
                 
                 if(blackOutTrans > 255){
-                    narrativeState = 7;
+                    narrativeState = 8;
                     
                     
                     
@@ -2963,9 +3011,416 @@ void testApp::update(){
 
         
         
+        //--------------------FUSION STAGE 2 INTRO UPDATE--------------------
+    } else if(narrativeState == 8){
+        
+        //stage setup
+        if(setupStage8 == false){
+            
+            setupStage8 = true;
+            
+            stageStartTime = ofGetElapsedTimeMillis();
+            
+            sendSerial(0, 255, 0);
+            
+            //reactants
+            reactant1pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
+            reactant2pos.set(ofGetWindowWidth()/2 - ofGetWindowHeight()/4, ofGetWindowHeight()* 0.75);
+            
+            //center of reaction
+            collision.set(ofGetWindowSize()/2);
+            
+            //products
+            gammaPos.set(ofGetWindowWidth()/2 + ofGetWindowHeight() * 0.3, ofGetWindowHeight()* 0.25);
+            hel3Pos.set(ofGetWindowWidth()/2, ofGetWindowHeight() * 0.1);
+            
+            
+            titleTrans = 0;
+            reactantTrans = 0;
+            explosionTrans = 0;
+            productTrans = 0;
+            
+            fullDiagTrans = 0;
+            stage1DiagTrans = 0;
+            stage2DiagTrans = 0;
+            
+            highlighterHeight = 430;        //height of stage 2 highlighter = 530
+            highlighterX = ofGetWindowWidth()/2 - ofGetWindowHeight()/2;
+            highlighterY = 20;      //final Y pos = 260 from "top"
+            
+            highlighterTrans = 50;
+            
+            blackOutTrans = 0;
+            
+            fusorList.clear();
+            
+        }
         
         
         
+        //animation done in draw()
+        
+        
+        
+        
+        
+    } else if(narrativeState == 9){
+        
+        //--------------------FUSION STAGE 2 UPDATE--------------------
+        
+        
+        //stage setup
+        if(setupStage9 == false){
+            noColZoneRad = 120;
+            
+            stageStartTime = ofGetElapsedTimeMillis();
+            sendSerial(100, 255, 0);
+            
+            setupStage9 = true;
+            
+            ballInfluence = true;
+            cvObjectCol = ofColor(0, 255, 0, 255);
+            
+            statusA = "";
+            statusB = "";
+            
+            instructionA = "Goal:";
+            instructionB = "Hit a floating deuterium";
+            instructionC = "with a hydrogen";
+            instructionD = "to make Helium 3 ";
+            
+            instructCol = ofColor(255);
+            instructionScale = 0.31;
+            
+            
+            continueFusion.pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 100);
+            continueFusion.rad = 75;
+            continueFusion.cvObjectCol = cvObjectCol;
+            continueFusion.triggered = false;
+            continueFusion.trans = 0;
+            useContinueTimer = false;
+            
+            particleScale = 0.75f;
+            
+            blobCollision = false;
+            collisionTimer = 0;
+            
+            numBankSlot = 0;
+            bankSlot1 = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140, ofGetWindowHeight() - 280);
+            bankSlot2 = ofVec3f(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 140 - helium3Slot.width * particleScale, ofGetWindowHeight() - 280);
+            
+            fusorList.clear();
+            
+            endStageTimer = 0;
+            
+            floatDeutTimer = 0;
+            floatDeut.clear();
+            
+            
+            
+        }
+        
+        
+        //----------create and update floating deuterium for users to hit----------
+        
+        if(floatDeut.size() < 3 && ofGetElapsedTimeMillis() - floatDeutTimer > 1000){
+            
+            SubAtomic d;
+            
+            ofVec3f randScreenPos = ofVec3f(ofRandom(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, ofGetWindowWidth()/2 + ofGetWindowHeight()/2), ofRandom(ofGetWindowHeight()));
+            
+            d.setup(randScreenPos, ofRandom(360), &deuterium, &deuteriumOutline);
+            d.type = 2; //so the particle knows its own type
+            d.scale = particleScale;
+            d.twoImages = true;
+            d.floating = true;
+            d.damping = 1.0f;
+            d.trans = 0;
+            
+            //change the speed so it floats slower
+            d.vel.normalize();
+            d.vel.scale(2);
+            
+            floatDeut.push_back(d);
+            
+            floatDeutTimer = ofGetElapsedTimeMillis();
+
+            
+        }
+
+        
+        //for experimental collision code below
+        float deutColWidth = deuterium.width * 0.5;
+        float deutColHeight = deuterium.height * 0.3;
+        
+        
+        for(vector<SubAtomic>::iterator it = floatDeut.begin(); it!=floatDeut.end(); it++){
+            
+            
+            it -> update();
+            
+            //Make them bounce off each other
+//            for(vector<SubAtomic>::iterator it2 = it; it2!=floatDeut.end(); it2++){    
+//                //calculate distance between them and bounce
+//                //treat bouncing deuterium like rectangles                
+//                ofVec3f diff = it -> pos - it2 -> pos;
+//                float distSq = diff.lengthSquared();
+//                if(distSq < deuterium.height/2 * deuterium.height/2){
+//                    it -> vel *= -1;
+//                    it2 -> vel *= -1;
+//                }
+//            
+//                //treat bouncing deuterium like rectangles
+////                //Find distance between objects
+////                ofVec3f diff = it -> pos - it2 -> pos;
+////                //if we're within x range AND within y range then we have a collision
+////                if(diff.x < deutColWidth && diff.y < deutColHeight){
+////                    //compare the normalized distances (normalized w.r.t. the image dimensions) then bounce
+////                    //depending on which side is closer. If the norm-x distance is less than the norm-y
+////                    //distance then its a bounce in Y. Visa versa for an X bounce
+////                    if(diff.x/deutColWidth < diff.y/deutColHeight){
+////                        it -> vel.y *= -1;
+////                        it2 -> vel.y *= -1;
+////                    } else {
+////                        it -> vel.x *= -1;
+////                        it2 -> vel.x *= -1;
+////                    }
+////                }
+//            }
+            
+            
+            
+            
+        }
+
+        
+        
+        
+        
+        
+        //----------look for collisions between blobs and floating deuterium----------
+        int collisionDistance = 50;
+        
+        //if we have blobs
+        if(contourFinder.blobs.size() > 0 && ofGetElapsedTimeMillis() - stageStartTime > 3000){
+            
+            //loop through the blobs
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                //for( vector<ofxCvBlob>:: iterator thisBlob = contourFinder.blobs.begin(); thisBlob != contourFinder.blobs.end(); thisBlob++){
+                
+                //new mapping with space considerations
+                float mapBlobX1 = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY1 = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                //make sure blob is not in the center
+                float distToCenter = ofDistSquared(ofGetWindowWidth()/2, ofGetWindowHeight()/2, mapBlobX1, mapBlobY1);
+                
+                if(distToCenter < noColZoneRad * noColZoneRad){
+                    
+                    //then look at all the particles in the floating Deuterium vector
+                    for(int j = 0; j < floatDeut.size(); j++){
+                        
+                        float distanceSq = ofDistSquared(mapBlobX1, mapBlobY1, floatDeut[j].pos.x, floatDeut[j].pos.y);
+                        
+                        if(distanceSq < collisionDistance * collisionDistance){
+                            
+                            collisionPos = ofVec3f(mapBlobX1, mapBlobY1).middle(floatDeut[j].pos);
+                            
+                            //set starburst size and transparency
+                            collisionBurstSize = 600;
+                            collisionBurstTrans = 255;
+                            blobCollision = true;
+                            collisionTimer = ofGetElapsedTimeMillis();
+                            
+                            
+                            //Particle type:
+                            //0 = gamma ray
+                            //1 = hydrogen (proton)
+                            //2 = deuterium
+                            //3 = helium 3
+                            //4 = helium 4
+                            //5 = neutrino
+                            //6 = positron
+                            
+                            
+                            //pick a random degree value then assign velocity angles
+                            //for the particles
+                            float rand = ofRandom(360);
+                            
+                            
+                            
+                            //For every collision in this stage, create a:
+                            //helium 3
+                            SubAtomic h;
+                            h.setup(collisionPos, rand, &helium3);
+                            h.type = 3; //so the particle knows its own type
+                            h.scale = particleScale;
+                            h.floating = false;
+                            //                                    d.velAngle = rand;
+                            
+                            //assign the right slot
+                            if(numBankSlot == 0){
+                                h.bankSlot = 1;
+                                numBankSlot = 1;
+                            } else if (numBankSlot == 1){
+                                h.bankSlot = 2;
+                                numBankSlot = 2;
+                                endStageTimer = ofGetElapsedTimeMillis();
+                            }
+                            
+                            
+                            fusorList.push_back(h);
+                            
+                            //Gamma ray
+                            SubAtomic g;
+                            g.setup(collisionPos, rand + 120, &gammaLabel, &gammaRay);
+                            g.type = 5; //so the particle knows its own type
+                            g.scale = particleScale;
+                            g.floating = false;
+                            g.twoImages = true;
+                            fusorList.push_back(g);
+                            
+                            
+                            int randSound = round(ofRandom(2));
+                            
+                            if(randSound == 0){
+                                fusionPop1.play();
+                            } else if(randSound == 1){
+                                fusionPop2.play();
+                            } else {
+                                fusionPop3.play();
+                            }
+
+                            
+                            //remove floating deuterium from vector
+                            floatDeut.erase(floatDeut.begin() + j);
+                            
+                        }
+
+                        
+                    }
+                    
+                    
+                }
+                
+                
+        
+                
+                
+            }
+            
+        }
+        
+        
+        
+        //collision time out
+        if(ofGetElapsedTimeMillis() - collisionTimer > 500){
+            blobCollision = false;
+        }
+        
+        
+        
+        
+        
+        
+        //update subatomic particles
+        for( vector<SubAtomic>::iterator it = fusorList.begin(); it!=fusorList.end();){
+            
+            
+            it -> update();
+            
+            //if there are less than 2 Helium-3 atoms made and the particle we're
+            //checking is a Helium-3 then add global attraction to the correct slot
+            if(it -> type == 3){
+                if(it -> bankSlot == 1){
+                    
+                    it -> globalAttract(bankSlot1, 0.9);
+                    
+                } else if (it -> bankSlot == 2){
+                    
+                    it -> globalAttract(bankSlot2, 0.9);
+                    
+                }
+                
+            }
+            
+            //check if they have faded away and remove them from the vector
+            if(it -> trans < 2 && it -> bankSlot == 0){
+                fusorList.erase(it);
+            } else {
+                it++;
+            }
+            
+            
+            
+        }
+        
+        
+        
+        if(numBankSlot > 1 && ofGetElapsedTimeMillis() - endStageTimer > 10000){
+            useContinueTimer = true;
+        }
+        
+        
+        
+        
+        //If we're using the "move to next stage" timer...
+        if(useContinueTimer){
+            
+            
+            numBallsinBox = 0;
+            
+            //Look for blobs and display them
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                
+                //check if any balls are in the circle
+                if(ofDistSquared(mapBlobX, mapBlobY, continueFusion.pos.x, continueFusion.pos.y) < 100 * 100){
+                    numBallsinBox++;
+                }
+                
+                
+            }
+            
+            //fade the timer in
+            if(continueFusion.trans < 254){
+                continueFusion.trans += 0.5;
+            }
+            
+            
+            //Look for balls and cursor
+            float dist = ofDist(continueFusion.pos.x, continueFusion.pos.y, mouseX, mouseY);
+            
+            if(numBallsinBox > 0 || dist < continueFusion.rad){
+                continueFusion.inButton = true;
+            } else {
+                continueFusion.inButton = false;
+            }
+            
+            continueFusion.update();
+            
+            //if it's been triggered, turn off this timer and fade to black before moving to next stage
+            if(continueFusion.triggered){
+                //                transitionToChoice = true;
+                useContinueTimer = false;
+                
+                blackOutTrans += 4;
+                
+                if(blackOutTrans > 255){
+                    narrativeState = 8;
+                    
+                    
+                    
+                }
+                
+            }
+            
+            
+        }
+        
+
         
         
         
@@ -5579,12 +6034,12 @@ void testApp::draw(){
         
         
         //draw and fade in protons
-        if(currentTime < 1000 && protTrans < 255){
+        if(currentTime < 1000 && reactantTrans < 255){
         
-            protTrans++;
+            reactantTrans++;
             
         } else if(currentTime > collisionTime){
-            protTrans = 0;
+            reactantTrans = 0;
             productTrans = 255;
         }
         
@@ -5596,21 +6051,22 @@ void testApp::draw(){
 
         
         //reactants
-        ofSetColor(255, protTrans);
-        hydrogen.draw(prot1pos.getInterpolated(collision, lerpProtons));
-        hydrogen.draw(prot2pos.getInterpolated(collision, lerpProtons));
+        ofSetColor(255, reactantTrans);
+        hydrogen.draw(reactant1pos.getInterpolated(collision, lerpProtons));
+        hydrogen.draw(reactant2pos.getInterpolated(collision, lerpProtons));
         
         //products
         ofSetColor(255, productTrans);
         neutrino.draw(collision.getInterpolated(trinoPos, lerpProducts));
         positron.draw(collision.getInterpolated(posiPos, lerpProducts));
+        deuteriumSlot.draw(collision.getInterpolated(deutPos, lerpProducts));
         deuterium.draw(collision.getInterpolated(deutPos, lerpProducts));
         
         //explosion
         if(currentTime > collisionTime && currentTime < collisionTime + 50){
             collisionBurstSize = 1000;
             collisionBurstTrans = 255;
-            fusionPop.play();
+            fusionPop2.play();
         }
         
         ofPushStyle();
@@ -5660,14 +6116,14 @@ void testApp::draw(){
         
         fullDiagTrans = ofMap(currentTime, 5000, 5500, 0, 255, true);
         
-        blackOutTrans = ofMap(currentTime, 7500, 8500, 0, 215, true);
+        blackOutTrans = ofMap(currentTime, 7500, 8500, 0, 205, true);
         
 //        highlighterTrans = ofMap(currentTime, 9000, 10000, 0, 50, true);
         
-        stage1DiagTrans = ofMap(currentTime, 9000, 10500, 0, 255, true);
+        stage1DiagTrans = ofMap(currentTime, 7500, 9000, 0, 255, true);
         
         //xeno effect in highlighter and text
-        if(currentTime > 9000){
+        if(currentTime > 8500){
             highlighterX = ofLerp(highlighterX, ofGetWindowWidth()/2 - ofGetWindowHeight()/2, 0.03);
         }
         
@@ -5807,15 +6263,13 @@ void testApp::draw(){
         //draw deuterium silhouettes first so particles are drawn above them
         //draw first one
         ofPushMatrix();
-        ofTranslate(deut1Pos);
-        ofRotate(180);
+        ofTranslate(bankSlot1);
         deuteriumSlot.draw(0, 0, deuteriumSlot.width * particleScale, deuteriumSlot.height * particleScale);
         ofPopMatrix();
         
         //draw second one
         ofPushMatrix();
-        ofTranslate(deut2Pos);
-        ofRotate(180);
+        ofTranslate(bankSlot2);
         deuteriumSlot.draw(0, 0, deuteriumSlot.width * particleScale, deuteriumSlot.height * particleScale);
         ofPopMatrix();
         
@@ -5874,17 +6328,29 @@ void testApp::draw(){
             //push matrix again so instructionScale does not influence particle key
             ofPushMatrix();{
                 
-                ofScale(instructionScale, instructionScale);
                 
-                ofSetColor(255);
+                
                 //to draw titles centered:
+        //        ofSetColor(255);
         //        instructions.drawString(instructionA, -instructions.stringWidth(instructionA)/2, 0);
         //        instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight() * 0.85);
+                
                 //to draw aligned left
+                
+                ofPushMatrix();
+                ofScale(instructionScale * 1.25, instructionScale * 1.25);
+                ofSetColor(255, 0, 0);
                 instructions.drawString(instructionA, 0, 0);
+
+                ofPopMatrix();
+                
+                ofPushMatrix();
+                ofScale(instructionScale, instructionScale);
+                ofSetColor(255);
                 instructions.drawString(instructionB, 0, instructions.getLineHeight() * 0.85);
                 instructions.drawString(instructionC, 0, instructions.getLineHeight() * 0.85 * 2);
-                
+                instructions.drawString(instructionD, 0, instructions.getLineHeight() * 0.85 * 3);
+                ofPopMatrix();
                 
             }ofPopMatrix();
             
@@ -5972,6 +6438,461 @@ void testApp::draw(){
             
         }
 
+        
+        
+        
+        
+    } else if(narrativeState == 8 && setupStage8 == true){
+        
+        //------------------------------FUSION STAGE 2 INTRO DRAW------------------------------
+        
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        
+        //In this stage show diagram first, then collision
+        //fade in full diagram and fade out title and reaction products
+        
+        fullDiagTrans = ofMap(currentTime, 0, 1000, 0, 255, true);
+        blackOutTrans = ofMap(currentTime, 1000, 2000, 0, 205, true);
+        highlighterTrans = ofMap(currentTime, 1000, 2000, 0, 50, true);
+        stage1DiagTrans = ofMap(currentTime, 1000, 2000, 0, 255, true);
+        
+        float stageTextTrans = ofMap(currentTime, 1000, 2000, 0, 255, true);
+        
+        string stageTitleA = "Stage 1 :";
+        string stageTitleB = "Proton + Proton";
+        string stageTitleC = "=";
+        string stageTitleD = "Deuterium + Energy";
+        
+        //xeno effect highlighter and text to second stage position
+        if(currentTime > 4000){
+            highlighterY = ofLerp(highlighterY, 260, 0.03);
+            highlighterHeight = ofLerp(highlighterHeight, 530, 0.03);
+            
+            //fade out stage 1 after highlighter starts moving
+            stage1DiagTrans = ofMap(currentTime, 4500, 5000, 255, 0, true);
+            stage2DiagTrans = ofMap(currentTime, 4700, 5300, 0, 255, true);
+            
+            if(currentTime > 4700){
+                //draw highlighter text
+                stageTitleA = "Stage 2 :";
+                stageTitleB = "Deuterium + Proton";
+                stageTitleC = "=";
+                stageTitleD = "Helium-3 + Energy";
+                
+            }
+            
+            
+
+        }
+        
+
+        
+        //full diagram
+        ofSetColor(255, fullDiagTrans);
+        fusionFull.draw(ofGetWindowSize()/2);
+        
+        //blackout mask
+        ofSetColor(0, blackOutTrans);
+        ofRect(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, 0, ofGetWindowHeight(), ofGetWindowHeight());
+        
+        //highlighter
+        ofSetColor(255, highlighterTrans);
+        ofRect(highlighterX, ofGetWindowHeight() - highlighterY - highlighterHeight, ofGetWindowHeight(), highlighterHeight);
+        
+        //stage 1 diagram
+        ofSetColor(255, stage1DiagTrans);
+        fusionStage1.draw(ofGetWindowSize()/2);
+        
+        //stage 2 diagram
+        ofSetColor(255, stage2DiagTrans);
+        fusionStage2.draw(ofGetWindowSize()/2);
+        
+                
+        
+        ofPushMatrix();
+        ofTranslate(highlighterX + 300, ofGetWindowHeight() - highlighterY - 180);
+        ofRotate(180);
+        
+        ofScale(0.5, 0.5);
+        
+        
+        ofSetColor(255, 0, 0, stageTextTrans);
+        instructions.drawString(stageTitleA, -instructions.stringWidth(stageTitleA)/2, 0);
+        //        instructions.drawString(stage1TitleB, 0, instructions.getLineHeight());
+        
+        ofPopMatrix();
+        
+        ofPushMatrix();
+        ofTranslate(highlighterX + 300, ofGetWindowHeight() - highlighterY - 180 - 50);
+        ofRotate(180);
+        
+        ofScale(0.3, 0.3);
+        
+        
+        ofSetColor(255, stageTextTrans);
+        //        instructions.drawString(stage1TitleA, 0, 0);
+        instructions.drawString(stageTitleB, -instructions.stringWidth(stageTitleB)/2, 0);
+        instructions.drawString(stageTitleC, -instructions.stringWidth(stageTitleC)/2, instructions.getLineHeight());
+        instructions.drawString(stageTitleD, -instructions.stringWidth(stageTitleD)/2, instructions.getLineHeight() * 2);
+        
+        ofPopMatrix();
+        
+        
+        //after showing diagrams, do a second fade to black before showing sample reaction
+        if(currentTime > 8000){
+
+            float goBlack = ofMap(currentTime, 8000, 8500, 0, 255, true);
+            ofSetColor(0, goBlack);
+            ofRect(ofGetWindowWidth()/2 - ofGetWindowHeight()/2, 0, ofGetWindowHeight(), ofGetWindowHeight());
+            
+            
+            
+        }
+        
+        
+        
+        
+        
+        //reaction timing control variables
+        int reactionStartTime = 10000;
+        int collisionTime = 11000;
+        int reactionEndTime = 11500;
+        
+        
+        //reactant and product control variables
+        if(currentTime > 9000 && reactantTrans < 255){
+            
+            reactantTrans++;
+            
+        }
+        
+        if(currentTime > collisionTime){
+            reactantTrans = 0;
+            productTrans = 255;
+        }
+        
+        
+        
+        //use clamped map() to control lerped position of reaction stuff
+        float lerpReactants = ofMap(currentTime, reactionStartTime, collisionTime, 0.0f, 1.0f, true);
+        float lerpProducts = ofMap(currentTime, collisionTime, reactionEndTime, 0.0f, 1.0f, true);
+        
+        
+        //reactants
+        ofSetColor(255, reactantTrans);
+        deuterium.draw(reactant1pos.getInterpolated(collision, lerpReactants));
+        hydrogen.draw(reactant2pos.getInterpolated(collision, lerpReactants));
+        
+        //products
+        ofSetColor(255, productTrans);
+        helium3.draw(collision.getInterpolated(hel3Pos, lerpProducts));
+        
+        //rotate gamma ray to have correct orientation
+        ofPushMatrix();
+        ofTranslate(collision.getInterpolated(gammaPos, lerpProducts));
+        
+        //get angle of motion from center
+        ofVec3f gammaDir = gammaPos - ofVec3f(ofGetWindowSize()/2);
+        
+        float angle = gammaDir.angle(ofVec3f(1, 0, 0));
+        
+        ofRotate(angle + 90);
+
+            gammaRay.draw(0, 0);
+        
+        ofPopMatrix();
+        
+        gammaLabel.draw(collision.getInterpolated(gammaPos, lerpProducts));
+        
+        
+        
+        //explosion transparency and sound
+        if(currentTime > collisionTime && currentTime < collisionTime + 50){
+            collisionBurstSize = 1000;
+            collisionBurstTrans = 255;
+            fusionPop1.play();
+        }
+        
+        if(collisionBurstTrans > 0) collisionBurstTrans -= 8;
+        if(collisionBurstSize > 0) collisionBurstSize -= 2;
+
+        
+        //explosion draw
+        ofPushStyle();
+        ofSetColor(255, collisionBurstTrans);
+        starburst.draw(collision, collisionBurstSize, collisionBurstSize);
+        starburst.draw(collision, collisionBurstSize, collisionBurstSize);
+        ofPopStyle();
+        
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+
+        
+        
+        
+        if(currentTime > 20000){
+            narrativeState = 9;
+        }
+
+        
+        
+        
+        
+        
+    } else if(narrativeState == 9 && setupStage9 == true){
+        
+        //------------------------------FUSION STAGE 2  DRAW------------------------------
+        
+        currentTime = ofGetElapsedTimeMillis() - stageStartTime;
+        
+
+        
+        //try perlin background
+        //        float smoothing = ofMap(mouseX, 0, ofGetWindowWidth(), 0.0005, 0.003);
+        //        float speed = ofMap(mouseY, 0, ofGetWindowHeight(), 0.0001, 0.001);
+        float smoothing = 0.0018;
+        float speed = 0.00032;
+        ofColor col1 = ofColor(0);
+        //        ofColor col2 = ofColor(200, 175, 0);
+        ofColor col2 = ofColor(100);
+        int perlinPixel = 10;
+        
+        
+        ofPushStyle();
+        
+        
+        for( int y=0; y< ofGetWindowHeight(); y += perlinPixel){
+            for( int x=ofGetWindowWidth()/2 - ofGetWindowHeight()/2; x< ofGetWindowWidth()/2 + ofGetWindowHeight()/2; x += perlinPixel){
+                
+                float noiseVal = ofNoise(x * smoothing, y * smoothing, ofGetElapsedTimeMillis() * speed);
+
+                //            int col = floor(noiseVal * 255.0);
+                ofColor col = col1.getLerped(col2, noiseVal);
+
+                ofSetColor( col );
+                ofRect(x, y, perlinPixel, perlinPixel);
+            }
+        }
+        
+        
+        ofSetColor(255, 0, 0);
+        ofDrawBitmapString("noise scale: " + ofToString(smoothing), 20, 300);
+        ofDrawBitmapString("noise speed: " + ofToString(speed), 20, 320);
+        ofPopStyle();
+        
+        
+        
+        if(debugVisuals){
+            //draw camera stuff
+            
+            if(drawCam){
+                ps3eye.draw(leftBound, topBound, rightBound - leftBound, bottomBound - topBound);
+                contourFinder.draw(leftBound, topBound, rightBound - leftBound, bottomBound - topBound);
+            }
+        }
+        
+        //draw hydrogen bank outline
+        ofSetColor(255);
+        hydroBank.draw(ofGetWindowSize()/2, hydroBank.width * 0.4, hydroBank.height * 0.4);
+        
+        
+        
+        
+        
+        
+        
+        //draw deuterium silhouettes first so particles are drawn above them
+        //draw first one
+        ofPushMatrix();
+        ofTranslate(bankSlot1);
+
+        helium3Slot.draw(0, 0, helium3Slot.width * particleScale, helium3Slot.height * particleScale);
+        ofPopMatrix();
+        
+        //draw second one
+        ofPushMatrix();
+        ofTranslate(bankSlot2);
+        helium3Slot.draw(0, 0, helium3Slot.width * particleScale, helium3Slot.height * particleScale);
+        ofPopMatrix();
+        
+        
+        
+        
+        //draw hydrogen bank outline
+        ofSetColor(255);
+        hydroBank.draw(ofGetWindowSize()/2, hydroBank.width * 0.4, hydroBank.height * 0.4);
+        
+        
+        //draw starburst where collision happens and decrease transparency and size
+        if(blobCollision){
+            
+            ofPushStyle();
+            ofSetColor(255, collisionBurstTrans);
+            starburst.draw(collisionPos, collisionBurstSize, collisionBurstSize);
+            ofPopStyle();
+            
+            if(collisionBurstTrans > 0) collisionBurstTrans -= 8;
+            if(collisionBurstSize > 0) collisionBurstSize -= 2;
+        }
+        
+        
+        //draw subatomic particles
+        for( vector<SubAtomic>::iterator it = fusorList.begin(); it!=fusorList.end(); it++){
+            it -> draw();
+        }
+        
+        
+        //draw floating deuterium
+        for(vector<SubAtomic>::iterator it = floatDeut.begin(); it!=floatDeut.end(); it++){
+            
+            it -> draw();
+            
+        }
+        
+        
+        //draw blob positions
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            disturbRad = ofMap(contourFinder.blobs[i].area, 30, 500, disturbMin, disturbMax);
+            
+            ofPushStyle();
+            
+            float distToCenter = ofDist(mapBlobX, mapBlobY, ofGetWindowWidth()/2, ofGetWindowHeight()/2);
+            
+            
+            ofSetColor(255);
+            ofPushMatrix();
+            
+            ofTranslate(mapBlobX, mapBlobY);
+            ofRotate(180);
+            ofNoFill();
+            ofCircle(0, 0, 15);
+            ofDrawBitmapString(ofToString(i), -50, 0);
+            
+            if(blobCollision == false){
+                hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
+            }
+            
+            ofPopMatrix();
+            
+            ofPopStyle();
+        }
+        
+        //draw hydrogen on mouse pos too
+        if(blobCollision == false){
+            hydrogen.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
+        }
+        
+        
+        
+        
+        //---------- DRAW UI ----------
+        int borderPadding = 40;
+        
+        
+        
+        ofPushMatrix();{
+            
+            ofTranslate(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - borderPadding, ofGetWindowHeight() - borderPadding - 20);
+            ofRotate(180);
+            
+            
+            //push matrix again so instructionScale does not influence particle key
+            ofPushMatrix();{
+                
+                
+                
+                //to draw titles centered:
+                //        ofSetColor(255);
+                //        instructions.drawString(instructionA, -instructions.stringWidth(instructionA)/2, 0);
+                //        instructions.drawString(instructionB, -instructions.stringWidth(instructionB)/2, instructions.getLineHeight() * 0.85);
+                
+                //to draw aligned left
+                
+                ofPushMatrix();
+                ofScale(instructionScale * 1.25, instructionScale * 1.25);
+                ofSetColor(255, 0, 0);
+                instructions.drawString(instructionA, 0, 0);
+                
+                ofPopMatrix();
+                
+                ofPushMatrix();
+                ofScale(instructionScale, instructionScale);
+                ofSetColor(255);
+                instructions.drawString(instructionB, 0, instructions.getLineHeight() * 0.85);
+                instructions.drawString(instructionC, 0, instructions.getLineHeight() * 0.85 * 2);
+                instructions.drawString(instructionD, 0, instructions.getLineHeight() * 0.85 * 3);
+                ofPopMatrix();
+                
+            }ofPopMatrix();
+            
+            
+            
+            //----------DRAW PARTICLE KEY----------
+            //First stage: proton, neutron, deuterium, positron, neutrino
+            
+            float keyScale = 0.35;
+            
+            int leftMargin = ofGetWindowHeight() - key2.width * keyScale - 75;
+            
+            ofSetColor(255);
+            key2.draw(leftMargin, -50, key1.width * keyScale, key1.height * keyScale);
+            
+        }ofPopMatrix();
+        
+
+        
+        
+        
+
+        
+        
+        
+        
+        if(continueFusion.triggered){
+            ofSetColor(0, blackOutTrans);
+            ofSetRectMode(OF_RECTMODE_CENTER);
+            ofRect(ofGetWindowSize()/2, ofGetWindowHeight(), ofGetWindowHeight());
+            ofSetRectMode(OF_RECTMODE_CORNER);
+        }
+        
+        
+        
+        if(useContinueTimer){
+            
+            
+            continueFusion.draw();
+            
+            
+            //draw text
+            string idleMessage = "Hold ball here to move on";
+            
+            ofPushMatrix();
+            ofTranslate(ofGetWindowWidth()/2 + 320, 100);
+            ofScale(0.3, 0.3);
+            ofRotate(180);
+            ofSetColor(255, continueFusion.trans);
+            instructions.drawString(idleMessage, 0, 0);
+            
+            ofPopMatrix();
+            
+            
+            
+            
+        }
+        
         
         
         
@@ -6244,45 +7165,206 @@ void testApp::mousePressed(int x, int y, int button){
         //5 = neutrino
         //6 = positron
         
+        float rand = ofRandom(360);
         
         //For every collision in this stage, create a:
         //deuterium
         SubAtomic d;
-        d.setup(collisionPos, &deuterium);
+        d.setup(collisionPos, rand, &deuterium);
         d.type = 2; //so the particle knows its own type
         d.scale = particleScale;
+        d.floating = false;
         
         //if assign the right slot
-        if(numDeuterium == 0){
-            d.deutSlot = 1;
-            numDeuterium = 1;
-        } else if (numDeuterium == 1){
-            d.deutSlot = 2;
-            numDeuterium = 2;
+        if(numBankSlot == 0){
+            d.bankSlot = 1;
+            numBankSlot = 1;
+        } else if (numBankSlot == 1){
+            d.bankSlot = 2;
+            numBankSlot = 2;
         }
         
         fusorList.push_back(d);
         
         //Neutrino
         SubAtomic n;
-        n.setup(collisionPos, &neutrino);
+        n.setup(collisionPos, rand + 120, &neutrino);
         n.type = 5; //so the particle knows its own type
         n.scale = particleScale;
+        n.floating = false;
         fusorList.push_back(n);
         
         //positron
         SubAtomic p;
-        p.setup(collisionPos, &positron);
+        p.setup(collisionPos, rand + 240, &positron);
         p.type = 6; //so the particle knows its own type
         p.scale = particleScale;
+        p.floating = false;
         fusorList.push_back(p);
         
-        fusionPop.play();
+        int randSound = round(ofRandom(2));
+        
+        if(randSound == 0){
+            fusionPop1.play();
+        } else if(randSound == 1){
+            fusionPop2.play();
+        } else {
+            fusionPop3.play();
+        }
         
     
     }
 
+    if(narrativeState == 9){
+        
+        
+        //go through floating deuterium vector
+        for(int j = 0; j < floatDeut.size(); j++){
+            
+            float distanceSq = ofDistSquared(x, y, floatDeut[j].pos.x, floatDeut[j].pos.y);
+            int collisionDistance = 30;
+            
+            if(distanceSq < collisionDistance * collisionDistance){
+                
+                collisionPos = ofVec3f(x, y).middle(floatDeut[j].pos);
+                blobCollision = true;
+                collisionTimer = ofGetElapsedTimeMillis();
+                
+                //set starburst size and transparency
+                collisionBurstSize = 600;
+                collisionBurstTrans = 255;
+                
+                
+                //Particle type:
+                //0 = gamma ray
+                //1 = hydrogen (proton)
+                //2 = deuterium
+                //3 = helium 3
+                //4 = helium 4
+                //5 = neutrino
+                //6 = positron
+                
+                
+                //pick a random degree value then assign velocity angles
+                //for the particles
+                float rand = ofRandom(360);
+                
+                
+                
+                //For every collision in this stage, create a:
+                //helium 3
+                SubAtomic h;
+                h.setup(collisionPos, rand, &helium3);
+                h.type = 3; //so the particle knows its own type
+                h.scale = particleScale;
+                h.floating = false;
+                //                                    d.velAngle = rand;
+                
+                //assign the right slot
+                if(numBankSlot == 0){
+                    h.bankSlot = 1;
+                    numBankSlot = 1;
+                } else if (numBankSlot == 1){
+                    h.bankSlot = 2;
+                    numBankSlot = 2;
+                    endStageTimer = ofGetElapsedTimeMillis();
+                }
+                
+                
+                fusorList.push_back(h);
+                
+                //Gamma ray
+                SubAtomic g;
+                g.setup(collisionPos, rand + ofRandom(90,270), &gammaLabel, &gammaRay);
+                g.type = 0; //so the particle knows its own type
+                g.scale = particleScale;
+                g.floating = false;
+                g.twoImages = true;
+                fusorList.push_back(g);
+                
+                int randSound = round(ofRandom(2));
+                
+                if(randSound == 0){
+                    fusionPop1.play();
+                } else if(randSound == 1){
+                    fusionPop2.play();
+                } else {
+                    fusionPop3.play();
+                }
+                
+                
+                //remove floating deuterium from vector
+                floatDeut.erase(floatDeut.begin() + j);
+            }
+        }
+        
+        
+        
+        
+//        blobCollision = true;
+//        collisionTimer = ofGetElapsedTimeMillis();
+//        collisionPos = ofVec3f(x, y);
+//        
+//        //set starburst size and transparency
+//        collisionBurstSize = 600;
+//        collisionBurstTrans = 255;
+//        
+//        
+//        //Particle type:
+//        //0 = gamma ray
+//        //1 = hydrogen (proton)
+//        //2 = deuterium
+//        //3 = helium 3
+//        //4 = helium 4
+//        //5 = neutrino
+//        //6 = positron
+//        
+//        float rand = ofRandom(360);
+//        
+//        //For every collision in this stage, create a:
+//        //helium 3
+//        SubAtomic h;
+//        h.setup(collisionPos, rand, &helium3);
+//        h.type = 3; //so the particle knows its own type
+//        h.scale = particleScale;
+//        h.floating = false;
+//        //                                    d.velAngle = rand;
+//        
+//        //assign the right slot
+//        if(numBankSlot == 0){
+//            h.bankSlot = 1;
+//            numBankSlot = 1;
+//        } else if (numBankSlot == 1){
+//            h.bankSlot = 2;
+//            numBankSlot = 2;
+//            endStageTimer = ofGetElapsedTimeMillis();
+//        }
+//        
+//        fusorList.push_back(h);
+//        
+//        //Gamma ray
+//        SubAtomic g;
+//        g.setup(collisionPos, rand + ofRandom(90,270), &gammaLabel, &gammaRay);
+//        g.type = 0; //so the particle knows its own type
+//        g.scale = particleScale;
+//        g.floating = false;
+//        g.twoImages = true;
+//        fusorList.push_back(g);
+//        
+//        int randSound = round(ofRandom(2));
+//        
+//        if(randSound == 0){
+//            fusionPop1.play();
+//        } else if(randSound == 1){
+//            fusionPop2.play();
+//        } else {
+//            fusionPop3.play();
+//        }
 
+        
+        
+        
+    }
 
 
 
@@ -6353,9 +7435,13 @@ void testApp::keyPressed(int key){
         
         if(narrativeState == 7){
             fusorList.clear();
-            numDeuterium = 0;
+            numBankSlot = 0;
         }
-        
+
+        if(narrativeState == 9){
+            fusorList.clear();
+            numBankSlot = 0;
+        }
         
     }
     

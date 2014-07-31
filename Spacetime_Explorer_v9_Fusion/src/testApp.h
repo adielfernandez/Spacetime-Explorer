@@ -134,6 +134,7 @@ class testApp : public ofBaseApp{
     string instructionA;
     string instructionB;
     string instructionC;
+    string instructionD;
     
     ofTrueTypeFont status;
     ofTrueTypeFont statusBigger;
@@ -445,11 +446,11 @@ class testApp : public ofBaseApp{
     ofImage fusionStage2;
     ofImage fusionStage3;
     
-    ofVec3f prot1pos, prot2pos;
+    ofVec3f reactant1pos, reactant2pos;
     ofVec3f deutPos, trinoPos, posiPos;
     ofVec3f collision;
     
-    float protTrans, productTrans, explosionTrans;
+    float reactantTrans, productTrans, explosionTrans;
     float titleTrans;
 
     float fullDiagTrans;
@@ -461,22 +462,27 @@ class testApp : public ofBaseApp{
     float highlighterTrans;
     
     //-----------Stage 7-----------
-    //-------Fusion Process--------
+    //-------Fusion Stage 1--------
 
     bool setupStage7;
     
     ofImage hydrogen;
     ofImage deuterium;
     ofImage helium3;
+    ofImage helium3Slot;
     ofImage helium4;
     ofImage neutron;
     ofImage neutrino;
     ofImage positron;
     ofImage deuteriumSlot;
-    ofImage key1;
     ofImage hydroBank;
+    ofImage gammaRay;
+    ofImage gammaLabel;
+    ofImage key1;
     
-    ofSoundPlayer fusionPop;
+    ofSoundPlayer fusionPop1;
+    ofSoundPlayer fusionPop2;
+    ofSoundPlayer fusionPop3;
     
     Timer continueFusion;
     bool useContinueTimer;
@@ -489,11 +495,32 @@ class testApp : public ofBaseApp{
     float particleScale;
     float collisionBurstTrans;
     float collisionBurstSize;
-    int numDeuterium;
-    ofVec3f deut1Pos;
-    ofVec3f deut2Pos;
+    int numBankSlot;
+    ofVec3f bankSlot1;
+    ofVec3f bankSlot2;
+    int endStageTimer;
     
     vector<SubAtomic> fusorList;
+    
+    
+    //-----------Stage 8-----------
+    //-------Fusion Stage 2 INTRO--------
+    
+    bool setupStage8;
+    
+    ofVec3f hel3Pos, gammaPos;
+    float stage2DiagTrans;
+    
+    
+    //-----------Stage 9-----------
+    //-------Fusion Stage 2--------
+    
+    bool setupStage9;
+    
+    ofImage key2;
+    ofImage deuteriumOutline;
+    int floatDeutTimer;
+    vector<SubAtomic> floatDeut;
     
     
 };

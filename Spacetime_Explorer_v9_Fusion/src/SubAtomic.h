@@ -24,10 +24,14 @@ public:
     
     void update();
     void draw();
-    void setup(ofVec3f _pos, ofImage *image);
+    
+    void setup(ofVec3f _pos, float velAng, ofImage *image);
+    void setup(ofVec3f _pos, float velAng, ofImage *image, ofImage *image2);
+
     void globalAttract(ofVec3f _pos, float _strength);
     
     ofVec3f pos, vel, acc;
+    float velAngle;
     ofVec3f collisionPos;
     float damping;
     float size;
@@ -36,9 +40,13 @@ public:
     int age;
     
     ofImage *sharedImage;
+    ofImage *sharedImage2;
     int type;
     
-    int deutSlot;
+    int bankSlot;
+    
+    bool floating;
+    bool twoImages;
     
     
 };

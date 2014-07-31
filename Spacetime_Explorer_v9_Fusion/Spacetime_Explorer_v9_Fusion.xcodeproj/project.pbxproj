@@ -652,8 +652,8 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
-				D7F3FBD0197F11F1009EA44C /* SubAtomic.cpp */,
 				D7F3FBD1197F11F1009EA44C /* SubAtomic.h */,
+				D7F3FBD0197F11F1009EA44C /* SubAtomic.cpp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
