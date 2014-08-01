@@ -441,6 +441,11 @@ class testApp : public ofBaseApp{
     
     bool setupStage6;
     
+    ofSoundPlayer stage6_01_fusionIsThe;
+    bool playStage6_01;
+    
+    
+    
     ofImage fusionFull;
     ofImage fusionStage1;
     ofImage fusionStage2;
@@ -466,19 +471,42 @@ class testApp : public ofBaseApp{
 
     bool setupStage7;
     
+    ofSoundPlayer stage7_01_theFirstStep;
+    ofSoundPlayer stage7_02_youveMadeDeuterium;
+    ofSoundPlayer stage7_03_greatJobFeelFree;
+    
+    bool playStage7_00;
+    bool playStage7_01;
+    bool playStage7_02;
+    bool playStage7_03;
+    
+    bool playedSecondClip;
+    bool playedThirdClip;
+    
     ofImage hydrogen;
+    ofImage hydroBank;
+    
+    ofImage neutron;
+    
     ofImage deuterium;
+    ofImage deuteriumSlot;
+    ofImage deuteriumOutline;
+    
     ofImage helium3;
     ofImage helium3Slot;
+    ofImage helium3Bank;
+    
     ofImage helium4;
-    ofImage neutron;
+    ofImage helium4Slot;
+    
     ofImage neutrino;
     ofImage positron;
-    ofImage deuteriumSlot;
-    ofImage hydroBank;
     ofImage gammaRay;
     ofImage gammaLabel;
+    
     ofImage key1;
+    ofImage key2;
+    ofImage key3;
     
     ofSoundPlayer fusionPop1;
     ofSoundPlayer fusionPop2;
@@ -499,6 +527,7 @@ class testApp : public ofBaseApp{
     ofVec3f bankSlot1;
     ofVec3f bankSlot2;
     int endStageTimer;
+    int audioDelayTimer;
     
     vector<SubAtomic> fusorList;
     
@@ -508,8 +537,13 @@ class testApp : public ofBaseApp{
     
     bool setupStage8;
     
+    ofSoundPlayer stage8_01_theNextStep;
+    
+    bool playStage8_01;
+    
     ofVec3f hel3Pos, gammaPos;
     float stage2DiagTrans;
+    int stage2TextShift;
     
     
     //-----------Stage 9-----------
@@ -517,10 +551,79 @@ class testApp : public ofBaseApp{
     
     bool setupStage9;
     
-    ofImage key2;
-    ofImage deuteriumOutline;
+    ofSoundPlayer stage9_01_hitTheFloatingDeut;
+    ofSoundPlayer stage9_02_youveMadeHelium3;
+    ofSoundPlayer stage9_03_weNowHaveTwo;
+    
+    bool playStage9_01;
+    bool playStage9_02;
+    bool playStage9_03;
+    
+    
     int floatDeutTimer;
     vector<SubAtomic> floatDeut;
+    
+    
+    
+    //-----------Stage 10-----------
+    //-------Fusion Stage 3 INTRO--------
+    
+    bool setupStage10;
+
+    ofSoundPlayer stage10_01_theLastStepIs;
+    
+    bool playStage10_01;
+    
+    
+    ofVec3f proton1Pos, proton2Pos, hel4Pos;
+    ofVec3f stage3TextPos, stage3TextEndPos;
+    float stage3DiagTrans;
+    float stageTextScale;
+    
+    
+    
+    
+    
+    
+    //-----------Stage 11-----------
+    //-------Fusion Stage 3--------
+    
+    bool setupStage11;
+
+    ofSoundPlayer stage11_01_collideTwoBallsAndSee;
+    ofSoundPlayer stage11_02_youveMadeHel4TryAnother;
+    ofSoundPlayer stage11_03_aHelium4emc2;
+    ofSoundPlayer stage11_04_inFusionlittleMassLotEnergy;
+    
+    bool playStage11_01;
+    bool playStage11_02;
+    bool playStage11_03;
+    bool playStage11_04;
+    
+    
+    
+    
+    //-----------Stage 12-----------
+    //-------Fusion Stage 4--------
+    
+    bool setupStage12;
+    
+    ofSoundPlayer stage12_01_thisIsPoolOfHydrogen;
+    ofSoundPlayer stage12_02_noticeHowSpeedingUp;
+    ofSoundPlayer stage12_03_allHydrogenFused;
+    
+    bool playStage12_01;
+    bool playStage12_02;
+    bool playStage12_03;
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 };

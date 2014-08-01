@@ -139,7 +139,7 @@ void SubAtomic::update(){
     
 
     //bounce off walls
-    if(pos.x < ofGetWindowHeight()/2){
+    if(pos.x < ofGetWindowWidth()/2 - ofGetWindowHeight()/2){
         vel.x *= -1;
         pos.x = ofGetWindowHeight()/2 + 2;
     } else if(pos.x > ofGetWindowWidth()/2 + ofGetWindowHeight()/2){
