@@ -8,6 +8,7 @@
 #include "Fragment.h"
 #include "Timer.h"
 #include "SubAtomic.h"
+#include "pFusion.h"
 
 class testApp : public ofBaseApp{
 	public:
@@ -633,8 +634,26 @@ class testApp : public ofBaseApp{
     bool playStage13_03;
     
     
+    vector<pFusion> FusionParticles;
     
+    //load up small particles images too
+    //since we wont be enlarging them
     
+    ofImage hydrogenSmall;       //type = 1
+    ofImage deuteriumSmall;      //type = 2
+    ofImage helium3Small;        //type = 3
+    ofImage helium4Small;        //type = 4
+    ofImage neutrinoSmall;       //type = 5
+    ofImage positronSmall;       //type = 6
+    ofImage gammaRaySmall;       //type = 0
+    
+    float boundarySize, boundaryMin, boundaryMax;
+    float bulkSpeed;
+    bool fuse;
+    
+    ofVec3f hotCornerPos;
+    float hotCornerRad;
+    ofColor boundaryCol, boundaryCool, boundaryHot;
     
     
 };

@@ -76,7 +76,7 @@ void testApp::setup(){
     
     
     //Narrative control
-    narrativeState = 12;
+    narrativeState = 13;
         //-1 = idle state
         //0 = intro video
         //0.5 = table of contents
@@ -643,7 +643,36 @@ void testApp::setup(){
     helium4Slot.rotate90(2);
     
     
+    //small images
+    hydrogenSmall.loadImage("images/fusion/small/hydro.png");
+    hydrogenSmall.setAnchorPercent(0.5,0.5);
+    hydrogenSmall.rotate90(2);
     
+    deuteriumSmall.loadImage("images/fusion/small/deut.png");
+    deuteriumSmall.setAnchorPercent(0.5,0.5);
+    deuteriumSmall.rotate90(2);
+    
+    helium3Small.loadImage("images/fusion/small/hel3.png");
+    helium3Small.setAnchorPercent(0.5,0.5);
+    helium3Small.rotate90(2);
+    
+    helium4Small.loadImage("images/fusion/small/hel4.png");
+    helium4Small.setAnchorPercent(0.5,0.5);
+    helium4Small.rotate90(2);
+    
+    neutrinoSmall.loadImage("images/fusion/small/trino.png");
+    neutrinoSmall.setAnchorPercent(0.5,0.5);
+    neutrinoSmall.rotate90(2);
+    
+    positronSmall.loadImage("images/fusion/small/posi.png");
+    positronSmall.setAnchorPercent(0.5,0.5);
+    positronSmall.rotate90(2);
+    
+    gammaRaySmall.loadImage("images/fusion/small/gamma.png");
+    gammaRaySmall.setAnchorPercent(0.5,0.5);
+    gammaRaySmall.rotate90(2);
+
+
     
     debugVisuals = false;
     
@@ -3434,7 +3463,7 @@ void testApp::update(){
                 //make sure blob is not in the center
                 float distToCenter = ofDistSquared(ofGetWindowWidth()/2, ofGetWindowHeight()/2, mapBlobX1, mapBlobY1);
                 
-                if(distToCenter < noColZoneRad * noColZoneRad){
+                if(distToCenter > noColZoneRad * noColZoneRad && blobCollision == false){
                     
                     //then look at all the particles in the floating Deuterium vector
                     for(int j = 0; j < floatDeut.size(); j++){
@@ -3493,7 +3522,7 @@ void testApp::update(){
                             
                             //Gamma ray
                             SubAtomic g;
-                            g.setup(collisionPos, rand + 120, &gammaLabel, &gammaRay);
+                            g.setup(collisionPos, rand + 120, &gammaRay, &gammaRay);
                             g.type = 5; //so the particle knows its own type
                             g.scale = particleScale;
                             g.floating = false;
@@ -4185,6 +4214,9 @@ void testApp::update(){
             
             setupStage12 = true;
             
+            
+            
+            
         }
         
         
@@ -4207,20 +4239,92 @@ void testApp::update(){
         
         //stage setup
         if(setupStage13 == false){
-            
-            
-            
+
+            setupStage13 = true;
 
             
-            setupStage13 = true;
+            FusionParticles.clear();
+            
+            fuse = false;
+            
+            boundaryMax = 900;
+            boundarySize = boundaryMax;
+            boundaryMin = 300;
+            
+            boundaryCool = ofColor(255);
+            boundaryCol = boundaryCool;
+            boundaryHot = ofColor(255, 128, 0);
+            
+            bulkSpeed = 2;
+            
+            hotCornerPos.set(ofGetWindowWidth()/2, ofGetWindowHeight()/2 - boundarySize/2);
+            hotCornerRad = 50;
+            
+            //make a bunch of particles
+            for(int i = 0; i < 200; i++){
+                
+                pFusion f;
+                
+                f.type = 1;
+                f.boundary = boundarySize;
+                
+                //square distribution
+//                ofVec3f pos = ofVec3f(ofRandom(ofGetWindowWidth()/2 - boundarySize/2, ofGetWindowWidth()/2 + boundarySize/2), ofRandom(ofGetWindowHeight()/2 - boundarySize/2, ofGetWindowHeight()/2 + boundarySize/2));
+
+                //Circle distribution
+                ofVec3f pos = ofVec3f(1, 0, 0);
+                pos.rotate(ofRandom(360), ofVec3f(0, 0, 1));
+                pos.scale(ofRandom(50,360));
+                
+                //then move to center
+                pos += ofGetWindowSize()/2;
+                
+                f.bulkSpeed = bulkSpeed;
+                
+                float velAngle = ofRandom(360);
+                f.setup(pos, velAngle);
+                f.fuse = false;
+                
+                FusionParticles.push_back(f);
+                
+                
+            }
+            
+            
+            
+            
+            
+            
+            
             
         }
         
         
+        bulkSpeed = ofMap(boundarySize, boundaryMax, boundaryMin, 1, 15, true);
         
         
         
+        //update hotcorner pos
+        hotCornerPos.set(ofGetWindowWidth()/2 - boundarySize/2, ofGetWindowHeight()/2 - boundarySize/2);
         
+        //update boundary color
+        float bLerp = ofMap(boundarySize, boundaryMax, boundaryMin, 0, 1, true);
+        boundaryCol = boundaryCool.lerp(boundaryHot, bLerp);
+        
+        if(boundarySize < boundaryMin){
+            fuse = true;
+        }
+        
+        
+        //update fusing particles
+        for(vector<pFusion>::iterator it = FusionParticles.begin(); it != FusionParticles.end(); it++){
+            
+            it -> fuse = fuse;
+            it -> boundary = boundarySize;
+            it -> update(bulkSpeed);
+            
+            
+        }
         
         
         
@@ -6857,7 +6961,7 @@ void testApp::draw(){
         
         
         //draw and fade in protons
-        if(currentTime < 1000 && reactantTrans < 255){
+        if(currentTime < 1500 && reactantTrans < 255){
         
             reactantTrans++;
             
@@ -7132,9 +7236,9 @@ void testApp::draw(){
             
             ofTranslate(mapBlobX, mapBlobY);
             ofRotate(180);
-            ofNoFill();
-            ofCircle(0, 0, 15);
-            ofDrawBitmapString(ofToString(i), -50, 0);
+//            ofNoFill();
+//            ofCircle(0, 0, 15);
+//            ofDrawBitmapString(ofToString(i), -50, 0);
             
             if(blobCollision == false){
                 hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
@@ -7617,9 +7721,9 @@ void testApp::draw(){
             
             ofTranslate(mapBlobX, mapBlobY);
             ofRotate(180);
-            ofNoFill();
-            ofCircle(0, 0, 15);
-            ofDrawBitmapString(ofToString(i), -50, 0);
+//            ofNoFill();
+//            ofCircle(0, 0, 15);
+//            ofDrawBitmapString(ofToString(i), -50, 0);
             
             if(blobCollision == false){
                 hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
@@ -8040,7 +8144,7 @@ void testApp::draw(){
             
             ofTranslate(mapBlobX, mapBlobY);
             ofRotate(180);
-            ofNoFill();
+//            ofNoFill();
 //            ofCircle(0, 0, 15);
 //            ofDrawBitmapString(ofToString(i), -50, 0);
             
@@ -8216,9 +8320,40 @@ void testApp::draw(){
         
         
         
-        ofSetColor(255, 0, 0);
-        ofCircle(ofGetWindowSize()/2, 200);
+        for(vector<pFusion>::iterator it = FusionParticles.begin(); it != FusionParticles.end(); it++){
+            
+            if(it -> type == 1){
+                it -> draw(&hydrogenSmall);
+                
+            }
+            
+            
+        }
         
+        
+        
+        
+        //draw bounding box
+        ofPushStyle();
+        
+        ofSetColor(boundaryCol);
+        ofNoFill();
+        ofSetLineWidth(5);
+        
+//        ofRect(ofGetWindowWidth()/2 - boundarySize/2, ofGetWindowHeight()/2 - boundarySize/2, boundarySize, boundarySize);
+        
+        ofSetCircleResolution(60);
+        //hot corner
+        ofCircle(hotCornerPos, hotCornerRad);
+        //boundary
+        ofCircle(ofGetWindowSize()/2, boundarySize/2);
+        
+        ofPopStyle();
+        
+        
+        
+        
+        //draw hotCorner
         
         
         
@@ -8417,7 +8552,7 @@ void testApp::debugVis(){
     ofDrawBitmapString("next stage: " + ofToString(nextStage), 20, 180);
     ofDrawBitmapString("Threshold: " + ofToString(threshold), 20, 195);
     
-    ofDrawBitmapString("Number of fusors: " + ofToString(fusorList.size()), 20, 220);
+    ofDrawBitmapString("Number of fusors: " + ofToString(FusionParticles.size()), 20, 220);
     
 
     if(blobDirection.size() > 0){
@@ -8461,6 +8596,31 @@ void testApp::mouseMoved(int x, int y){
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button){
+    
+    
+    
+    if(narrativeState == 13){
+        
+        float mouseHotCorner = ofDist(x, y, hotCornerPos.x, hotCornerPos.y);
+        
+        if(mouseHotCorner < hotCornerRad){
+            
+            boundarySize -= 2;
+            
+        }
+        
+        
+        
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
 
 }
 
@@ -8700,6 +8860,11 @@ void testApp::mousePressed(int x, int y, int button){
         }
         
     }
+    
+    
+    
+
+    
 
 
 }
@@ -8771,6 +8936,20 @@ void testApp::keyPressed(int key){
             fusorList.clear();
             numBankSlot = 0;
         }
+        
+        
+        if(narrativeState == 13){
+            
+            
+            for(vector<pFusion>::iterator it = FusionParticles.begin(); it != FusionParticles.end(); it++){
+                
+                it -> pos.set(ofGetWindowWidth()/2 + ofRandom(50), ofGetWindowHeight()/2 + ofRandom(50));
+                
+                
+            }
+            
+        }
+        
 
         
     }

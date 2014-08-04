@@ -25,10 +25,10 @@ public:
     
     pFusion();
     
-    void update();
-    void draw();
+    void update(float _speed);
+    void setup(ofVec3f _pos, float velAng);
+    void draw(ofImage *image);
     
-    void setup(ofVec3f _pos, float velAng, ofImage *image);
 
     
     ofVec3f pos, vel, acc;
@@ -38,10 +38,23 @@ public:
     float damping;
     float size;
     float trans;
+    float scale;
     int age;
     
-    ofImage *sharedImage;
+    float bulkSpeed;
     
+    float boundary;
+    float aspectX, aspectY;
     
+    bool fuse;
     
+
 };
+
+
+
+
+
+
+
+
