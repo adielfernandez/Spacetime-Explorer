@@ -482,6 +482,7 @@ class testApp : public ofBaseApp{
     
     bool playedSecondClip;
     bool playedThirdClip;
+    bool playedFourthClip;
     
     ofImage hydrogen;
     ofImage hydroBank;
@@ -579,8 +580,7 @@ class testApp : public ofBaseApp{
     ofVec3f stage3TextPos, stage3TextEndPos;
     float stage3DiagTrans;
     float stageTextScale;
-    
-    
+
     
     
     
@@ -592,8 +592,10 @@ class testApp : public ofBaseApp{
 
     ofSoundPlayer stage11_01_collideTwoBallsAndSee;
     ofSoundPlayer stage11_02_youveMadeHel4TryAnother;
-    ofSoundPlayer stage11_03_aHelium4emc2;
-    ofSoundPlayer stage11_04_inFusionlittleMassLotEnergy;
+    ofSoundPlayer stage11_03_greatJobLetsSee;
+    
+    
+
     
     bool playStage11_01;
     bool playStage11_02;
@@ -604,22 +606,31 @@ class testApp : public ofBaseApp{
     
     
     //-----------Stage 12-----------
-    //-------Fusion Stage 4--------
+    //-------Fusion Stage 4 Intro--------
     
     bool setupStage12;
     
-    ofSoundPlayer stage12_01_thisIsPoolOfHydrogen;
-    ofSoundPlayer stage12_02_noticeHowSpeedingUp;
-    ofSoundPlayer stage12_03_allHydrogenFused;
+    ofSoundPlayer stage11_01_aHelium4emc2;
+    ofSoundPlayer stage11_02_inFusionlittleMassLotEnergy;
     
     bool playStage12_01;
     bool playStage12_02;
-    bool playStage12_03;
+    
+    ofVideoPlayer stage4Movie;
     
     
+    //-----------Stage 13-----------
+    //-------Fusion Stage 4--------
     
+    bool setupStage13;
     
+    ofSoundPlayer stage13_01_thisIsPoolOfHydrogen;
+    ofSoundPlayer stage13_02_noticeHowSpeedingUp;
+    ofSoundPlayer stage13_03_allHydrogenFused;
     
+    bool playStage13_01;
+    bool playStage13_02;
+    bool playStage13_03;
     
     
     

@@ -30,6 +30,7 @@
 		B93E64DCEA33DBD4ADF05547 /* PS3EyeWindowAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24AA536744694D940201E58F /* PS3EyeWindowAppDelegate.m */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		BE7F222AFD9FA8DBE437A166 /* Histogram.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FA78573E3DEDCF46DB814B /* Histogram.m */; };
+		D7245B1D198FBE6A009080A5 /* pFusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7245B1B198FBE6A009080A5 /* pFusion.cpp */; };
 		D7B292341942375B005F6BF7 /* Fragment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B2922A1942375B005F6BF7 /* Fragment.cpp */; };
 		D7B292361942375B005F6BF7 /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B2922E1942375B005F6BF7 /* Particle.cpp */; };
 		D7B292371942375B005F6BF7 /* SunParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7B292301942375B005F6BF7 /* SunParticle.cpp */; };
@@ -207,6 +208,8 @@
 		D3CC382A582FDE8C37F7A58C /* ofxCvImage.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxCvImage.h; path = ../../addons/ofxOpenCv/src/ofxCvImage.h; sourceTree = SOURCE_ROOT; };
 		D446810D7109FE5F6B3E0E2D /* OV534Driver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = OV534Driver.h; path = ../../addons/ofxMacamPs3Eye/src/macam/include/OV534Driver.h; sourceTree = SOURCE_ROOT; };
 		D48085375648E882F2DD0A8B /* blobtrack.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = blobtrack.hpp; path = ../../addons/ofxOpenCv/libs/opencv/include/opencv2/legacy/blobtrack.hpp; sourceTree = SOURCE_ROOT; };
+		D7245B1B198FBE6A009080A5 /* pFusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pFusion.cpp; sourceTree = "<group>"; };
+		D7245B1C198FBE6A009080A5 /* pFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pFusion.h; sourceTree = "<group>"; };
 		D7807F04CC89FAF3870D0368 /* ofxMacamPs3Eye.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxMacamPs3Eye.h; path = ../../addons/ofxMacamPs3Eye/src/ofxMacamPs3Eye.h; sourceTree = SOURCE_ROOT; };
 		D7B2922A1942375B005F6BF7 /* Fragment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fragment.cpp; sourceTree = "<group>"; };
 		D7B2922B1942375B005F6BF7 /* Fragment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Fragment.h; sourceTree = "<group>"; };
@@ -652,8 +655,10 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
-				D7F3FBD1197F11F1009EA44C /* SubAtomic.h */,
 				D7F3FBD0197F11F1009EA44C /* SubAtomic.cpp */,
+				D7F3FBD1197F11F1009EA44C /* SubAtomic.h */,
+				D7245B1B198FBE6A009080A5 /* pFusion.cpp */,
+				D7245B1C198FBE6A009080A5 /* pFusion.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -829,6 +834,7 @@
 				D7B292371942375B005F6BF7 /* SunParticle.cpp in Sources */,
 				D7B292381942375B005F6BF7 /* Timer.cpp in Sources */,
 				D7F3FBD2197F11F1009EA44C /* SubAtomic.cpp in Sources */,
+				D7245B1D198FBE6A009080A5 /* pFusion.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
