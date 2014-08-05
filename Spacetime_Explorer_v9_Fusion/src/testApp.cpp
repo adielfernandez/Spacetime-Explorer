@@ -672,7 +672,23 @@ void testApp::setup(){
     gammaRaySmall.setAnchorPercent(0.5,0.5);
     gammaRaySmall.rotate90(2);
 
+    
+    hourglass.loadImage("images/fusion/hourglass.png");
+    hourglass.setAnchorPercent(0.5,0.5);
+    hourglass.rotate90(2);
+    
+    arrowCursor.loadImage("images/fusion/arrowCursor.png");
+    arrowCursor.setAnchorPercent(0.5,0.2);
+//    arrowCursor.rotate90(2);
+    
+    
+    arrowUIsingle.loadImage("images/fusion/arrowUIsingle.png");
+    arrowUIsingle.setAnchorPercent(0.5,0.5);
+    arrowUIsingle.rotate90(2);
 
+    arrowUImulti.loadImage("images/fusion/arrowUImulti.png");
+    arrowUImulti.setAnchorPercent(0.5,0.5);
+    arrowUImulti.rotate90(2);
     
     debugVisuals = false;
     
@@ -3035,6 +3051,9 @@ void testApp::update(){
                                         fusionPop3.play();
                                     }
                                     
+                                    //shine LED
+                                    sendSerial(100, 255, 1);
+                                    
                                 }
                                 
                                 
@@ -3544,6 +3563,10 @@ void testApp::update(){
                             //remove floating deuterium from vector
                             floatDeut.erase(floatDeut.begin() + j);
                             
+                            //shine LED
+                            sendSerial(100, 255, 1);
+
+                            
                         }
 
                         
@@ -3992,6 +4015,10 @@ void testApp::update(){
                                         fusionPop3.play();
                                     }
                                     
+                                    //shine LED
+                                    sendSerial(100, 255, 1);
+
+                                    
                                 }
                                 
                                 
@@ -4242,26 +4269,36 @@ void testApp::update(){
 
             setupStage13 = true;
 
+            stageStartTime = ofGetElapsedTimeMillis();
+            
+            sendSerial(100, 255, 0);
             
             FusionParticles.clear();
             
             fuse = false;
             
-            boundaryMax = 900;
+            boundaryMax = 800;
             boundarySize = boundaryMax;
-            boundaryMin = 300;
+            boundaryMin = 400;
             
-            boundaryCool = ofColor(255);
+            boundaryCool = ofColor(50);
             boundaryCol = boundaryCool;
-            boundaryHot = ofColor(255, 128, 0);
+            boundaryHot = ofColor(255, 200, 0);
+            
+            cvObjectCol = ofColor(255, 200, 0);
+            arrowUIsingleTrans = 0;
+            arrowUImultiTrans = 0;
             
             bulkSpeed = 2;
             
-            hotCornerPos.set(ofGetWindowWidth()/2, ofGetWindowHeight()/2 - boundarySize/2);
-            hotCornerRad = 50;
+            deadZoneRad = 120;
+            
+            pushRegionThick = 60;
+            cursorSize = 0.5;
+            cursorCol = ofColor(255);
             
             //make a bunch of particles
-            for(int i = 0; i < 200; i++){
+            for(int i = 0; i < 100; i++){
                 
                 pFusion f;
                 
@@ -4292,24 +4329,50 @@ void testApp::update(){
             
             
             
+            stage13_01_thisIsPoolOfHydrogen.play();
             
-            
-            
+            playedSecondClip = false;
+            playedThirdClip = false;
             
             
         }
-        
-        
-        bulkSpeed = ofMap(boundarySize, boundaryMax, boundaryMin, 1, 15, true);
+
         
         
         
-        //update hotcorner pos
-        hotCornerPos.set(ofGetWindowWidth()/2 - boundarySize/2, ofGetWindowHeight()/2 - boundarySize/2);
+        bulkSpeed = ofMap(boundarySize, boundaryMax, boundaryMin, 1, 10, true);
+        
+        
+        //boundary push back
+        pushBackRate = ofMap(boundarySize, boundaryMin, boundaryMax, 1.0, 5.0);
+        
+        //if no balls in boundary
+        if(boundarySize < boundaryMax && numBlobsInROI == 0){
+            
+            boundarySize = ofLerp(boundarySize, boundaryMax, 0.03);
+            boundaryCol = boundaryCol.lerp(boundaryCool, 0.03);
+            
+        }
+        
+        //boundary compression
+        //if there are balls in boundary
+        if(boundarySize > boundaryMin && numBlobsInROI > 0){
+            
+            //compression rate increases linearly with number or balls used
+            //but decreases as 1/r as boundary radius increases
+            compressionRate = numBlobsInROI * 0.3 * ((boundarySize - boundaryMin/2)/boundaryMax);
+
+            boundarySize -= compressionRate;
+            
+            boundaryCol = boundaryCol.lerp(boundaryHot, 0.02);
+            
+        }
         
         //update boundary color
-        float bLerp = ofMap(boundarySize, boundaryMax, boundaryMin, 0, 1, true);
-        boundaryCol = boundaryCool.lerp(boundaryHot, bLerp);
+//        float bLerp = ofMap(boundarySize, boundaryMax, boundaryMin, 0.5f, 1.0f);
+//        boundaryCol = boundaryCool.lerp(boundaryHot, bLerp);
+
+        
         
         if(boundarySize < boundaryMin){
             fuse = true;
@@ -4326,7 +4389,10 @@ void testApp::update(){
             
         }
         
-        
+        if(playedSecondClip == false && boundarySize < boundaryMax * 0.5){
+            stage13_02_noticeHowSpeedingUp.play();
+            playedSecondClip = true;
+        }
         
         
         
@@ -6961,7 +7027,7 @@ void testApp::draw(){
         
         
         //draw and fade in protons
-        if(currentTime < 1500 && reactantTrans < 255){
+        if(currentTime < collisionTime && reactantTrans < 255){
         
             reactantTrans++;
             
@@ -7242,6 +7308,8 @@ void testApp::draw(){
             
             if(blobCollision == false){
                 hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
+            } else {
+//                hourglass.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
             }
             
             ofPopMatrix();
@@ -7373,9 +7441,9 @@ void testApp::draw(){
         }
 
         //draw current time on screen to help plot sound clips
-        ofSetColor(255, 255, 0);
-        ofDrawBitmapString("Current Time: " + ofToString(currentTime), ofGetWindowWidth()/2, 10);
-        ofDrawBitmapString("End Stage Timer: " + ofToString(endStageTimer), ofGetWindowWidth()/2, 30);
+//        ofSetColor(255, 255, 0);
+//        ofDrawBitmapString("Current Time: " + ofToString(currentTime), ofGetWindowWidth()/2, 10);
+//        ofDrawBitmapString("End Stage Timer: " + ofToString(endStageTimer), ofGetWindowWidth()/2, 30);
         
         
     } else if(narrativeState == 8 && setupStage8 == true){
@@ -8319,7 +8387,37 @@ void testApp::draw(){
         
         
         
+        //draw bounding circle
+        ofPushStyle();
         
+        ofSetCircleResolution(100);
+
+        //outer circle
+        ofSetColor(boundaryCol);
+        ofFill();
+        ofCircle(ofGetWindowSize()/2, boundarySize/2 + pushRegionThick);
+        
+        ofSetColor(255);
+        ofNoFill();
+        ofSetLineWidth(2);
+        ofCircle(ofGetWindowSize()/2, boundarySize/2 + pushRegionThick);
+        
+        //inner circle
+        ofSetColor(0);
+        ofFill();
+        ofCircle(ofGetWindowSize()/2, boundarySize/2);
+        
+        ofSetColor(255);
+        ofNoFill();
+        ofSetLineWidth(5);
+        ofCircle(ofGetWindowSize()/2, boundarySize/2);
+        
+        numBlobsInUse = 0;
+        numBlobsInROI = 0;
+        
+        
+        
+        //draw particles
         for(vector<pFusion>::iterator it = FusionParticles.begin(); it != FusionParticles.end(); it++){
             
             if(it -> type == 1){
@@ -8333,33 +8431,208 @@ void testApp::draw(){
         
         
         
-        //draw bounding box
+        //draw blob positions
+        for(int i = 0; i < contourFinder.blobs.size(); i++){
+            
+            float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+            float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+            
+            
+            
+            float distToCenterSq = ofDistSquared(mapBlobX, mapBlobY, ofGetWindowWidth()/2, ofGetWindowHeight()/2);
+            
+            if(distToCenterSq > deadZoneRad * deadZoneRad){
+
+                //add to the number of blobs in use
+                numBlobsInUse++;
+                
+                
+                //calculate angle to rotate the arrow
+                float angle = atan2(ofGetWindowWidth()/2 - mapBlobX, ofGetWindowHeight()/2 - mapBlobY);
+                
+                //check if we're inside the push region
+                if(distToCenterSq > boundarySize/2 * boundarySize/2 && distToCenterSq < (boundarySize/2 + pushRegionThick) * (boundarySize/2 + pushRegionThick)){
+                
+                    //add to the number of blobs in ROI
+                    numBlobsInROI++;
+                    
+                    cursorCol = cvObjectCol;
+                    ofPushStyle();
+                    ofPushMatrix();
+                    ofTranslate(mapBlobX, mapBlobY);
+                    ofRotate(ofRadToDeg(-angle));
+                    
+                    ofSetColor(cursorCol);
+                    arrowCursor.draw(0, 0, arrowCursor.width * cursorSize, arrowCursor.height * cursorSize);
+                    
+                    ofPopMatrix();
+                    ofPopStyle();
+                    
+                    
+                } else { //if not in push region but otherwise outside of dead zone, just draw smaller
+                    
+                    cursorCol = ofColor(255);
+                    ofPushStyle();
+                    ofPushMatrix();
+                    ofTranslate(mapBlobX, mapBlobY);
+                    ofRotate(ofRadToDeg(-angle));
+                    
+                    ofSetColor(255);
+                    arrowCursor.draw(0, 0, arrowCursor.width * 0.5, arrowCursor.height * 0.5);
+                    
+                    ofPopMatrix();
+                    ofPopStyle();
+                }
+                
+                
+                
+
+                
+                
+                
+                
+                
+                
+                
+                
+            }
+        }
+        
+        
+        //----------UI Stuff----------
+        
+        //fade in single
+        if(currentTime > 6000 && currentTime < 12000 && arrowUIsingleTrans < 255){
+            arrowUIsingleTrans++;
+        }
+        
+        
+        //fade out single 
+        if(currentTime > 12000 && arrowUIsingleTrans > 0){
+            arrowUIsingleTrans -= 2;
+            
+        }
+        
+        //fade in multi
+        if(currentTime > 12000 && currentTime < 16000 && arrowUImultiTrans < 255){
+            arrowUImultiTrans += 2;
+            
+        }
+        
+        //fade out multi
+        if(currentTime > 16000 && arrowUIsingleTrans < 255){
+            arrowUImultiTrans--;
+            
+        }
+        
+        
+        float sineScale = sin(ofGetElapsedTimef() * 2);
+        
+        
+        float arrowScale = 1.0 + 0.05 * sineScale;
+        
+        
+        
+        ofSetColor(255, arrowUIsingleTrans);
+        arrowUIsingle.draw(ofGetWindowSize()/2, arrowUIsingle.width * arrowScale, arrowUIsingle.height * arrowScale);
+        
+        ofSetColor(255, arrowUImultiTrans);
+        arrowUImulti.draw(ofGetWindowSize()/2, arrowUIsingle.width * arrowScale, arrowUIsingle.height * arrowScale);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //update cursor size after finding out numblobs above
+        cursorSize = ofMap(numBlobsInROI, 1, 8, 0.5, 1.2);
+        
+        
+
+        
+        
+        
+        
+        
+        
+        float prog = ofMap(boundarySize, boundaryMin, boundaryMax, 0.0f, 1.0f, true);
+        
+//        drawProgress(prog);
+        
+        //draw progress bar
+        progressBarDim.set(600, 50);
+        progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - progressBarDim.y - 10);
+        
+        
+        
         ofPushStyle();
         
-        ofSetColor(boundaryCol);
+        //draw inside
+        ofFill();
+        ofSetColor(boundaryHot);
+        ofRect(progressBarPos.x + progressBarDim.x * prog, progressBarPos.y, progressBarDim.x - progressBarDim.x * prog, progressBarDim.y);
+        
+        //draw border
+        ofSetColor(255);
+        ofSetLineWidth(2);
         ofNoFill();
-        ofSetLineWidth(5);
-        
-//        ofRect(ofGetWindowWidth()/2 - boundarySize/2, ofGetWindowHeight()/2 - boundarySize/2, boundarySize, boundarySize);
-        
-        ofSetCircleResolution(60);
-        //hot corner
-        ofCircle(hotCornerPos, hotCornerRad);
-        //boundary
-        ofCircle(ofGetWindowSize()/2, boundarySize/2);
+        ofRect(progressBarPos, progressBarDim.x, progressBarDim.y);
         
         ofPopStyle();
         
         
         
         
-        //draw hotCorner
         
         
+        //draw in bar text
+        
+        ofPushMatrix();
+        
+        ofTranslate(ofGetWindowSize()/2);
+        ofRotate(180);
+        ofTranslate(-290, ofGetWindowHeight()/2 - progressBarPos.y - progressBarDim.y * 0.3 + 5);
+        string toDisplay = "Pressure"; // + ofToString(100 - floor(prog*100)) + "%";
+        
+        ofSetColor(255);
+        ofScale(0.35, 0.35);
+        instructions.drawString(toDisplay, -instructions.stringWidth(progressText)/2, 0);
+        ofPopMatrix();
         
         
+        //draw text "to next stage"
+        ofPushMatrix();
+        
+        ofTranslate(ofGetWindowSize()/2);
+        ofRotate(180);
+        ofTranslate(progressBarDim.x * 0.5, ofGetWindowHeight()/2 - progressBarPos.y + progressBarDim.y - 10);
         
         
+        ofScale(0.25, 0.25);
+        string text = "Fusion";
+        ofSetColor(255);
+        instructions.drawString(text, -instructions.stringWidth(text)/2, 0);
+        ofPopMatrix();
+        
+//        ofSetLineWidth(4);
+//        ofSetColor(255);
+//        ofLine(progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y, progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y + progressBarDim.y);
+        
+        float triLength = 30;
+        float triWidth = 20;
+        float shiftVert = 15;
+        ofSetColor(255, 0, 0);
+        ofFill();
+        ofTriangle(progressBarPos.x , progressBarPos.y + shiftVert,
+                   progressBarPos.x  - triWidth/2, progressBarPos.y - triLength + shiftVert,
+                   progressBarPos.x  + triWidth/2, progressBarPos.y - triLength + shiftVert);
         
         
         
@@ -8596,31 +8869,6 @@ void testApp::mouseMoved(int x, int y){
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button){
-    
-    
-    
-    if(narrativeState == 13){
-        
-        float mouseHotCorner = ofDist(x, y, hotCornerPos.x, hotCornerPos.y);
-        
-        if(mouseHotCorner < hotCornerRad){
-            
-            boundarySize -= 2;
-            
-        }
-        
-        
-        
-        
-        
-        
-    }
-    
-    
-    
-    
-    
-    
 
 }
 

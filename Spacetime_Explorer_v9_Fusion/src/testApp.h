@@ -510,6 +510,8 @@ class testApp : public ofBaseApp{
     ofImage key2;
     ofImage key3;
     
+    ofImage hourglass;
+    
     ofSoundPlayer fusionPop1;
     ofSoundPlayer fusionPop2;
     ofSoundPlayer fusionPop3;
@@ -647,6 +649,14 @@ class testApp : public ofBaseApp{
     ofImage positronSmall;       //type = 6
     ofImage gammaRaySmall;       //type = 0
     
+    ofImage arrowCursor;
+    
+    ofImage arrowUIsingle;
+    float arrowUIsingleTrans;
+
+    ofImage arrowUImulti;
+    float arrowUImultiTrans;
+    
     float boundarySize, boundaryMin, boundaryMax;
     float bulkSpeed;
     bool fuse;
@@ -654,7 +664,17 @@ class testApp : public ofBaseApp{
     ofVec3f hotCornerPos;
     float hotCornerRad;
     ofColor boundaryCol, boundaryCool, boundaryHot;
+    float pushRegionThick;
+    int numBlobsInUse;
+    int numBlobsInROI;
+    float cursorSize;
+    ofColor cursorCol;
+    float deadZoneRad;
     
+    float pushBackRate;
+    float compressionRate;
+    
+    ofFbo blobFBO;
     
 };
 
