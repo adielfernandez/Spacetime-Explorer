@@ -186,19 +186,19 @@ void testApp::setup(){
     smallExplosion.setMultiPlay(true);
     smallExplosion.setPan(bottom);
     
-    fusionPop1.loadSound("sounds/fusionPop1.mp3");
+    fusionPop1.loadSound("sounds/fusionBurst1.mp3");
     fusionPop1.setVolume(0.5f);
     fusionPop1.setSpeed(1.0f);
     fusionPop1.setMultiPlay(true);
     fusionPop1.setPan(bottom);
 
-    fusionPop2.loadSound("sounds/fusionPop2.mp3");
+    fusionPop2.loadSound("sounds/fusionBurst2.mp3");
     fusionPop2.setVolume(0.5f);
     fusionPop2.setSpeed(1.0f);
     fusionPop2.setMultiPlay(true);
     fusionPop2.setPan(bottom);
     
-    fusionPop3.loadSound("sounds/fusionPop3.mp3");
+    fusionPop3.loadSound("sounds/fusionBurst3.mp3");
     fusionPop3.setVolume(0.5f);
     fusionPop3.setSpeed(1.0f);
     fusionPop3.setMultiPlay(true);
@@ -644,31 +644,31 @@ void testApp::setup(){
     
     
     //small images
-    hydrogenSmall.loadImage("images/fusion/small/hydro.png");
+    hydrogenSmall.loadImage("images/fusion/small/hydroS.png");
     hydrogenSmall.setAnchorPercent(0.5,0.5);
     hydrogenSmall.rotate90(2);
     
-    deuteriumSmall.loadImage("images/fusion/small/deut.png");
+    deuteriumSmall.loadImage("images/fusion/small/deutS.png");
     deuteriumSmall.setAnchorPercent(0.5,0.5);
     deuteriumSmall.rotate90(2);
     
-    helium3Small.loadImage("images/fusion/small/hel3.png");
+    helium3Small.loadImage("images/fusion/small/hel3S.png");
     helium3Small.setAnchorPercent(0.5,0.5);
     helium3Small.rotate90(2);
     
-    helium4Small.loadImage("images/fusion/small/hel4.png");
+    helium4Small.loadImage("images/fusion/small/hel4S.png");
     helium4Small.setAnchorPercent(0.5,0.5);
     helium4Small.rotate90(2);
     
-    neutrinoSmall.loadImage("images/fusion/small/trino.png");
+    neutrinoSmall.loadImage("images/fusion/small/trinoS.png");
     neutrinoSmall.setAnchorPercent(0.5,0.5);
     neutrinoSmall.rotate90(2);
     
-    positronSmall.loadImage("images/fusion/small/posi.png");
+    positronSmall.loadImage("images/fusion/small/posiS.png");
     positronSmall.setAnchorPercent(0.5,0.5);
     positronSmall.rotate90(2);
     
-    gammaRaySmall.loadImage("images/fusion/small/gamma.png");
+    gammaRaySmall.loadImage("images/fusion/small/gammaS.png");
     gammaRaySmall.setAnchorPercent(0.5,0.5);
     gammaRaySmall.rotate90(2);
 
@@ -689,6 +689,10 @@ void testApp::setup(){
     arrowUImulti.loadImage("images/fusion/arrowUImulti.png");
     arrowUImulti.setAnchorPercent(0.5,0.5);
     arrowUImulti.rotate90(2);
+    
+    arrowUIhand.loadImage("images/fusion/arrowUIhand.png");
+    arrowUIhand.setAnchorPercent(0.5,0.5);
+    arrowUIhand.rotate90(2);
     
     debugVisuals = false;
     
@@ -4275,11 +4279,19 @@ void testApp::update(){
             
             FusionParticles.clear();
             
-            fuse = false;
+            shakeAmplitude = 0;
+            heatWaveRed = 150;
+            heatWaveTrans = 0;
+            heatMade = 0;
             
-            boundaryMax = 800;
+            fuse = false;
+            fCollision = false;
+            fColTimer = 0;
+            
+            boundaryMax = 700;
             boundarySize = boundaryMax;
-            boundaryMin = 400;
+            boundaryMin = 250;
+            boundaryFuse = 500;
             
             boundaryCool = ofColor(50);
             boundaryCol = boundaryCool;
@@ -4288,6 +4300,7 @@ void testApp::update(){
             cvObjectCol = ofColor(255, 200, 0);
             arrowUIsingleTrans = 0;
             arrowUImultiTrans = 0;
+            arrowUIhandTrans = 0;
             
             bulkSpeed = 2;
             
@@ -4297,8 +4310,10 @@ void testApp::update(){
             cursorSize = 0.5;
             cursorCol = ofColor(255);
             
+            numFusors = 300;
+            
             //make a bunch of particles
-            for(int i = 0; i < 100; i++){
+            for(int i = 0; i < numFusors; i++){
                 
                 pFusion f;
                 
@@ -4336,18 +4351,37 @@ void testApp::update(){
             
             
         }
+        
+        
+        
+        
+        
+        
+        shakeAmplitude = ofLerp(shakeAmplitude, 0, 0.03);
 
         
         
         
-        bulkSpeed = ofMap(boundarySize, boundaryMax, boundaryMin, 1, 10, true);
+        bulkSpeed = ofMap(boundarySize, boundaryMax, boundaryMin, 1, 15, true);
+        
+        
+        //do mouse detection too
+        float distMouse = ofDist(mouseX, mouseY, ofGetWindowWidth()/2, ofGetWindowHeight()/2);
+        
+        bool mouseInRegion = distMouse > boundarySize/2 && distMouse < (boundarySize + pushRegionThick)/2;
+        
+        if(mouseInRegion){
+            
+            boundarySize -= 8;
+            
+        }
         
         
         //boundary push back
         pushBackRate = ofMap(boundarySize, boundaryMin, boundaryMax, 1.0, 5.0);
         
         //if no balls in boundary
-        if(boundarySize < boundaryMax && numBlobsInROI == 0){
+        if(boundarySize < boundaryMax && numBlobsInROI == 0 && mouseInRegion == false){
             
             boundarySize = ofLerp(boundarySize, boundaryMax, 0.03);
             boundaryCol = boundaryCol.lerp(boundaryCool, 0.03);
@@ -4368,31 +4402,277 @@ void testApp::update(){
             
         }
         
+
+        
         //update boundary color
 //        float bLerp = ofMap(boundarySize, boundaryMax, boundaryMin, 0.5f, 1.0f);
 //        boundaryCol = boundaryCool.lerp(boundaryHot, bLerp);
 
         
         
-        if(boundarySize < boundaryMin){
+        if(boundarySize < boundaryFuse){
             fuse = true;
+        } else {
+            fuse = false;
         }
         
         
-        //update fusing particles
-        for(vector<pFusion>::iterator it = FusionParticles.begin(); it != FusionParticles.end(); it++){
+        //------------------------------PROTON-PROTON CHAIN------------------------------
+        
+        //Particle type:
+        //0 = gamma ray
+        //1 = hydrogen (proton)
+        //2 = deuterium
+        //3 = helium 3
+        //4 = helium 4
+        //5 = neutrino
+        //6 = positron
+        
+        numHydrogen = 0;
+        numDeut = 0;
+        numHel3 = 0;
+        numHel4 = 0;
+        
+        
+        
+        float fusionDist = 5;
+        
+        //update fusing particles and manage the proton proton chain
+        for(int i = 0; i < FusionParticles.size(); i++){
             
-            it -> fuse = fuse;
-            it -> boundary = boundarySize;
-            it -> update(bulkSpeed);
+            //are we fusing?
+            if(fuse == true && ofGetElapsedTimeMillis() - fColTimer > fusionWait){
+            
+                //look for collisions only if we are are hydrogen, deuterium or helium 3
+                
+                //Lets do hydrogen collisions first
+                if(FusionParticles[i].type == 1){
+                
+                    //nested for loop to check all other particles in vector
+                    for(int j = i + 1; j < FusionParticles.size(); j++){
+                      
+                        //look for hydrogen-hydrogen collision first
+                        if(FusionParticles[j].type == 1){
+                            
+                            float distSq = ofDistSquared(FusionParticles[i].pos.x, FusionParticles[i].pos.y, FusionParticles[j].pos.x, FusionParticles[j].pos.y);
+                            
+                            //if there is a collision then act accordingly
+                            if(distSq < fusionDist * fusionDist){
+                                
+                                //find collision point (try taking this out if slow)
+                                ofVec3f fColPos = FusionParticles[i].pos.middle(FusionParticles[j].pos);
+                                
+                                //then create products of reaction
+                                //instead of deleting elements from vector, reassign them to a new type
+
+                                float velAngle = ofRandom(360);
+                                
+                                //hydrogen i is now neutrino
+                                FusionParticles[i].type = 5;
+                                FusionParticles[i].vel.rotate(velAngle, ofVec3f(0, 0, 1));
+                                FusionParticles[i].collisionPos = fColPos;
+
+                                //hydrogen j is now positron
+                                FusionParticles[j].type = 6;
+                                FusionParticles[j].vel.rotate(velAngle + 120, ofVec3f(0, 0, 1));
+                                FusionParticles[j].collisionPos = fColPos;
+                                
+                                //create a new particle for the deuterium
+                                pFusion d;
+                                
+                                d.type = 2;
+                                d.boundary = boundarySize;
+                                d.bulkSpeed = bulkSpeed;
+                                d.setup(fColPos, velAngle + 240);
+                                d.fuse = false;
+                                d.collisionPos = fColPos;
+                                
+                                FusionParticles.push_back(d);
+                                
+                                fColTimer = ofGetElapsedTimeMillis();
+                                if(shakeAmplitude < 10) shakeAmplitude += 2;
+
+                                heatMade++;
+                                
+                                fusionPop1.play();
+                                break;
+
+                            } 
+
+                        } else if (FusionParticles[j].type == 2){        //now look for hydrogen-deuterium collision
+                            
+                            float distSq = ofDistSquared(FusionParticles[i].pos.x, FusionParticles[i].pos.y, FusionParticles[j].pos.x, FusionParticles[j].pos.y);
+                            
+                            //if there is a collision then act accordingly
+                            if(distSq < fusionDist * fusionDist){
+                                
+                                //find collision point (try taking this out if slow)
+                                ofVec3f fColPos = FusionParticles[i].pos.middle(FusionParticles[j].pos);
+                                
+                                //then create products of reaction
+                                //instead of deleting elements from vector, reassign them to a new type
+                                
+                                float velAngle = ofRandom(360);
+                                
+                                //hydrogen i is now Helium 3
+                                FusionParticles[i].type = 3;
+                                FusionParticles[i].vel.rotate(velAngle, ofVec3f(0, 0, 1));
+                                FusionParticles[i].collisionPos = fColPos;
+                                
+                                //hydrogen j is now a gamma ray
+                                FusionParticles[j].type = 0;
+                                FusionParticles[j].vel.rotate(velAngle + 120, ofVec3f(0, 0, 1));
+                                FusionParticles[j].gammaAngle = velAngle + 120;
+                                FusionParticles[j].collisionPos = fColPos;
+
+                                fColTimer = ofGetElapsedTimeMillis();
+                                if(shakeAmplitude < 10) shakeAmplitude += 2;
+
+                                heatMade++;
+                                
+                                fusionPop2.play();
+                                break;
+                            }
+                            
+                            
+                        }
+
+                        
+                    }
+                
+                } else if(FusionParticles[i].type == 3){
+                    
+                    
+                    //nested for loop to check all other particles in vector
+                    for(int j = i + 1; j < FusionParticles.size(); j++){
+                        
+                        //look for other helium-3's only
+                        if(FusionParticles[j].type == 3){
+                            
+                            float distSq = ofDistSquared(FusionParticles[i].pos.x, FusionParticles[i].pos.y, FusionParticles[j].pos.x, FusionParticles[j].pos.y);
+                            
+                            //if there is a collision then act accordingly
+                            if(distSq < fusionDist * fusionDist){
+                                
+                                
+                                //find collision point (try taking this out if slow)
+                                ofVec3f fColPos = FusionParticles[i].pos.middle(FusionParticles[j].pos);
+                                
+                                //then create products of reaction
+                                //instead of deleting elements from vector, reassign them to a new type
+                                
+                                float velAngle = ofRandom(360);
+                                
+                                //hydrogen i is now hydrogen again
+                                FusionParticles[i].type = 1;
+                                FusionParticles[i].vel.rotate(velAngle, ofVec3f(0, 0, 1));
+                                FusionParticles[i].collisionPos = fColPos;
+                                
+                                //hydrogen j is now hydrogen again
+                                FusionParticles[j].type = 1;
+                                FusionParticles[j].vel.rotate(velAngle + 120, ofVec3f(0, 0, 1));
+                                FusionParticles[j].collisionPos = fColPos;
+                    
+                                //now create a Helium 4
+                                pFusion h4;
+                                
+                                h4.type = 4;
+                                h4.boundary = boundarySize;
+                                h4.bulkSpeed = bulkSpeed;
+                                h4.setup(fColPos, velAngle + 240);
+                                h4.fuse = false;
+                                h4.collisionPos = fColPos;
+                                
+                                FusionParticles.push_back(h4);
+                    
+                                if(shakeAmplitude < 10) shakeAmplitude += 2;
+                                
+                                fColTimer = ofGetElapsedTimeMillis();
+                                heatMade++;
+                                
+                                fusionPop3.play();
+                    
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+                
+            } // if(fuse == true)
+            
+            
+//            FusionParticles[i].fuse = fuse;
+            FusionParticles[i].boundary = boundarySize;
+            FusionParticles[i].update(bulkSpeed);
+
+            
+            //count particles
+            if(FusionParticles[i].type == 1){
+                numHydrogen++;
+            } else if (FusionParticles[i].type == 2){
+                numDeut++;
+            } else if (FusionParticles[i].type == 3){
+                numHel3++;
+            } else if (FusionParticles[i].type == 4){
+                numHel4++;
+            }
+            
             
             
         }
         
-        if(playedSecondClip == false && boundarySize < boundaryMax * 0.5){
+        
+        
+        fusionWait = ofMap(boundarySize, 700, 550, 1000, 0, true);
+        
+        
+        //go through vector of particles and delete them
+        for(int i = 0; i < FusionParticles.size(); i++){
+            
+            if(FusionParticles[i].dead){
+                FusionParticles.erase(FusionParticles.begin() + i);
+            }
+            
+        }
+        
+        
+        
+        
+        
+        
+        if(playedSecondClip == false && boundarySize < boundaryMax * 0.8 && stage13_01_thisIsPoolOfHydrogen.getIsPlaying() == false){
             stage13_02_noticeHowSpeedingUp.play();
             playedSecondClip = true;
         }
+        
+        if(playedThirdClip == false && numHel4 > 60 && stage13_02_noticeHowSpeedingUp.getIsPlaying() == false){
+            stage13_03_allHydrogenFused.play();
+            playedThirdClip = true;
+        }
+        
+        
+        //if clip is playing lower collision volumes
+        if(stage13_01_thisIsPoolOfHydrogen.getIsPlaying() || stage13_02_noticeHowSpeedingUp.getIsPlaying() || stage13_03_allHydrogenFused.getIsPlaying()){
+            
+            //lower volumes of fusion pops while audio is playing
+            fusionPop1.setVolume(0.05);
+            fusionPop2.setVolume(0.05);
+            fusionPop3.setVolume(0.05);
+            
+        } else {
+            
+            //raise volumes of fusion pops while audio not playing
+            fusionPop1.setVolume(0.5f);
+            fusionPop2.setVolume(0.5f);
+            fusionPop3.setVolume(0.5f);
+            
+        }
+        
+        
+        
         
         
         
@@ -8386,6 +8666,56 @@ void testApp::draw(){
         
         
         
+        //draw heat waves
+        
+        int numHeatCircles = 100;
+        int outerRad = 700;
+
+        
+        heatWaveRed = ofMap(heatMade, 0, numFusors * 1/5, 30, 200, true);
+        heatWaveTrans = ofMap(heatMade, 0, numFusors * 1/5, 35.0f, 15.0f, true);
+        
+        for(int i = 0; i < numHeatCircles; i++){
+            
+            if(i == heatWaveCounter){
+                ofSetColor(heatWaveRed, 0, 0);
+            } else {
+                ofSetColor(0, heatWaveTrans);
+            }
+            ofFill();
+            ofCircle(ofGetWindowSize()/2, outerRad - (outerRad - boundarySize/2) * i/numHeatCircles);
+            
+        }
+
+        //increment heat wave circle number after timer
+        if(ofGetElapsedTimeMillis() - heatWaveTimer > 40){
+            heatWaveCounter--;
+            
+            if(heatWaveCounter < 0){
+                heatWaveCounter = numHeatCircles;
+            }
+            
+            heatWaveTimer = ofGetElapsedTimeMillis();
+        }
+        
+        drawBlackBars();
+        
+        
+        //draw heat inside circle too
+        for(int i = 0; i < 100; i++){
+            
+            
+            
+            
+            
+            
+        }
+        
+        
+        
+        //----------shake amplitude ----------
+        ofPushMatrix();
+        ofTranslate(ofRandom(-shakeAmplitude, shakeAmplitude), ofRandom(-shakeAmplitude, shakeAmplitude));
         
         //draw bounding circle
         ofPushStyle();
@@ -8420,15 +8750,246 @@ void testApp::draw(){
         //draw particles
         for(vector<pFusion>::iterator it = FusionParticles.begin(); it != FusionParticles.end(); it++){
             
+            //draw the right image according to the particle type
             if(it -> type == 1){
+                
                 it -> draw(&hydrogenSmall);
+                
+            } else if(it -> type == 2){
+                
+                it -> draw(&deuteriumSmall);
+                
+            } else if(it -> type == 3){
+                
+                it -> draw(&helium3Small);
+                
+            } else if(it -> type == 4){
+                
+                it -> draw(&helium4Small);
+                
+            } else if(it -> type == 5){
+                
+                it -> draw(&neutrinoSmall);
+                
+            } else if(it -> type == 6){
+                
+                it -> draw(&positronSmall);
+                
+            } else {
+                
+                it -> draw(&gammaRaySmall);
                 
             }
             
             
         }
         
+        ofPopMatrix();              //end shake amplitude pushmatrix
         
+        
+        
+        
+        
+        
+        //bar dimensions
+        int barHeight = 40;
+        int barLength = 600;
+        int barBorder = 8;
+        int barSpacing = 5;
+        
+        
+        //------------------------------Pressure bar------------------------------
+        float pressureProg = ofMap(boundarySize, boundaryMin, boundaryMax, 0.0f, 1.0f, true);
+        
+        //draw progress bar
+        ofVec2f pressureBarDim;
+        pressureBarDim.set(barLength, barHeight);
+        
+        ofVec2f pressureBarPos;
+        pressureBarPos.set(ofGetWindowWidth()/2 - pressureBarDim.x/2 + 225, ofGetWindowHeight() - pressureBarDim.y - barBorder);
+        
+        
+        
+        ofPushStyle();
+        
+        //draw inside
+        ofFill();
+        ofSetColor(boundaryHot);
+        ofRect(pressureBarPos.x + pressureBarDim.x * pressureProg, pressureBarPos.y, pressureBarDim.x - pressureBarDim.x * pressureProg, pressureBarDim.y);
+        
+        //draw border
+        ofSetColor(255);
+        ofSetLineWidth(2);
+        ofNoFill();
+        ofRect(pressureBarPos, pressureBarDim.x, pressureBarDim.y);
+        
+        ofPopStyle();
+        
+
+        //draw in bar text
+        
+        ofPushMatrix();
+        
+        ofTranslate(ofGetWindowSize()/2);
+        ofRotate(180);
+        ofTranslate(-290 - 225, ofGetWindowHeight()/2 - pressureBarPos.y - pressureBarDim.y * 0.3 + 5);
+        string pressureText = "Pressure"; // + ofToString(100 - floor(prog*100)) + "%";
+        
+        ofSetColor(255);
+        ofScale(0.3, 0.30);
+        instructions.drawString(pressureText, -instructions.stringWidth(progressText)/2, 0);
+        ofPopMatrix();
+        
+        
+        //draw text "to next stage"
+        ofPushMatrix();
+        
+        ofTranslate(ofGetWindowSize()/2);
+        ofRotate(180);
+        ofTranslate(pressureBarDim.x * 0.5, ofGetWindowHeight()/2 - pressureBarPos.y + pressureBarDim.y - 10);
+        
+        ofPopMatrix();
+        
+//        ofScale(0.25, 0.25);
+//        string text = "Fusion";
+//        ofSetColor(255);
+//        instructions.drawString(text, -instructions.stringWidth(text)/2, 0);
+//        ofPopMatrix();
+        
+//        ofSetLineWidth(4);
+//        ofSetColor(255);
+//        ofLine(progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y, progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y + progressBarDim.y);
+//        
+//        float triLength = 30;
+//        float triWidth = 20;
+//        float shiftVert = 15;
+//        ofSetColor(255, 0, 0);
+//        ofFill();
+//        ofTriangle(pressureBarPos.x , pressureBarPos.y + shiftVert,
+//                   pressureBarPos.x  - triWidth/2, pressureBarPos.y - triLength + shiftVert,
+//                   pressureBarPos.x  + triWidth/2, pressureBarPos.y - triLength + shiftVert);
+
+        
+        
+        
+        
+        //------------------------------Heat bar------------------------------
+        
+        float heatProg = ofMap(heatMade, 0, numFusors*2, 1.0f, 0.0f, true);
+        
+        //draw progress bar
+        ofVec2f heatBarDim;
+        heatBarDim.set(barLength, barHeight);
+        
+        ofVec2f heatBarPos;
+        heatBarPos.set(ofGetWindowWidth()/2 - heatBarDim.x/2 + 225, ofGetWindowHeight() - heatBarDim.y - barBorder - pressureBarDim.y - barSpacing);
+        
+        
+        
+        ofPushStyle();
+        
+        //draw inside
+        ofFill();
+        ofSetColor(255, 0, 0);
+        ofRect(heatBarPos.x + heatBarDim.x * heatProg, heatBarPos.y, heatBarDim.x - heatBarDim.x * heatProg, heatBarDim.y);
+        
+        //draw border
+        ofSetColor(255);
+        ofSetLineWidth(2);
+        ofNoFill();
+        ofRect(heatBarPos, heatBarDim.x, heatBarDim.y);
+        
+        ofPopStyle();
+        
+        
+        //draw in bar text
+        
+        ofPushMatrix();
+        
+        ofTranslate(ofGetWindowSize()/2);
+        ofRotate(180);
+        ofTranslate(-290 - 225, ofGetWindowHeight()/2 - heatBarPos.y - heatBarDim.y * 0.3 + 5);
+        string heatText = "Fusion heat"; // + ofToString(100 - floor(prog*100)) + "%";
+        
+        ofSetColor(255);
+        ofScale(0.32, 0.32);
+        instructions.drawString(heatText, -instructions.stringWidth(progressText)/2, 0);
+        ofPopMatrix();
+        
+        
+        //draw text "to next stage"
+        ofPushMatrix();
+        
+        ofTranslate(ofGetWindowSize()/2);
+        ofRotate(180);
+        ofTranslate(heatBarDim.x * 0.5, ofGetWindowHeight()/2 - heatBarPos.y + heatBarDim.y - 10);
+        
+        ofPopMatrix();
+        
+        
+        //draw particle graphs
+        //first draw images
+        
+        float particleScale = 0.75;
+        int particleBorder = hydrogenSmall.height/2 * particleScale + 5;
+        int particleSpacing = 40;
+        
+        ofVec2f particlePos = ofVec2f(ofGetWindowWidth()/2 - ofGetWindowHeight()/2 + particleBorder * 2, ofGetWindowHeight() - particleBorder);
+        
+        hydrogenSmall.draw(particlePos.x, particlePos.y, hydrogenSmall.width * particleScale, hydrogenSmall.height * particleScale);
+        deuteriumSmall.draw(particlePos.x, particlePos.y - particleSpacing * 1, deuteriumSmall.width * particleScale, deuteriumSmall.height * particleScale);
+        helium3Small.draw(particlePos.x, particlePos.y - particleSpacing * 2, helium3Small.width * particleScale, helium3Small.height * particleScale);
+        helium4Small.draw(particlePos.x, particlePos.y - particleSpacing * 3, helium4Small.width * particleScale, helium4Small.height * particleScale);
+        
+        
+        
+        
+        //draw bars
+        int pBarHeight = 12;
+        int pBarMargin = 25;
+        
+        float barScaling = 0.95;
+        
+        
+//        ofNoFill();
+//        ofSetLineWidth(1);
+        ofFill();
+        
+        //hydrogen
+        ofSetColor(255, 0, 0);
+        ofRect(particlePos.x + pBarMargin, particlePos.y - pBarHeight/2, numHydrogen * barScaling, pBarHeight);
+        
+        //Deuterium
+        ofSetColor(255, 255, 0);
+        ofRect(particlePos.x + pBarMargin, particlePos.y - pBarHeight/2 - particleSpacing * 1, numDeut * barScaling, pBarHeight);
+        
+        //Helium-3
+        ofSetColor(0, 255, 0);
+        ofRect(particlePos.x + pBarMargin, particlePos.y - pBarHeight/2 - particleSpacing * 2, numHel3 * barScaling, pBarHeight);
+        
+        //Helium-4
+        ofSetColor(0, 128, 255);
+        ofRect(particlePos.x + pBarMargin, particlePos.y - pBarHeight/2 - particleSpacing * 3, numHel4 * barScaling, pBarHeight);
+        
+        
+//        ofSetColor(255);
+//        ofDrawBitmapString("Number of Helium-4: " + ofToString(numHel4), ofGetWindowWidth()/2, 20);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
         
         
         //draw blob positions
@@ -8499,29 +9060,38 @@ void testApp::draw(){
         }
         
         
+        
+        
+        
+        
+        
+        
+        
         //----------UI Stuff----------
         
         //fade in single
-        if(currentTime > 6000 && currentTime < 12000 && arrowUIsingleTrans < 255){
-            arrowUIsingleTrans++;
+        if(currentTime > 2000 && currentTime < 6000 && arrowUIsingleTrans < 255){
+            arrowUIsingleTrans += 2;
+            arrowUIhandTrans += 2;
         }
         
         
         //fade out single 
-        if(currentTime > 12000 && arrowUIsingleTrans > 0){
+        if(currentTime > 6000 && arrowUIsingleTrans > 0){
             arrowUIsingleTrans -= 2;
             
         }
         
         //fade in multi
-        if(currentTime > 12000 && currentTime < 16000 && arrowUImultiTrans < 255){
+        if(currentTime > 7000 && currentTime < 12000 && arrowUImultiTrans < 255){
             arrowUImultiTrans += 2;
             
         }
         
         //fade out multi
-        if(currentTime > 16000 && arrowUIsingleTrans < 255){
+        if(currentTime > 12000 && arrowUIsingleTrans < 255){
             arrowUImultiTrans--;
+            arrowUIhandTrans -= 2;
             
         }
         
@@ -8529,7 +9099,7 @@ void testApp::draw(){
         float sineScale = sin(ofGetElapsedTimef() * 2);
         
         
-        float arrowScale = 1.0 + 0.05 * sineScale;
+        float arrowScale = 0.9 + 0.05 * sineScale;
         
         
         
@@ -8537,9 +9107,10 @@ void testApp::draw(){
         arrowUIsingle.draw(ofGetWindowSize()/2, arrowUIsingle.width * arrowScale, arrowUIsingle.height * arrowScale);
         
         ofSetColor(255, arrowUImultiTrans);
-        arrowUImulti.draw(ofGetWindowSize()/2, arrowUIsingle.width * arrowScale, arrowUIsingle.height * arrowScale);
+        arrowUImulti.draw(ofGetWindowSize()/2, arrowUImulti.width * arrowScale, arrowUImulti.height * arrowScale);
         
-        
+        ofSetColor(255, arrowUIhandTrans);
+        arrowUIhand.draw(ofGetWindowSize()/2, arrowUIhand.width, arrowUIhand.height);
         
         
         
@@ -8562,78 +9133,7 @@ void testApp::draw(){
         
         
         
-        float prog = ofMap(boundarySize, boundaryMin, boundaryMax, 0.0f, 1.0f, true);
-        
-//        drawProgress(prog);
-        
-        //draw progress bar
-        progressBarDim.set(600, 50);
-        progressBarPos.set(ofGetWindowWidth()/2 - progressBarDim.x/2, ofGetWindowHeight() - progressBarDim.y - 10);
-        
-        
-        
-        ofPushStyle();
-        
-        //draw inside
-        ofFill();
-        ofSetColor(boundaryHot);
-        ofRect(progressBarPos.x + progressBarDim.x * prog, progressBarPos.y, progressBarDim.x - progressBarDim.x * prog, progressBarDim.y);
-        
-        //draw border
-        ofSetColor(255);
-        ofSetLineWidth(2);
-        ofNoFill();
-        ofRect(progressBarPos, progressBarDim.x, progressBarDim.y);
-        
-        ofPopStyle();
-        
-        
-        
-        
-        
-        
-        //draw in bar text
-        
-        ofPushMatrix();
-        
-        ofTranslate(ofGetWindowSize()/2);
-        ofRotate(180);
-        ofTranslate(-290, ofGetWindowHeight()/2 - progressBarPos.y - progressBarDim.y * 0.3 + 5);
-        string toDisplay = "Pressure"; // + ofToString(100 - floor(prog*100)) + "%";
-        
-        ofSetColor(255);
-        ofScale(0.35, 0.35);
-        instructions.drawString(toDisplay, -instructions.stringWidth(progressText)/2, 0);
-        ofPopMatrix();
-        
-        
-        //draw text "to next stage"
-        ofPushMatrix();
-        
-        ofTranslate(ofGetWindowSize()/2);
-        ofRotate(180);
-        ofTranslate(progressBarDim.x * 0.5, ofGetWindowHeight()/2 - progressBarPos.y + progressBarDim.y - 10);
-        
-        
-        ofScale(0.25, 0.25);
-        string text = "Fusion";
-        ofSetColor(255);
-        instructions.drawString(text, -instructions.stringWidth(text)/2, 0);
-        ofPopMatrix();
-        
-//        ofSetLineWidth(4);
-//        ofSetColor(255);
-//        ofLine(progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y, progressBarPos.x + (1 - progressThresh) * progressBarDim.x, progressBarPos.y + progressBarDim.y);
-        
-        float triLength = 30;
-        float triWidth = 20;
-        float shiftVert = 15;
-        ofSetColor(255, 0, 0);
-        ofFill();
-        ofTriangle(progressBarPos.x , progressBarPos.y + shiftVert,
-                   progressBarPos.x  - triWidth/2, progressBarPos.y - triLength + shiftVert,
-                   progressBarPos.x  + triWidth/2, progressBarPos.y - triLength + shiftVert);
-        
+                
         
         
         
@@ -9192,7 +9692,7 @@ void testApp::keyPressed(int key){
             for(vector<pFusion>::iterator it = FusionParticles.begin(); it != FusionParticles.end(); it++){
                 
                 it -> pos.set(ofGetWindowWidth()/2 + ofRandom(50), ofGetWindowHeight()/2 + ofRandom(50));
-                
+                fuse = false;
                 
             }
             

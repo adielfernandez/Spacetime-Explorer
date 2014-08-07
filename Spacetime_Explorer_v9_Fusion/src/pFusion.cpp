@@ -22,6 +22,7 @@ pFusion::pFusion(){
     
     type = 1;
     
+    dead = false;
     
     boundary = 900;
     
@@ -42,7 +43,7 @@ void pFusion::setup(ofVec3f _pos, float velAng){
     
     
     pos = _pos;
-    collisionPos = _pos;
+
     
     //-----give random velocity-----
     //first get unit vector
@@ -75,29 +76,11 @@ void pFusion::update(float _speed){
     
     if(type >= 1 && type <= 4 && fuse == false){
         
-        //square boundary
-//        if(pos.x < aspectX/2 - boundary/2){
-//            vel.x *= -1;
-//            pos.x = aspectX/2 - boundary/2 + 2;
-//        } else if(pos.x > aspectX/2 + boundary/2){
-//            vel.x *= -1;
-//            pos.x = aspectX/2 + boundary/2 - 2;
-//        }
-//        
-//        if(pos.y < aspectY/2 - boundary/2){
-//            vel.y *= -1;
-//            pos.y = aspectY/2 - boundary/2 + 2;
-//        } else if(pos.y > aspectY/2 + boundary/2){
-//            vel.y *= -1;
-//            pos.y = aspectY/2 + boundary/2 - 2;
-//        }
-        
-        
         //circular boundary (with correct bouncing)
         ofVec3f toCenter = ofGetWindowSize()/2;
         float distSq = ofDistSquared(toCenter.x, toCenter.y, pos.x, pos.y);
         
-        if(distSq > (boundary/2 - 30) * (boundary/2 - 30)){
+        if(distSq > (boundary/2 - 15) * (boundary/2 - 15)){
             
             //get the vector perpendicular to circle tangent
             ofVec3f perp = toCenter - pos;
@@ -129,11 +112,27 @@ void pFusion::update(float _speed){
             
             
         }
+
+        
+    } else {
+        
+        //if we're a positron, neutrino or gamma ray, check if we're out off screen so we can delete
+        
+        //square boundary
+        if(pos.x < aspectX/2 - aspectY/2 || pos.x > aspectX/2 + aspectY/2 || pos.y < 0 || pos.y > aspectY){
+            
+            dead = true;
         
         
+        }
+        
+        vel.normalize();
+        vel.scale(4);
         
         
     }
+    
+
     
     vel *= damping;
     
@@ -143,6 +142,8 @@ void pFusion::update(float _speed){
     
     acc.set(0);
     
+    age++;
+    
     
 }
 
@@ -150,17 +151,36 @@ void pFusion::draw(ofImage *image){
     
     ofPushStyle();
     
-    ofSetColor(255);
     
 
     
     //draw particle
+    if(type == 0 || type >= 5){
+
+        float trans = ofMap(age, 0, 150, 255, 0, true);
+        ofSetColor(255, trans);
+        ofSetLineWidth(2);
+        ofLine(collisionPos.x, collisionPos.y, pos.x, pos.y);
+
+    }
+
+    
+    
     ofPushMatrix();
     ofTranslate(pos);
     
-    //always draw first two deuteriums full transparency
+//    if(type == 0){
+//        ofRotate(gammaAngle);
+//    }
 
+    
+    
+    
+    
     ofScale(size, size);
+    
+    
+    ofSetColor(255);
     image -> draw(0, 0);
 
 

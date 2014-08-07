@@ -657,7 +657,11 @@ class testApp : public ofBaseApp{
     ofImage arrowUImulti;
     float arrowUImultiTrans;
     
+    ofImage arrowUIhand;
+    float arrowUIhandTrans;
+    
     float boundarySize, boundaryMin, boundaryMax;
+    float boundaryFuse;
     float bulkSpeed;
     bool fuse;
     
@@ -674,7 +678,20 @@ class testApp : public ofBaseApp{
     float pushBackRate;
     float compressionRate;
     
-    ofFbo blobFBO;
+    int numFusors;
+    
+    bool fCollision;
+    int fColTimer;
+    
+    int fusionWait;
+    float heatWaveRed;
+    float heatWaveTrans;
+    int heatWaveTimer;
+    int heatWaveCounter;
+    int heatMade;
+    int numHydrogen, numDeut, numHel3, numHel4;
+    
+    
     
 };
 

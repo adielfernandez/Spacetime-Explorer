@@ -39,6 +39,7 @@ public:
     float size;
     float trans;
     float scale;
+    float gammaAngle;
     int age;
     
     float bulkSpeed;
@@ -47,7 +48,7 @@ public:
     float aspectX, aspectY;
     
     bool fuse;
-    
+    bool dead;
 
 };
 
