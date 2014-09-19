@@ -76,7 +76,7 @@ void testApp::setup(){
     
     
     //Narrative control
-    narrativeState = 13;
+    narrativeState = 11;
         //-1 = idle state
         //0 = intro video
         //0.5 = table of contents
@@ -374,7 +374,7 @@ void testApp::setup(){
     
     //Fusion Stage 1 Intro
     stage6_01_fusionIsThe.loadSound("narration/fusion1Intro/01-introFull.mp3");
-    stage6_01_fusionIsThe.setVolume(1.0f);
+    stage6_01_fusionIsThe.setVolume(0.5f);
     stage6_01_fusionIsThe.setSpeed(1.0f);
     stage6_01_fusionIsThe.setPan(top);
 
@@ -383,61 +383,61 @@ void testApp::setup(){
     
     //Fusion Stage 1
     stage7_01_theFirstStep.loadSound("narration/fusion1Stage/01-firstStepCollideBalls.mp3");
-    stage7_01_theFirstStep.setVolume(1.0f);
+    stage7_01_theFirstStep.setVolume(0.5f);
     stage7_01_theFirstStep.setSpeed(1.0f);
     stage7_01_theFirstStep.setPan(top);
     
     stage7_02_youveMadeDeuterium.loadSound("narration/fusion1Stage/02-youveMadeDeuterium.mp3");
-    stage7_02_youveMadeDeuterium.setVolume(1.0f);
+    stage7_02_youveMadeDeuterium.setVolume(0.5f);
     stage7_02_youveMadeDeuterium.setSpeed(1.0f);
     stage7_02_youveMadeDeuterium.setPan(top);
     
     stage7_03_greatJobFeelFree.loadSound("narration/fusion1Stage/03-greatJobFeelFree.mp3");
-    stage7_03_greatJobFeelFree.setVolume(1.0f);
+    stage7_03_greatJobFeelFree.setVolume(0.5f);
     stage7_03_greatJobFeelFree.setSpeed(1.0f);
     stage7_03_greatJobFeelFree.setPan(top);
     
     //Fusion Stage 2 Intro
     stage8_01_theNextStep.loadSound("narration/fusion2Intro/01-theNextStep.mp3");
-    stage8_01_theNextStep.setVolume(1.0f);
+    stage8_01_theNextStep.setVolume(0.5f);
     stage8_01_theNextStep.setSpeed(1.0f);
     stage8_01_theNextStep.setPan(top);
     
     //Fusion Stage 2
     stage9_01_hitTheFloatingDeut.loadSound("narration/fusion2Stage/01-hitTheFloatingDeut.mp3");
-    stage9_01_hitTheFloatingDeut.setVolume(1.0f);
+    stage9_01_hitTheFloatingDeut.setVolume(0.5f);
     stage9_01_hitTheFloatingDeut.setSpeed(1.0f);
     stage9_01_hitTheFloatingDeut.setPan(top);
     
     stage9_02_youveMadeHelium3.loadSound("narration/fusion2Stage/02-youveMadeHelium3.mp3");
-    stage9_02_youveMadeHelium3.setVolume(1.0f);
+    stage9_02_youveMadeHelium3.setVolume(0.5f);
     stage9_02_youveMadeHelium3.setSpeed(1.0f);
     stage9_02_youveMadeHelium3.setPan(top);
     
     stage9_03_weNowHaveTwo.loadSound("narration/fusion2Stage/03-weNowHaveTwo.mp3");
-    stage9_03_weNowHaveTwo.setVolume(1.0f);
+    stage9_03_weNowHaveTwo.setVolume(0.5f);
     stage9_03_weNowHaveTwo.setSpeed(1.0f);
     stage9_03_weNowHaveTwo.setPan(top);
     
     //Fusion Stage 3 Intro
     stage10_01_theLastStepIs.loadSound("narration/fusion3Intro/01-theLastStepIs.mp3");
-    stage10_01_theLastStepIs.setVolume(1.0f);
+    stage10_01_theLastStepIs.setVolume(0.5f);
     stage10_01_theLastStepIs.setSpeed(1.0f);
     stage10_01_theLastStepIs.setPan(top);
     
     //Fusion Stage 3
     stage11_01_collideTwoBallsAndSee.loadSound("narration/fusion3Stage/01-collideTwoBallsAndSee.mp3");
-    stage11_01_collideTwoBallsAndSee.setVolume(1.0f);
+    stage11_01_collideTwoBallsAndSee.setVolume(0.5f);
     stage11_01_collideTwoBallsAndSee.setSpeed(1.0f);
     stage11_01_collideTwoBallsAndSee.setPan(top);
     
     stage11_02_youveMadeHel4TryAnother.loadSound("narration/fusion3Stage/02-youveMadeHel4TryAnother.mp3");
-    stage11_02_youveMadeHel4TryAnother.setVolume(1.0f);
+    stage11_02_youveMadeHel4TryAnother.setVolume(0.5f);
     stage11_02_youveMadeHel4TryAnother.setSpeed(1.0f);
     stage11_02_youveMadeHel4TryAnother.setPan(top);
     
     stage11_03_greatJobLetsSee.loadSound("narration/fusion3Stage/03-greatJobLetsSee.mp3");
-    stage11_03_greatJobLetsSee.setVolume(1.0f);
+    stage11_03_greatJobLetsSee.setVolume(0.5f);
     stage11_03_greatJobLetsSee.setSpeed(1.0f);
     stage11_03_greatJobLetsSee.setPan(top);
 
@@ -445,21 +445,22 @@ void testApp::setup(){
     //Fusion Stage 4 Intro ---------- MOVIE ----------
     stage4Movie.loadMovie("video/fusion4intro.mp4");
     stage4Movie.setLoopState(OF_LOOP_NORMAL);
+    stage4Movie.setVolume(0.5f);
     
     
     //Fusion Stage 4    
     stage13_01_thisIsPoolOfHydrogen.loadSound("narration/fusion4Stage/01-thisIsPoolOfHydrogen.mp3");
-    stage13_01_thisIsPoolOfHydrogen.setVolume(1.0f);
+    stage13_01_thisIsPoolOfHydrogen.setVolume(0.5f);
     stage13_01_thisIsPoolOfHydrogen.setSpeed(1.0f);
     stage13_01_thisIsPoolOfHydrogen.setPan(top);
     
     stage13_02_noticeHowSpeedingUp.loadSound("narration/fusion4Stage/02-noticeHowSpeedingUp.mp3");
-    stage13_02_noticeHowSpeedingUp.setVolume(1.0f);
+    stage13_02_noticeHowSpeedingUp.setVolume(0.5f);
     stage13_02_noticeHowSpeedingUp.setSpeed(1.0f);
     stage13_02_noticeHowSpeedingUp.setPan(top);
     
     stage13_03_allHydrogenFused.loadSound("narration/fusion4Stage/03-allHydrogenFused.mp3");
-    stage13_03_allHydrogenFused.setVolume(1.0f);
+    stage13_03_allHydrogenFused.setVolume(0.5f);
     stage13_03_allHydrogenFused.setSpeed(1.0f);
     stage13_03_allHydrogenFused.setPan(top);
     
@@ -682,17 +683,20 @@ void testApp::setup(){
 //    arrowCursor.rotate90(2);
     
     
-    arrowUIsingle.loadImage("images/fusion/arrowUIsingle.png");
+    arrowUIsingle.loadImage("images/fusion/arrowUIsingleGreenText.png");
     arrowUIsingle.setAnchorPercent(0.5,0.5);
     arrowUIsingle.rotate90(2);
 
-    arrowUImulti.loadImage("images/fusion/arrowUImulti.png");
+    arrowUImulti.loadImage("images/fusion/arrowUImultiGreenText.png");
     arrowUImulti.setAnchorPercent(0.5,0.5);
     arrowUImulti.rotate90(2);
     
     arrowUIhand.loadImage("images/fusion/arrowUIhand.png");
     arrowUIhand.setAnchorPercent(0.5,0.5);
     arrowUIhand.rotate90(2);
+    
+    movieFBO.allocate(ofGetWindowWidth(), ofGetWindowHeight());
+    
     
     debugVisuals = false;
     
@@ -2861,7 +2865,7 @@ void testApp::update(){
             fusorList.clear();
             
             stage6_01_fusionIsThe.play();
-            fusionPop2.setVolume(0.05);
+            fusionPop2.setVolume(0.5);
             
         }
 
@@ -2927,7 +2931,6 @@ void testApp::update(){
             fusorList.clear();
             
             numBankSlot = 0;
-            endStageTimer = 0;
             
             stage7_01_theFirstStep.play();
             
@@ -3147,9 +3150,9 @@ void testApp::update(){
             } else {
                 
                 //raise volumes of fusion pops while audio not playing
-                fusionPop1.setVolume(1.0f);
-                fusionPop2.setVolume(1.0f);
-                fusionPop3.setVolume(1.0f);
+                fusionPop1.setVolume(0.5f);
+                fusionPop2.setVolume(0.5f);
+                fusionPop3.setVolume(0.5f);
                 
             }
             
@@ -3664,9 +3667,9 @@ void testApp::update(){
             } else {
                 
                 //raise volumes of fusion pops while audio not playing
-                fusionPop1.setVolume(1.0f);
-                fusionPop2.setVolume(1.0f);
-                fusionPop3.setVolume(1.0f);
+                fusionPop1.setVolume(0.5f);
+                fusionPop2.setVolume(0.5f);
+                fusionPop3.setVolume(0.5f);
                 
             }
             
@@ -4115,9 +4118,9 @@ void testApp::update(){
             } else {
                 
                 //raise volumes of fusion pops while audio not playing
-                fusionPop1.setVolume(1.0f);
-                fusionPop2.setVolume(1.0f);
-                fusionPop3.setVolume(1.0f);
+                fusionPop1.setVolume(0.5f);
+                fusionPop2.setVolume(0.5f);
+                fusionPop3.setVolume(0.5f);
                 
             }
             
@@ -4242,6 +4245,7 @@ void testApp::update(){
             
             
             stage4Movie.play();
+
             
             setupStage12 = true;
             
@@ -4250,8 +4254,11 @@ void testApp::update(){
             
         }
         
-        
-        stage4Movie.update();
+        if(stage4Movie.getPosition() < 0.01){
+            drawBlackout = true;
+        } else {
+            drawBlackout = false;
+        }
         
         
         if(stage4Movie.getPosition() > 0.99){
@@ -4265,7 +4272,7 @@ void testApp::update(){
         
     } else if(narrativeState == 13){
         
-        //--------------------FUSION STAGE 4 INTRO UPDATE--------------------
+        //--------------------FUSION STAGE 4 UPDATE--------------------
         
         
         //stage setup
@@ -4349,6 +4356,15 @@ void testApp::update(){
             playedSecondClip = false;
             playedThirdClip = false;
             
+            doneWithFusion.pos.set(ofGetWindowWidth()/2 + ofGetWindowHeight()/2 - 100, 100);
+            doneWithFusion.rad = 75;
+            doneWithFusion.cvObjectCol = ofColor(0, 255, 0);
+            doneWithFusion.triggered = false;
+            doneWithFusion.trans = 0;
+            useDWStimer = false;
+            
+            blackOutTrans = 0;
+            endFusionTime = 0;
             
         }
         
@@ -4620,7 +4636,9 @@ void testApp::update(){
                 numHel4++;
             }
             
-            
+            if(numHydrogen){
+                
+            }
             
         }
         
@@ -4643,14 +4661,15 @@ void testApp::update(){
         
         
         
-        if(playedSecondClip == false && boundarySize < boundaryMax * 0.8 && stage13_01_thisIsPoolOfHydrogen.getIsPlaying() == false){
+        if(playedSecondClip == false && boundarySize < boundaryMax * 0.85 && stage13_01_thisIsPoolOfHydrogen.getIsPlaying() == false){
             stage13_02_noticeHowSpeedingUp.play();
             playedSecondClip = true;
         }
         
-        if(playedThirdClip == false && numHel4 > 60 && stage13_02_noticeHowSpeedingUp.getIsPlaying() == false){
+        if(playedThirdClip == false && numHel4 > 65 && stage13_02_noticeHowSpeedingUp.getIsPlaying() == false && stage13_01_thisIsPoolOfHydrogen.getIsPlaying() == false){
             stage13_03_allHydrogenFused.play();
             playedThirdClip = true;
+            endFusionTime = ofGetElapsedTimeMillis();
         }
         
         
@@ -4672,11 +4691,73 @@ void testApp::update(){
         }
         
         
+        if(numHel4 > 65 && ofGetElapsedTimeMillis() - endFusionTime > 13000){
+            useDWFtimer = true;
+        }
+        
+        
+        
+        //If we're using the "Back to TOC" timer...
+        if(useDWFtimer){
+            
+            
+            numBallsinBox = 0;
+            
+            //Look for blobs and display them
+            for(int i = 0; i < contourFinder.blobs.size(); i++){
+                float mapBlobX = ofMap(contourFinder.blobs[i].centroid.x, 0, camWidth, leftBound, rightBound);
+                float mapBlobY = ofMap(contourFinder.blobs[i].centroid.y, 0, camHeight, topBound, bottomBound);
+                
+                
+                //check if any balls are in the circle
+                if(ofDistSquared(mapBlobX, mapBlobY, doneWithStar.pos.x, doneWithStar.pos.y) < 100 * 100){
+                    numBallsinBox++;
+                }
+                
+                
+            }
+            
+            //fade the timer in
+            if(doneWithFusion.trans < 254){
+                doneWithFusion.trans += 2;
+            }
+            
+            
+            //Look for balls and cursor
+            float dist = ofDist(doneWithFusion.pos.x, doneWithFusion.pos.y, mouseX, mouseY);
+            
+            if(numBallsinBox > 0 || dist < doneWithStar.rad){
+                doneWithFusion.inButton = true;
+            } else {
+                doneWithFusion.inButton = false;
+            }
+            
+            doneWithFusion.update();
+            
+            //if it's been triggered, turn off this timer and fade to black before moving to next stage
+            if(doneWithFusion.triggered){
+                //                transitionToChoice = true;
+                useDWFtimer = false;
+                
+                blackOutTrans += 2;
+                
+                if(blackOutTrans > 255){
+                    narrativeState = 0.5;
+                    
+                    
+                    
+                }
+                
+            }
+            
+            
+        }
+
         
         
         
         
-    }
+    }  // if(narrativestate)...
     
     
     
@@ -7588,8 +7669,8 @@ void testApp::draw(){
             
             if(blobCollision == false){
                 hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
-            } else {
-//                hourglass.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
+            } else if(numBankSlot != 2){
+                hourglass.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
             }
             
             ofPopMatrix();
@@ -7597,7 +7678,12 @@ void testApp::draw(){
             ofPopStyle();
         }
         
-        
+        //draw hydrogen on mouse pos too
+        if(blobCollision == false){
+            hydrogen.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
+        } else if(numBankSlot != 2){
+            hourglass.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
+        }
         
         
         //---------- DRAW UI ----------
@@ -7942,7 +8028,7 @@ void testApp::draw(){
         
     } else if(narrativeState == 9 && setupStage9 == true){
         
-        //------------------------------FUSION STAGE 2  DRAW------------------------------
+        //------------------------------FUSION STAGE 2 DRAW------------------------------
         
         currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
@@ -8075,6 +8161,8 @@ void testApp::draw(){
             
             if(blobCollision == false){
                 hydrogen.draw(0, 0, hydrogen.width * particleScale, hydrogen.height * particleScale);
+            } else if(numBankSlot != 2){
+                hourglass.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
             }
             
             ofPopMatrix();
@@ -8085,6 +8173,8 @@ void testApp::draw(){
         //draw hydrogen on mouse pos too
         if(blobCollision == false){
             hydrogen.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
+        } else if(numBankSlot != 2){
+            hourglass.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
         }
         
         
@@ -8191,7 +8281,7 @@ void testApp::draw(){
         
     } else if(narrativeState == 10 && setupStage10 == true){
         
-        //------------------------------FUSION STAGE 2 INTRO DRAW------------------------------
+        //------------------------------FUSION STAGE 3 INTRO DRAW------------------------------
         
         currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
@@ -8491,13 +8581,15 @@ void testApp::draw(){
             ofPushMatrix();
             
             ofTranslate(mapBlobX, mapBlobY);
-            ofRotate(180);
+//            ofRotate(180);
 //            ofNoFill();
 //            ofCircle(0, 0, 15);
 //            ofDrawBitmapString(ofToString(i), -50, 0);
             
             if(blobCollision == false){
                 helium3.draw(0, 0, helium3.width * particleScale, helium3.height * particleScale);
+            } else if(numBankSlot != 2){
+                hourglass.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
             }
             
             ofPopMatrix();
@@ -8505,7 +8597,12 @@ void testApp::draw(){
             ofPopStyle();
         }
         
-        
+        //draw hydrogen on mouse pos too
+        if(blobCollision == false){
+            helium3.draw(ofGetMouseX(), ofGetMouseY(), helium3.width * particleScale, helium3.height * particleScale);
+        } else if(numBankSlot != 2){
+            hourglass.draw(ofGetMouseX(), ofGetMouseY(), hydrogen.width * particleScale, hydrogen.height * particleScale);
+        }
         
         
         //---------- DRAW UI ----------
@@ -8629,24 +8726,35 @@ void testApp::draw(){
         currentTime = ofGetElapsedTimeMillis() - stageStartTime;
         
         
+        
+        
+        
+        
         ofPushMatrix();
         
         ofTranslate(ofGetWindowSize());
         
         ofSetColor(255);
         ofRotate(180);
-        
-        
+                
+
+        stage4Movie.update();
         stage4Movie.draw(0, 0);
-        
+
         
         
         
         ofPopMatrix();
         
         
-
-        
+        //try to get around video garbage by drawing over it for the first few frames
+        if(drawBlackout){
+            
+            
+            ofSetColor(0);
+            ofRect(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+            
+        }
         
         
         
@@ -8702,14 +8810,10 @@ void testApp::draw(){
         
         
         //draw heat inside circle too
-        for(int i = 0; i < 100; i++){
-            
-            
-            
-            
-            
-            
-        }
+//        for(int i = 0; i < 100; i++){
+//
+//            
+//        }
         
         
         
@@ -8832,12 +8936,12 @@ void testApp::draw(){
         
         ofTranslate(ofGetWindowSize()/2);
         ofRotate(180);
-        ofTranslate(-290 - 225, ofGetWindowHeight()/2 - pressureBarPos.y - pressureBarDim.y * 0.3 + 5);
+        ofTranslate(-290, ofGetWindowHeight()/2 - pressureBarPos.y - pressureBarDim.y * 0.3 + 5);
         string pressureText = "Pressure"; // + ofToString(100 - floor(prog*100)) + "%";
         
         ofSetColor(255);
         ofScale(0.3, 0.30);
-        instructions.drawString(pressureText, -instructions.stringWidth(progressText)/2, 0);
+        instructions.drawString(pressureText, -instructions.stringWidth(pressureText)/2, 0);
         ofPopMatrix();
         
         
@@ -8875,7 +8979,7 @@ void testApp::draw(){
         
         //------------------------------Heat bar------------------------------
         
-        float heatProg = ofMap(heatMade, 0, numFusors*2, 1.0f, 0.0f, true);
+        float heatProg = ofMap(heatMade, 0, numFusors*1.2, 1.0f, 0.0f, true);
         
         //draw progress bar
         ofVec2f heatBarDim;
@@ -8908,12 +9012,12 @@ void testApp::draw(){
         
         ofTranslate(ofGetWindowSize()/2);
         ofRotate(180);
-        ofTranslate(-290 - 225, ofGetWindowHeight()/2 - heatBarPos.y - heatBarDim.y * 0.3 + 5);
+        ofTranslate(-290, ofGetWindowHeight()/2 - heatBarPos.y - heatBarDim.y * 0.3 + 5);
         string heatText = "Fusion heat"; // + ofToString(100 - floor(prog*100)) + "%";
         
         ofSetColor(255);
         ofScale(0.32, 0.32);
-        instructions.drawString(heatText, -instructions.stringWidth(progressText)/2, 0);
+        instructions.drawString(heatText, -instructions.stringWidth(heatText)/2, 0);
         ofPopMatrix();
         
         
@@ -8980,11 +9084,35 @@ void testApp::draw(){
         
         
         
+        //draw timer and blackout screen
+        if(useDWFtimer){
+            
+            
+            doneWithFusion.draw();
+            
+            
+            //draw text
+            string idleMessage = "Back to stage select";
+            
+            ofPushMatrix();
+            ofTranslate(ofGetWindowWidth()/2 + 320, 60);
+            ofScale(0.3, 0.3);
+            ofRotate(180);
+            ofSetColor(255, doneWithFusion.trans);
+            instructions.drawString(idleMessage, 0, 0);
+            
+            ofPopMatrix();
+            
+
+        }
         
         
-        
-        
-        
+        if(doneWithFusion.triggered){
+            ofSetColor(0, blackOutTrans);
+            ofSetRectMode(OF_RECTMODE_CENTER);
+            ofRect(ofGetWindowSize()/2, ofGetWindowHeight(), ofGetWindowHeight());
+            ofSetRectMode(OF_RECTMODE_CORNER);
+        }
         
         
         
@@ -9070,28 +9198,28 @@ void testApp::draw(){
         //----------UI Stuff----------
         
         //fade in single
-        if(currentTime > 2000 && currentTime < 6000 && arrowUIsingleTrans < 255){
-            arrowUIsingleTrans += 2;
-            arrowUIhandTrans += 2;
+        if(currentTime > 2000 && currentTime < 4000 && arrowUIsingleTrans < 252){
+            arrowUIsingleTrans += 4;
+            arrowUIhandTrans += 4;
         }
         
         
         //fade out single 
         if(currentTime > 6000 && arrowUIsingleTrans > 0){
-            arrowUIsingleTrans -= 2;
+            arrowUIsingleTrans -= 4;
             
         }
         
         //fade in multi
-        if(currentTime > 7000 && currentTime < 12000 && arrowUImultiTrans < 255){
-            arrowUImultiTrans += 2;
+        if(currentTime > 7500 && currentTime < 12000 && arrowUImultiTrans < 252){
+            arrowUImultiTrans += 4;
             
         }
         
         //fade out multi
-        if(currentTime > 12000 && arrowUIsingleTrans < 255){
-            arrowUImultiTrans--;
-            arrowUIhandTrans -= 2;
+        if(currentTime > 12000){
+            arrowUImultiTrans -= 3;
+            arrowUIhandTrans -= 3;
             
         }
         

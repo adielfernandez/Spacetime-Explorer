@@ -620,6 +620,9 @@ class testApp : public ofBaseApp{
     bool playStage12_02;
     
     ofVideoPlayer stage4Movie;
+    ofFbo movieFBO;
+    
+    bool drawBlackout;
     
     
     //-----------Stage 13-----------
@@ -691,7 +694,9 @@ class testApp : public ofBaseApp{
     int heatMade;
     int numHydrogen, numDeut, numHel3, numHel4;
     
-    
+    Timer doneWithFusion;
+    bool useDWFtimer;
+    int endFusionTime;
     
 };
 
